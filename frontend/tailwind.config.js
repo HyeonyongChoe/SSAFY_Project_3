@@ -23,6 +23,20 @@ export default {
         "kakao-symbol": "#000000",
         "kakao-label": "rgba(0, 0, 0, 0.85)",
       },
+      backgroundImage: {
+        "blue-gradient":
+          "linear-gradient(-24deg, #121722 0%, #485A88 25%, #4260AE 100%)",
+        "error-gradient":
+          "linear-gradient(to right, rgba(255, 104, 107, 0.7) 0%, rgba(103, 118, 129, 0.7) 100%)",
+        "success-gradient":
+          "linear-gradient(to right, rgba(104, 255, 164, 0.7) 0%, rgba(103, 118, 129, 0.7) 100%)",
+        "warning-gradient":
+          "linear-gradient(to right, rgba(255, 203, 71, 0.7) 0%, rgba(103, 118, 129, 0.7) 100%)",
+      },
+      fontFamily: {
+        cafe24: ["Cafe24ClassicType-Regular", "sans-serif"],
+        pretendard: ["Pretendard Variable", "sans-serif"],
+      },
     },
   },
   plugins: [],
