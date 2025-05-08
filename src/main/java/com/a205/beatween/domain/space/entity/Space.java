@@ -1,6 +1,6 @@
-package com.a205.beatween.space.entity;
+package com.a205.beatween.domain.space.entity;
 
-import com.a205.beatween.space.enums.SpaceType;
+import com.a205.beatween.domain.space.enums.SpaceType;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
