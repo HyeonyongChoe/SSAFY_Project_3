@@ -1,0 +1,27 @@
+/*************** 
+* common style *
+****************/
+* {
+  font-family: "Pretendard Variable", "sans-serif";
+}
+
+/*************** 
+**** layout ****
+****************/
+#root {
+  margin: 0 auto;
+  text-align: center;
+}
+
+/*************** 
+** custom style **
+****************/
+.bg-noise {
+  background-image: url("../assets/images/noise.png");
+  background-repeat: repeat;
+  background-size: contain;
+  background-blend-mode: overlay;
+}
+.bg-noise.gradient {
+  mix-blend-mode: overlay;
+}
