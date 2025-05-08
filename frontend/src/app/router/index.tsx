@@ -1,35 +1,57 @@
 // src/app/router/index.tsx
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { LandingPage } from '@/pages/Landing/index';
-// import { SignUpPage } from '@/pages/SignUp';
-// import { PersonalSpacePage } from '@/pages/PersonalSpace'; // ✅ 이거 추가!
-// import { TeamSpacePage } from '@/pages/TeamSpace';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { LandingPage } from "@/pages/Landing/index";
+import { SignPage } from "@/pages/Sign";
+import { PersonalSpacePage } from "@/pages/PersonalSpace";
+import { TeamSpacePage } from "@/pages/TeamSpace";
 // import { ScorePage } from '@/pages/Score';
-import { useGlobalStore } from '@/app/store/globalStore';
+import { useGlobalStore } from "@/app/store/globalStore";
+import { useState } from "react";
+import { IntroPage } from "@/pages/Intro";
+import { LayoutShrink } from "../layouts/LayoutShrink";
+import { LayoutDefault } from "../layouts/LayoutDefault";
 
 const RootRoute = () => {
-  const isLoggedIn = useGlobalStore((state) => state.isLoggedIn); // ✅ 문제 없음
+  const isLoggedIn = useGlobalStore((state) => state.isLoggedIn);
+  const [showIntro, setShowIntro] = useState(!isLoggedIn);
 
-  return isLoggedIn ? <PersonalSpacePage /> : <LandingPage />;
+  const handleIntroFinish = () => {
+    setShowIntro(false);
+  };
+
+  const content = isLoggedIn ? (
+    <LayoutDefault>
+      <PersonalSpacePage />
+    </LayoutDefault>
+  ) : (
+    <LayoutShrink
+      bgColor="black"
+      children={<LandingPage />}
+      rightChildren={<SignPage />}
+    />
+  );
+
+  return (
+    <>
+      {content}
+      {showIntro && <IntroPage onFinish={handleIntroFinish} />}
+    </>
+  );
 };
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <RootRoute />,
   },
-//   {
-//     path: '/signup',
-//     element: <SignUpPage />,
-//   },
-//   {
-//     path: '/team/:teamId',
-//     element: <TeamSpacePage />,
-//   },
-//   {
-//     path: '/score/:scoreId',
-//     element: <ScorePage />,
-//   },
+  //   {
+  //     path: '/team/:teamId',
+  //     element: <TeamSpacePage />,
+  //   },
+  //   {
+  //     path: '/score/:scoreId',
+  //     element: <ScorePage />,
+  //   },
 ]);
 
 export const AppRouter = () => {
