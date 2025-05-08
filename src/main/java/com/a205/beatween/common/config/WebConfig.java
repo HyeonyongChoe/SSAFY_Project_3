@@ -21,7 +21,7 @@ public class WebConfig {
                                 "http://localhost:5175",
                                 "http://localhost:5176"
                         )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization")
                         .allowCredentials(true)
