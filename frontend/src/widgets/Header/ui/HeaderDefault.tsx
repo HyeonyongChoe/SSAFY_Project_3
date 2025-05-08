@@ -1,4 +1,6 @@
 import { useGlobalStore } from "@/app/store/globalStore";
+import { IconButton } from "@/shared/ui/Icon";
+import { Button } from "@/shared/ui/Button";
 import { Logo } from "@/shared/ui/Logo";
 import classNames from "classnames";
 import { HtmlHTMLAttributes } from "react";
@@ -32,14 +34,16 @@ export const HeaderDefault = ({
       <div>임시 헤더, 조정 예정</div>
       <div>
         {isLoggedIn ? (
-          <div className="text-neutral100">알림</div>
+          <IconButton
+            icon="notifications"
+            fill
+            onClick={() => {
+              console.log("click test for dev");
+            }}
+            className="-mr-2"
+          />
         ) : (
-          <button
-            onClick={onShrink}
-            className="bg-brandcolor200 rounded-xl px-3 py-1.5"
-          >
-            로그인/회원가입하러 가기
-          </button>
+          <Button onClick={onShrink}>로그인/회원가입하러 가기</Button>
         )}
       </div>
     </header>
