@@ -1,4 +1,4 @@
-package com.a205.beatween.space.entity;
+package com.a205.beatween.domain.space.entity;
 
 
 import jakarta.persistence.*;

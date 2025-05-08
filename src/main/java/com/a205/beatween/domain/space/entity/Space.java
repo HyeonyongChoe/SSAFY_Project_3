@@ -1,18 +1,22 @@
-package com.a205.beatween.space.entity;
+package com.a205.beatween.domain.space.entity;
 
-import com.a205.beatween.space.enums.SpaceType;
+import com.a205.beatween.domain.space.enums.SpaceType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
+@Entity
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Table(name = "spaces")
-@Entity
 public class Space {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
