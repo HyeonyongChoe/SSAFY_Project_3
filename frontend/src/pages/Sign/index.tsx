@@ -13,7 +13,7 @@ export const SignPage = () => {
       </div>
       <div
         className="bg-kakao-container cursor-pointer"
-        onClick={() => navigate("/score")}
+        onClick={() => navigate("/room")}
       >
         악보를 등록 하시오
       </div>

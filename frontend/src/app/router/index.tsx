@@ -4,7 +4,7 @@ import { LandingPage } from "@/pages/Landing/index";
 import { SignPage } from "@/pages/Sign";
 import { PersonalSpacePage } from "@/pages/PersonalSpace";
 import { TeamSpacePage } from "@/pages/TeamSpace";
-import ScorePage from '@/pages/Score/ScorePage';
+import EnsembleRoom from "@/pages/EnsembleRoom/EnsembleRoom";
 import { useGlobalStore } from "@/app/store/globalStore";
 import { useState } from "react";
 import { IntroPage } from "@/pages/Intro";
@@ -45,8 +45,8 @@ const router = createBrowserRouter([
     element: <RootRoute />,
   },
   {
-    path: '/score',
-    element: <ScorePage />,
+    path: "/room",
+    element: <EnsembleRoom />,
   },
   
 //   {
@@ -71,6 +71,4 @@ const router = createBrowserRouter([
   //   },
 ]);
 
-export const AppRouter = () => {
-  return <RouterProvider router={router} />;
-};
+export const AppRouter = () => <RouterProvider router={router} />;
