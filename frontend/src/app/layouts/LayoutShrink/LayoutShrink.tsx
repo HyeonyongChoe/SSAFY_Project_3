@@ -27,7 +27,7 @@ export const LayoutShrink = ({
   };
 
   return (
-    <div className={`min-h-screen ${bgClass}`}>
+    <div className={`w-full h-full ${bgClass}`}>
       <HeaderDefault
         onLogoClick={handleExpand}
         onShrink={handleShrink}

@@ -5,15 +5,24 @@ import { ReactNode } from "react";
 interface LayoutDefaultProps {
   children: ReactNode;
   bgColor?: string;
+  noScroll?: boolean;
 }
 
-export const LayoutDefault = ({ children, bgColor }: LayoutDefaultProps) => {
+export const LayoutDefault = ({
+  children,
+  bgColor,
+  noScroll,
+}: LayoutDefaultProps) => {
   const bgClass = bgColorClassMap[bgColor ? bgColor : "blue"];
 
   return (
-    <div className={`flex min-h-screen w-screen flex-col ${bgClass}`}>
+    <div
+      className={`relative h-full w-full ${
+        noScroll ? "" : "overflow-y-auto overflow-x-auto"
+      } ${bgClass}`}
+    >
       <HeaderDefault />
-      <main className="flex-grow">{children}</main>
+      <main className="w-full h-[calc(100%-3.525rem)]">{children}</main>
     </div>
   );
 };

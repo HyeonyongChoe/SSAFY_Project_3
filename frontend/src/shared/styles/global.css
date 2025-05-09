@@ -2,25 +2,42 @@
 * common style *
 ****************/
 * {
-  font-family: "Pretendard Variable", "sans-serif";
+  @apply font-pretendard;
+  line-height: 1.625;
+  letter-spacing: -0.025em;
+}
+
+body {
+  @apply text-neutral100;
 }
 
 /*************** 
 **** layout ****
 ****************/
 #root {
-  margin: 0 auto;
-  text-align: center;
+  @apply mx-auto text-center;
+}
+
+html,
+body,
+#root {
+  @apply w-full h-full overflow-hidden;
 }
 
 /*************** 
 ** custom style **
 ****************/
+.shadow-custom {
+  @apply shadow-[0_0_100px_0_rgba(2,9,35,0.3)];
+}
+
+.b-blur {
+  @apply backdrop-blur-sm;
+}
+
 .bg-noise {
   background-image: url("../assets/images/noise.png");
-  background-repeat: repeat;
-  background-size: contain;
-  background-blend-mode: overlay;
+  @apply bg-repeat bg-contain bg-blend-overlay;
 }
 .bg-noise.gradient {
   mix-blend-mode: overlay;

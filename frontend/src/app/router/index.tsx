@@ -20,7 +20,7 @@ const RootRoute = () => {
   };
 
   const content = isLoggedIn ? (
-    <LayoutDefault>
+    <LayoutDefault bgColor="black" noScroll>
       <PersonalSpacePage />
     </LayoutDefault>
   ) : (
