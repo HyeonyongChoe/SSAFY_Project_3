@@ -1,6 +1,6 @@
+import { useInputMethod } from "@/shared/lib/hooks/useInputMethod";
 import { ElementType, ReactNode } from "react";
 import { Tooltip as ReactTooltip } from "react-tooltip";
-import styles from "./Tooltip.module.css";
 
 interface TooltipProps {
   id: string;
@@ -18,6 +18,7 @@ interface TooltipProps {
     | "qhdlrlsgksmsrjsirh";
   className?: string;
   children: ReactNode;
+  onClick?: () => void;
   as?: ElementType;
 }
 
@@ -30,8 +31,12 @@ export const Tooltip = ({
   variant = "light",
   className = "",
   children,
+  onClick,
   as: Component = "div",
 }: TooltipProps) => {
+  const inputMethod = useInputMethod();
+  const isTouch = inputMethod === "touch";
+
   // 라이브러리 사용 때문에 icon은 직접 작성될 수밖에 없었습니다.
   // 차후 custom tooltip을 만드는 것으로 새로 refactor 진행하도록 합니다. 혹은 라이브러리 변경하셔도 됩니다.
   // 지금은 tablet 조작 상정이다 보니 tooltip이 중요 기능이 아니라 빠른 개발을 위해 이렇게 남겨둡니다.
@@ -53,9 +58,10 @@ export const Tooltip = ({
       data-tooltip-place={direction}
       data-tooltip-class-name="max-w-[10rem]"
       className={`custom-tooltip ${className}`}
+      onClick={onClick}
     >
       {children}
-      <ReactTooltip id={id} className={variant} />
+      {!isTouch && <ReactTooltip id={id} className={variant} />}
     </Component>
   );
 };

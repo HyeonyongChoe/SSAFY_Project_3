@@ -27,6 +27,35 @@ body,
 /*************** 
 ** custom style **
 ****************/
+.scroll-custom::-webkit-scrollbar {
+  width: 4px;
+}
+.scroll-custom::-webkit-scrollbar-thumb {
+  @apply bg-neutral600 rounded-[10px];
+}
+.scroll-custom::-webkit-scrollbar-track {
+  /* 스크롤 배경색, 지정하게 될 일이 있을까 하여 남겨둡니다 */
+}
+
+.scroll-custom::-webkit-scrollbar-button:vertical:end:increment {
+  @apply block h-2;
+}
+.scroll-custom::-webkit-scrollbar-button:vertical:start:decrement {
+  @apply block h-2;
+}
+
+.scroll-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.divider {
+  @apply border-t border-neutral100/30 w-full;
+}
+
 .shadow-custom {
   @apply shadow-[0_0_100px_0_rgba(2,9,35,0.3)];
 }
