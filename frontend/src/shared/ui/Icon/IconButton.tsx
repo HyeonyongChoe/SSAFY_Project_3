@@ -4,13 +4,26 @@ import { IconProps } from "./icon-props";
 
 interface IconButtonProps
   extends IconProps,
-    ButtonHTMLAttributes<HTMLButtonElement> {}
+    ButtonHTMLAttributes<HTMLButtonElement> {
+  round?:
+    | "xs"
+    | "sm"
+    | "md"
+    | "lg"
+    | "xl"
+    | "2xl"
+    | "3xl"
+    | "4xl"
+    | "none"
+    | "full";
+}
 
 export const IconButton = ({
   icon,
   fill,
   size = 24,
   tone = "white",
+  round = "full",
   className,
   ...props
 }: IconButtonProps) => {
@@ -21,10 +34,22 @@ export const IconButton = ({
     dark: `text-neutral100/70 bg-neutral900 hover:text-neutral1000/70 hover:bg-neutral300`,
     black: `text-neutral1000 hover:bg-neutral1000/30`,
   };
+  const roundClasses = {
+    xs: "rounded-xs",
+    sm: "rounded-sm",
+    md: "rounded-md",
+    lg: "rounded-lg",
+    xl: "rounded-xl",
+    "2xl": "rounded-2xl",
+    "3xl": "rounded-3xl",
+    "4xl": "rounded-4xl",
+    none: "rounded-none",
+    full: "rounded-full",
+  };
 
   return (
     <button
-      className={`rounded-full flex items-center justify-center transition-all p-2 ${colorClass[tone]} ${className}`}
+      className={`w-fit h-fit flex items-center justify-center transition-all p-2 ${roundClasses[round]} ${colorClass[tone]} ${className}`}
       {...props}
     >
       <Icon icon={icon} fill={fill} size={size} />
