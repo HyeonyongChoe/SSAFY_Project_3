@@ -4,6 +4,7 @@ WORKDIR /home/app
 
 # 의존성 캐시
 COPY build.gradle settings.gradle gradlew ./
+RUN chmod +x gradlew
 COPY gradle gradle
 RUN ./gradlew --no-daemon dependencies
 
