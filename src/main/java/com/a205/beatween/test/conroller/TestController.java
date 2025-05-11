@@ -11,6 +11,6 @@ public class TestController {
 
     @GetMapping(value = "/test", produces = MediaType.TEXT_HTML_VALUE)
     public String test() {
-        return "<h1>beatween test complete!</h1>";
+        return "<h1>beatween test complete! GOOD</h1>";
     }
 }
