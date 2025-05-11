@@ -1,20 +1,27 @@
 import { useInstrumentStore } from "../model/useInstrumentStore";
 import { Select } from "@/shared/ui/Select";
 
+interface InstrumentDropdownProps {
+  className?: string;
+}
+
 const instruments = [
   "Piano",
-  "Violin",
-  "Flute",
+  "Vocal",
+  "Bass",
   "Guitar",
   "Drums",
-  "Saxophone",
 ];
 
-export function InstrumentDropdown() {
+export function InstrumentDropdown({ className }: InstrumentDropdownProps) {
   const { selected, setInstrument } = useInstrumentStore();
 
   return (
-    <Select value={selected} onChange={(e) => setInstrument(e.target.value)}>
+    <Select
+      value={selected}
+      onChange={(e) => setInstrument(e.target.value)}
+      className={className}
+    >
       {instruments.map((instrument) => (
         <option key={instrument} value={instrument}>
           {instrument}
