@@ -25,7 +25,7 @@ pipeline {
         // 워크스페이스(컨테이너 내부 /var/jenkins_home/workspace/…)를
         // 빌드 컨텍스트로 지정
         sh """
-          docker compose \
+          docker-compose \
             -f ${COMPOSE_FILE} \
             --project-directory ${env.WORKSPACE} \
             -p ${BRANCH} \
@@ -37,7 +37,7 @@ pipeline {
     stage('Deploy Container') {
       steps {
         sh """
-          docker compose \
+          docker-compose \
             -f ${COMPOSE_FILE} \
             --project-directory ${env.WORKSPACE} \
             -p ${BRANCH} \
