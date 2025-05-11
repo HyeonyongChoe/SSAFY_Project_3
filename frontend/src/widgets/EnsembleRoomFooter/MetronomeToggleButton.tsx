@@ -1,8 +1,9 @@
 import { useMetronomeStore } from "@/features/metronome/model/useMetronomeStore";
-import { IconButton } from "@/shared/ui/Icon";
+import { Icon } from "@/shared/ui/Icon";
 
 export function MetronomeToggleButton() {
   const { isEnabled, toggle } = useMetronomeStore();
+
   return (
     <button
       onClick={toggle}
@@ -10,7 +11,8 @@ export function MetronomeToggleButton() {
         ${isEnabled ? "bg-[#00C471] text-white hover:bg-[#00b060]" : "bg-neutral200 text-neutral1000 hover:bg-neutral300"}`}
     >
       <span>{isEnabled ? "메트로놈 켜기" : "메트로놈 끄기"}</span>
-      <IconButton icon={isEnabled ? "check" : "edit"} tone={isEnabled ? "white" : "black"} size={20} />
+
+      <Icon icon={isEnabled ? "check" : "edit"} tone={isEnabled ? "white" : "black"} size={20} />
     </button>
   );
 }
