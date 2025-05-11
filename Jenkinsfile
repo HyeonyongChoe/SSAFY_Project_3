@@ -34,6 +34,15 @@ pipeline {
       }
     }
 
+    stage('Clean Previous') {
+      steps {
+        sh """
+          docker rm -f spring-boot || true
+          docker network prune -f || true
+        """
+      }
+    }
+
     stage('Deploy Container') {
       steps {
         sh """
