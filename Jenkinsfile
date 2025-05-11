@@ -7,7 +7,7 @@ pipeline {
   }
 
   stages {
-    stage('Checkout Code') {
+    stage('Checkout') {
       steps {
         checkout scm
       }
@@ -27,7 +27,7 @@ pipeline {
         sh """
           docker-compose \
             -f ${COMPOSE_FILE} \
-            --project-directory ${env.WORKSPACE} \
+            --project-directory ${WORKSPACE} \
             -p ${BRANCH} \
             build
         """
@@ -48,7 +48,7 @@ pipeline {
         sh """
           docker-compose \
             -f ${COMPOSE_FILE} \
-            --project-directory ${env.WORKSPACE} \
+            --project-directory ${WORKSPACE} \
             -p ${BRANCH} \
             up -d
         """
