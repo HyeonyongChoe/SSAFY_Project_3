@@ -10,6 +10,7 @@ RUN ./gradlew --no-daemon dependencies
 
 # 소스 복사 후 JAR 빌드
 COPY . .
+RUN chmod +x gradlew
 RUN ./gradlew --no-daemon bootJar
 
 # 2) Runtime 단계: 경량 JRE 21
