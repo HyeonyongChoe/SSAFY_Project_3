@@ -48,7 +48,7 @@ pipeline {
           docker-compose \
             -f ${COMPOSE_FILE} \
             --project-directory ${WORKSPACE} \
-            up -d ${BRANCH}
+            up -d
         """
       }
     }
