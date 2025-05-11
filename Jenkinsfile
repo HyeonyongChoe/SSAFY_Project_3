@@ -13,6 +13,13 @@ pipeline {
       }
     }
 
+    stage('Prepare .env') {
+      steps {
+        // 호스트 /home/ubuntu/deployment/.env 를 워크스페이스로 복사
+        sh 'cp /home/ubuntu/deployment/.env ${WORKSPACE}/.env'
+      }
+    }
+
     stage('Build Docker Image') {
       steps {
         // 워크스페이스(컨테이너 내부 /var/jenkins_home/workspace/…)를
