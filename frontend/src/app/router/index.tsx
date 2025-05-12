@@ -10,6 +10,7 @@ import { useState } from "react";
 import { IntroPage } from "@/pages/Intro";
 import { LayoutShrink } from "../layouts/LayoutShrink";
 import { LayoutDefault } from "../layouts/LayoutDefault";
+import PageKakaoRedirect from "@/features/auth/kakao/ui/PageKakaoRedirect";
 
 const RootRoute = () => {
   const isLoggedIn = useGlobalStore((state) => state.isLoggedIn);
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
         <TeamSpacePage />
       </LayoutDefault>
     ),
+  },
+  {
+    path: import.meta.env.VITE_KAKAO_REDIRECT_URI,
+    element: <PageKakaoRedirect />,
   },
   //   {
   //     path: '/score/:scoreId',
