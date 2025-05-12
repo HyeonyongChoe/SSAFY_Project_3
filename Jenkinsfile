@@ -48,7 +48,7 @@ pipeline {
           docker-compose \
             -f ${COMPOSE_FILE} \
             --project-directory ${WORKSPACE} \
-            up -d spring-boot // docker-compose.yml에 있는 services: 아래의 key값
+            up -d spring-boot # docker-compose.yml에 있는 services: 아래의 key값
         """
       }
     }
