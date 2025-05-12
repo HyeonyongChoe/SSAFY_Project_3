@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { LandingPage } from "@/pages/Landing/index";
 import { SignPage } from "@/pages/Sign";
 import { PersonalSpacePage } from "@/pages/PersonalSpace";
-import { TeamSpacePage } from "@/pages/TeamSpace";
+// import { TeamSpacePage } from "@/pages/TeamSpace";
 // import { ScorePage } from '@/pages/Score';
 import { useGlobalStore } from "@/app/store/globalStore";
 import { useState } from "react";
