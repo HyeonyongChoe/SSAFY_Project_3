@@ -1,7 +1,9 @@
-import { IconButton } from "@/shared/ui/Icon";
 import { SpaceNavItem } from "./SpaceNavItem";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ImageCircle } from "@/shared/ui/ImageCircle/ImageCircle";
+import { CreateBandButton } from "@/features/createBand";
+import { Popover } from "@/shared/ui/Popover";
+import { UserSettingModal } from "@/features/user/UserSettingModal";
 
 // 임시 Interface 및 데이터입니다
 // 차후 API 연결시 Band.ts 파일을 따로 빼서 끌어오도록 하며, 변수 명도 API에 맞게 변경하도록 합니다
@@ -88,7 +90,7 @@ export const SpaceNav = () => {
         })}
         {/* Add Team Band Button */}
         <div className="p-1">
-          <IconButton icon="add_circle" tone="light" fill round="xl" />
+          <CreateBandButton />
         </div>
       </nav>
       {/* account circle */}
@@ -98,12 +100,9 @@ export const SpaceNav = () => {
           <div className="divider px-2" />
         </div>
         <div className="cursor-pointer">
-          <ImageCircle
-            imageUrl={dummyPerson.imageUrl}
-            onClick={() => {
-              console.log("사용자 정보 창이 나오도록 구현 예정");
-            }}
-          />
+          <Popover trigger={<ImageCircle imageUrl={dummyPerson.imageUrl} />}>
+            <UserSettingModal />
+          </Popover>
         </div>
       </div>
     </aside>
