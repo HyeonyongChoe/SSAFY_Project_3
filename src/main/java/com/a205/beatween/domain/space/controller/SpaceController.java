@@ -1,4 +1,4 @@
-package com.a205.beatween.space.controller;
+package com.a205.beatween.domain.space.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
