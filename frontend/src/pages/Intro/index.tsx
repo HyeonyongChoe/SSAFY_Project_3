@@ -1,6 +1,7 @@
 import { bgColorClassMap } from "@/shared/lib/bgColorClassMap";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import recordImage from "./assets/images/record.svg";
 
 interface IntroPageProps {
   onFinish: () => void;
@@ -30,7 +31,16 @@ export const IntroPage = ({ onFinish }: IntroPageProps) => {
           exit={{ opacity: 0 }}
           transition={{ duration: 1 }}
         >
-          <div className="text-neutral100">박자로 채우는 우리 사이</div>
+          <div className="flex items-center gap-6 translate-x-[14.5vw] -translate-y-[5%]">
+            <div className="relative text-neutral100">
+              박자로 채우는 우리 사이
+            </div>
+            <img
+              src={recordImage}
+              alt="record image"
+              className=" w-[30vw] translate-y-[20%]"
+            />
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
