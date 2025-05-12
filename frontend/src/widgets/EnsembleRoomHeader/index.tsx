@@ -13,7 +13,7 @@ export function EnsembleRoomHeader() {
   const handleEdit = () => alert("악보 수정 기능 준비 중!");
 
   return (
-    <header className="w-full fixed top-0 h-16 flex items-center justify-between px-4 bg-[#2E3153] text-white shadow-md">
+    <header className="w-full fixed top-0 h-16 z-50 flex items-center justify-between px-4 bg-[#2E3153] text-white shadow-md">
       <div className="flex items-center gap-3">
         {/* 유저 정보와 드롭다운 */}
         <div className="flex items-center gap-4">

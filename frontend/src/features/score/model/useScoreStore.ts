@@ -7,7 +7,7 @@ interface ScoreState {
 
   setXmlData: (xml: string) => void;
   setMeasureCount: (count: number) => void;
-  setCurrentMeasure: (index: number) => void;
+  setCurrentMeasure: (index: number | ((prev: number) => number)) => void;
 }
 
 export const useScoreStore = create<ScoreState>((set) => ({
@@ -17,5 +17,11 @@ export const useScoreStore = create<ScoreState>((set) => ({
 
   setXmlData: (xml) => set({ xmlData: xml }),
   setMeasureCount: (count) => set({ measureCount: count }),
-  setCurrentMeasure: (index) => set({ currentMeasure: index }),
+  setCurrentMeasure: (indexOrUpdater) =>
+    set((state) => ({
+      currentMeasure:
+        typeof indexOrUpdater === "function"
+          ? indexOrUpdater(state.currentMeasure)
+          : indexOrUpdater,
+    })),
 }));

@@ -66,3 +66,11 @@
 .bg-red {
   background-color: #ef4444;
 }
+html,
+body {
+  overflow-x: hidden;
+}
+rect.highlight-bg {
+  fill: yellow;
+  opacity: 0.3;
+}
