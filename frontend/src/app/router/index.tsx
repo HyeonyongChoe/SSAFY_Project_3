@@ -20,7 +20,7 @@ const RootRoute = () => {
   };
 
   const content = isLoggedIn ? (
-    <LayoutDefault>
+    <LayoutDefault bgColor="black" noScroll>
       <PersonalSpacePage />
     </LayoutDefault>
   ) : (
@@ -44,10 +44,14 @@ const router = createBrowserRouter([
     path: "/",
     element: <RootRoute />,
   },
-  //   {
-  //     path: '/team/:teamId',
-  //     element: <TeamSpacePage />,
-  //   },
+  {
+    path: "/team/:teamId",
+    element: (
+      <LayoutDefault bgColor="black" noScroll>
+        <TeamSpacePage />
+      </LayoutDefault>
+    ),
+  },
   //   {
   //     path: '/score/:scoreId',
   //     element: <ScorePage />,
