@@ -16,6 +16,7 @@ export default {
         neutral800: "#324655",
         neutral900: "#152838",
         neutral1000: "#020923",
+        red: "#F24F6D",
         error: "#FF686B",
         warning: "#FFCB47",
         success: "#68FFA4",
