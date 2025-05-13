@@ -1,10 +1,16 @@
 import { openConfirm } from "@/shared/lib/modal";
+import { ButtonBox } from "@/shared/ui/Button";
 
 export const UserSettingModal = () => {
   return (
-    <div>
-      <div>이름과 이메일</div>
-      <div>로그아웃</div>
+    <div className="flex flex-col gap-3 px-2 pb-2 pt-3">
+      <ButtonBox className="w-full text-left">
+        <div className="font-medium">성이름</div>
+        <div className="text-neutral500 font-light text-sm">
+          email@email.com
+        </div>
+      </ButtonBox>
+      <ButtonBox className="w-full text-left">로그아웃</ButtonBox>
       <div
         onClick={() =>
           openConfirm({
@@ -16,6 +22,7 @@ export const UserSettingModal = () => {
             onCancel: () => console.log("취소됨"),
           })
         }
+        className="text-right text-sm text-neutral600 px-5 pt-1"
       >
         회원탈퇴
       </div>
