@@ -11,6 +11,8 @@ export const LayoutSwitcher = () => {
   const isLoggedIn = useGlobalStore((state) => state.isLoggedIn);
   const navigate = useNavigate();
 
+  // 고정 레이아웃이 아닌, Switch되는 레이아웃을 쓰다 보니
+  // 분리하지 않고 상위에 둬야 정상 동작해서 함께 두었습니다
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/");

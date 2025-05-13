@@ -13,7 +13,7 @@ export const SignPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-12">
+    <div className="w-fit max-w-full h-full flex flex-col justify-center items-center gap-12">
       <div className="font-cafe24 text-brandcolor200 text-2xl">
         박자로 이어지는 우리 사이
       </div>
