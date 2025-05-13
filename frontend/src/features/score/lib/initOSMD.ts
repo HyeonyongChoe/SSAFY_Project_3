@@ -1,5 +1,4 @@
-// initOSMD.ts
-import { OpenSheetMusicDisplay } from "opensheetmusicdisplay";
+import { OpenSheetMusicDisplay, CursorOptions } from "opensheetmusicdisplay";
 
 export async function initOSMD(
   container: HTMLElement,
@@ -7,6 +6,11 @@ export async function initOSMD(
   instrument: string,
   zoom: number
 ): Promise<OpenSheetMusicDisplay> {
+  console.log("[initOSMD] 시작 -------------------");
+  console.log("[initOSMD] container:", container);
+  console.log("[initOSMD] instrument:", instrument);
+  console.log("[initOSMD] zoom:", zoom);
+
   const osmd = new OpenSheetMusicDisplay(container, {
     autoResize: true,
     drawTitle: false,
@@ -15,13 +19,16 @@ export async function initOSMD(
     drawingParameters: "compact",
   });
 
-  // 악기별 추가 설정…
+  // 악기별 설정
   if (instrument === "Guitar") {
     osmd.EngravingRules.RenderFingerings = true;
+    console.log("[initOSMD] 기타 설정 적용됨");
   } else if (instrument === "Drums") {
     osmd.EngravingRules.UseModernPercussionClef = true;
+    console.log("[initOSMD] 드럼 설정 적용됨");
   } else if (instrument === "Piano") {
     osmd.EngravingRules.RenderTwoStaffsPerInstrument = true;
+    console.log("[initOSMD] 피아노 설정 적용됨");
   }
 
   osmd.EngravingRules.MinimumDistanceBetweenSystems = 40;
@@ -30,46 +37,50 @@ export async function initOSMD(
   osmd.Zoom = zoom;
   osmd.EngravingRules.RenderXMeasuresPerLineAkaSystem = 4;
 
+  console.log("[initOSMD] XML 로딩 시작");
   await osmd.load(xml);
-  try {
-    await osmd.render();
-  } catch (e) {
-    console.warn("[OSMD] render 중 오류 무시:", e);
+  console.log("[initOSMD] XML 로딩 완료");
+
+  console.log("[initOSMD] 렌더링 시작");
+  await osmd.render();
+  console.log("[initOSMD] 렌더링 완료");
+
+  const cursor = osmd.cursor;
+  if (!cursor) {
+    console.error("[initOSMD] ❌ 커서가 생성되지 않았습니다.");
+    throw new Error("OSMD 커서 초기화 실패");
   }
 
-  // ─── measure 태깅 ─────────────────────────────────────────────
-  // g.vf-measure 요소를 전부 찾아서 data-measure-index만 추가
-  const measures = container.querySelectorAll<SVGGElement>("g.vf-measure");
-  measures.forEach((el, i) => {
-    el.setAttribute("data-measure-index", i.toString());
+  console.log("[initOSMD] 커서 reset 및 show 실행");
+  cursor.reset();
+  console.log("[initOSMD] 커서 현재 위치 정보:", {
+    Hidden: cursor.Hidden,
+    IteratorIndex: cursor.Iterator?.CurrentVisibleVoiceEntries,
+    CursorNotes: cursor.NotesUnderCursor?.length,
   });
-  console.log(`[OSMD] Valid measures tagged: ${measures.length}`);
 
-  // ─── 하이라이트 함수 정의 ───────────────────────────────────
-  let lastHighlighted: SVGGElement | null = null;
-  function highlightMeasure(index: number) {
-    if (lastHighlighted) {
-      lastHighlighted.querySelector("rect.highlight-bg")?.remove();
-      lastHighlighted.classList.remove("highlighted-measure");
-    }
-    const sel = container.querySelector<SVGGElement>(
-      `g.vf-measure[data-measure-index="${index}"]`
-    );
-    if (!sel) return;
-    const bbox = sel.getBBox();
-    const svgNS = sel.ownerSVGElement!.namespaceURI!;
-    const rect = document.createElementNS(svgNS, "rect");
-    rect.setAttribute("x", `${bbox.x}`);
-    rect.setAttribute("y", `${bbox.y}`);
-    rect.setAttribute("width", `${bbox.width}`);
-    rect.setAttribute("height", `${bbox.height}`);
-    rect.classList.add("highlight-bg");
-    sel.insertBefore(rect, sel.firstChild);
-    sel.classList.add("highlighted-measure");
-    lastHighlighted = sel;
+  // @ts-ignore: private 접근 무시
+  cursor.cursorOptions = {
+    type: 3,
+    color: "#ffcc00",
+    alpha: 0.6,
+    follow: true,
+  };
+
+  cursor.show();
+  cursor.update();
+
+  console.log("[initOSMD] 커서 show + update 후 상태:", {
+    Hidden: cursor.Hidden,
+    CursorNotes: cursor.NotesUnderCursor?.length,
+  });
+
+  const cursorElement = container.querySelector("g.cursor");
+  if (cursorElement) {
+    console.log("[initOSMD] ✅ 커서 SVG 요소가 DOM에 존재합니다.");
+  } else {
+    console.warn("[initOSMD] ⚠️ 커서 SVG 요소가 DOM에 존재하지 않습니다.");
   }
-  // 외부에서 호출할 수 있게 container에 붙여두기
-  (container as any).__highlightMeasure = highlightMeasure;
 
   return osmd;
 }

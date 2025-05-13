@@ -70,7 +70,8 @@ html,
 body {
   overflow-x: hidden;
 }
-rect.highlight-bg {
+.highlight-bg {
   fill: yellow;
-  opacity: 0.3;
+  fill-opacity: 0.3;
+  pointer-events: none;
 }

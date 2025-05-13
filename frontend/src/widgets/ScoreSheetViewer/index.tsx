@@ -27,16 +27,12 @@ export function ScoreSheetViewer() {
   } = usePlayerStore();
   const [previewTitle, setPreviewTitle] = useState("");
 
-  // 1) 파일 읽기
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("[FileChange] 파일 선택됨");
     const file = e.target.files?.[0];
     if (!file) return;
-    console.log("[FileChange] file.name=", file.name, " size=", file.size);
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === "string") {
-        console.log("[FileChange] reader.result length:", reader.result.length);
         setXmlData(reader.result);
         setPreviewTitle(file.name);
       }
@@ -44,15 +40,11 @@ export function ScoreSheetViewer() {
     reader.readAsText(file);
   };
 
-  // 2) xmlData 바뀌면 OSMD 로드 & 마디 태깅
   useEffect(() => {
-    console.log("[Effect:loadXML] xmlData?", xmlData ? "(있음)" : "(없음)");
-    if (!xmlData || !containerRef.current) {
-      console.log("[Effect:loadXML] early return");
-      return;
-    }
+    if (!xmlData || !containerRef.current) return;
+    console.log("[ScoreSheetViewer] XML 데이터 변경 감지");
+
     const container = containerRef.current;
-    console.log("[Effect:loadXML] container 초기화");
     container.innerHTML = "";
 
     const zoom =
@@ -65,33 +57,36 @@ export function ScoreSheetViewer() {
         : window.innerWidth >= 768
         ? 1.4
         : 1.2;
-    console.log("[Effect:loadXML] zoom level:", zoom);
+
+    console.log("[ScoreSheetViewer] initOSMD 호출", {
+      zoom,
+      selectedInstrument,
+    });
 
     initOSMD(container, xmlData, selectedInstrument, zoom)
       .then((osmd) => {
-        console.log("[initOSMD.then] OSMD ready");
+        console.log("[ScoreSheetViewer] initOSMD 완료");
+
         osmdRef.current = osmd;
-        const total = (osmd.Sheet as any).Measures?.length ?? 0;
-        console.log("[initOSMD.then] total measures:", total);
+        const total = osmd.Sheet?.SourceMeasures?.length ?? 0;
+        console.log("[ScoreSheetViewer] 전체 마디 수:", total);
         setMeasureCount(total);
 
-        // measure 클릭 리스너
-        const els = container.querySelectorAll<SVGGElement>(
-          "g[data-measure-index]"
-        );
-        console.log("[initOSMD.then] tagged elements:", els.length);
-        els.forEach((el) => {
-          const idx = Number(el.getAttribute("data-measure-index"));
-          el.addEventListener("click", () => {
-            console.log("[Measure click] idx=", idx);
-            setScoreMeasure(idx);
-            setPlayerMeasure(idx);
+        const measures =
+          container.querySelectorAll<SVGGElement>("g.vf-measure");
+        console.log("[ScoreSheetViewer] 마디 DOM 요소 수:", measures.length);
+        measures.forEach((el, i) => {
+          el.style.cursor = "pointer";
+          el.onclick = () => {
+            console.log(`[ScoreSheetViewer] 마디 ${i} 클릭`);
+            setScoreMeasure(i);
+            setPlayerMeasure(i);
             togglePlay();
-          });
+          };
         });
       })
       .catch((err) => {
-        console.error("[initOSMD] failed:", err);
+        console.error("[ScoreSheetViewer] initOSMD 실패:", err);
       });
   }, [
     xmlData,
@@ -101,53 +96,34 @@ export function ScoreSheetViewer() {
     setPlayerMeasure,
     togglePlay,
   ]);
+  useEffect(() => {
+    if (!osmdRef.current || currentMeasure === undefined) return;
+    const cursor = osmdRef.current.cursor;
+    if (!cursor) {
+      console.warn("[ScoreSheetViewer] 커서 없음");
+      return;
+    }
 
-  // 3) 재생 중 자동으로 마디 증가
+    console.log(`[ScoreSheetViewer] 커서 이동 시작 -> 마디 ${currentMeasure}`);
+    cursor.reset();
+    for (let i = 0; i < currentMeasure; i++) {
+      cursor.next();
+    }
+    cursor.update();
+    cursor.show(); // <-- 여기 추가
+    console.log("[ScoreSheetViewer] 커서 이동 완료 및 표시됨");
+  }, [currentMeasure]);
+
   useEffect(() => {
     if (!isPlaying) return;
     const intervalMs = 60000 / bpm;
     const timer = setInterval(() => {
-      // 직접 숫자를 넘겨줍니다.
       const next = currentMeasure + 1;
-      console.log("[Playback interval] next measure:", next);
       setScoreMeasure(next);
       setPlayerMeasure(next);
     }, intervalMs);
     return () => clearInterval(timer);
   }, [isPlaying, bpm, currentMeasure, setScoreMeasure, setPlayerMeasure]);
-
-  // 4) 하이라이트
-  useEffect(() => {
-    console.log("[Effect:highlight] currentMeasure=", currentMeasure);
-    const container = containerRef.current;
-    if (!container) {
-      console.log("[Effect:highlight] container 없음");
-      return;
-    }
-    const all = container.querySelectorAll<SVGGElement>(
-      "g[data-measure-index]"
-    );
-    console.log("[Effect:highlight] found tagged measures:", all.length);
-    all.forEach((el) => el.classList.remove("highlight"));
-
-    const target = container.querySelector<SVGGElement>(
-      `g[data-measure-index="${currentMeasure}"]`
-    );
-    console.log("[Effect:highlight] target element:", target);
-    if (target) target.classList.add("highlight");
-  }, [currentMeasure]);
-
-  // 5) 자동 스크롤
-  useEffect(() => {
-    const sel = `g[data-measure-index="${currentMeasure}"]`;
-    console.log("[Effect:scroll] selector=", sel);
-    const el = containerRef.current?.querySelector<HTMLElement>(sel);
-    console.log("[Effect:scroll] element:", el);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      console.log("[Effect:scroll] scrolled into view");
-    }
-  }, [currentMeasure]);
 
   return (
     <div className="relative w-full max-w-screen mx-auto overflow-x-hidden pt-16 min-h-screen">
@@ -166,10 +142,7 @@ export function ScoreSheetViewer() {
       <div
         ref={containerRef}
         className="relative z-0 w-full overflow-y-auto"
-        style={{
-          minHeight: 400,
-          maxHeight: "calc(100vh - 100px)",
-        }}
+        style={{ minHeight: 400, maxHeight: "calc(100vh - 100px)" }}
       />
       <div className="absolute bottom-2 right-2 z-10">
         <MeasureTracker />
