@@ -7,6 +7,8 @@ type GlobalState = {
   login: (status: boolean) => void;
   // login: (token: string) => void;
   logout: () => void;
+  introShown: boolean;
+  setIntroShown: (shown: boolean) => void;
 };
 
 export const useGlobalStore = create<GlobalState>((set) => ({
@@ -22,4 +24,6 @@ export const useGlobalStore = create<GlobalState>((set) => ({
       isLoggedIn: false,
       accessToken: null,
     })),
+  introShown: false,
+  setIntroShown: (shown) => set({ introShown: shown }),
 }));

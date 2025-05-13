@@ -7,23 +7,28 @@ interface LayoutDefaultProps {
   children: ReactNode;
   rightChildren: ReactNode;
   bgColor?: string;
+  initialShrunk?: boolean;
 }
 
 export const LayoutShrink = ({
   children,
   rightChildren,
   bgColor,
+  initialShrunk = false,
 }: LayoutDefaultProps) => {
   const bgClass = bgColorClassMap[bgColor ? bgColor : "blue"];
-
-  const [isShrunk, setIsShrunk] = useState(false);
+  const [isShrunk, setIsShrunk] = useState(initialShrunk);
 
   const handleShrink = () => {
     setIsShrunk(true);
+    // 의도적으로 navigate 대신 pushState를 적용해두었습니다
+    // 자연스러운 애니메이션 적용을 위해 리렌더링하지 않고, 주소만 바꾸는 것이 목적입니다
+    window.history.pushState({}, "", "/sign");
   };
 
   const handleExpand = () => {
     setIsShrunk(false);
+    window.history.pushState({}, "", "/");
   };
 
   return (
