@@ -1,4 +1,3 @@
-import { bgColorClassMap } from "@/shared/lib/bgColorClassMap";
 import bassImage from "./assets/images/bass.svg";
 import drumImage from "./assets/images/drum.svg";
 import guitarImage from "./assets/images/guitar.svg";
