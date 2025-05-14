@@ -44,7 +44,7 @@ export const Popover = ({ trigger, children }: PopoverProps) => {
         <div ref={popoverRef}>
           <PanelModal
             tone="white"
-            className="absolute min-w-[12rem] z-10 top-0 -translate-y-[calc(100%+.5rem)] left-0 p-2 text-neutral1000"
+            className="absolute min-w-[16rem] z-10 top-0 -translate-y-[calc(100%+.5rem)] left-0 p-2 text-neutral1000"
           >
             {children}
           </PanelModal>
