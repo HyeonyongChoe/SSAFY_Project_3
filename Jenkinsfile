@@ -16,7 +16,7 @@ pipeline {
             -v $WORKSPACE/frontend:/app \
             -w /app \
             node:18 \
-            sh -c "npm ci && npm run build"
+            sh -c "npm install && npm run build"
         '''
       }
     }
