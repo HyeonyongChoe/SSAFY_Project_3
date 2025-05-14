@@ -11,17 +11,13 @@ pipeline {
     }
 
     stage('Build Static') {
-        steps {
+        // 이 스테이지만 node:18 컨테이너 안에서 실행
+      agent { docker { image 'node:18' } }
+      steps {
             dir('frontend') {
-                sh '''
-                    docker run --rm \
-                    -v "$WORKSPACE/frontend":/app \
-                    -w /app \
-                    node:18 \
-                    sh -c "npm install && npm run build"
-                '''
+            sh 'npm ci && npm run build'
             }
-        }
+      }
     }
 
     stage('Sync to EC2') {
