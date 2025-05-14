@@ -1,56 +1,48 @@
-// src/app/router/index.tsx
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { LandingPage } from "@/pages/Landing/index";
 import { SignPage } from "@/pages/Sign";
 import { PersonalSpacePage } from "@/pages/PersonalSpace";
 import { TeamSpacePage } from "@/pages/TeamSpace";
 // import { ScorePage } from '@/pages/Score';
-import { useGlobalStore } from "@/app/store/globalStore";
-import { useState } from "react";
-import { IntroPage } from "@/pages/Intro";
 import { LayoutShrink } from "../layouts/LayoutShrink";
-import { LayoutDefault } from "../layouts/LayoutDefault";
-
-const RootRoute = () => {
-  const isLoggedIn = useGlobalStore((state) => state.isLoggedIn);
-  const [showIntro, setShowIntro] = useState(!isLoggedIn);
-
-  const handleIntroFinish = () => {
-    setShowIntro(false);
-  };
-
-  const content = isLoggedIn ? (
-    <LayoutDefault bgColor="black" noScroll>
-      <PersonalSpacePage />
-    </LayoutDefault>
-  ) : (
-    <LayoutShrink
-      bgColor="black"
-      children={<LandingPage />}
-      rightChildren={<SignPage />}
-    />
-  );
-
-  return (
-    <>
-      {content}
-      {showIntro && <IntroPage onFinish={handleIntroFinish} />}
-    </>
-  );
-};
+import PageKakaoRedirect from "@/features/auth/kakao/ui/PageKakaoRedirect";
+import { LayoutSwitcher } from "../layouts/LayoutSwitcher";
+import { SpaceLayout } from "@/widgets/SpaceLayout";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootRoute />,
+    element: <LayoutSwitcher />,
+    children: [
+      {
+        element: <SpaceLayout />,
+        children: [
+          {
+            index: true,
+            element: <PersonalSpacePage />,
+          },
+          {
+            path: "/team/:teamId",
+            element: <TeamSpacePage />,
+          },
+        ],
+      },
+    ],
   },
   {
-    path: "/team/:teamId",
+    path: "/sign",
     element: (
-      <LayoutDefault bgColor="black" noScroll>
-        <TeamSpacePage />
-      </LayoutDefault>
+      <LayoutShrink
+        bgColor="black"
+        children={<LandingPage />}
+        rightChildren={<SignPage />}
+        initialShrunk={true}
+      />
     ),
+  },
+  {
+    path: import.meta.env.VITE_KAKAO_REDIRECT_URI,
+    element: <PageKakaoRedirect />,
   },
   //   {
   //     path: '/score/:scoreId',

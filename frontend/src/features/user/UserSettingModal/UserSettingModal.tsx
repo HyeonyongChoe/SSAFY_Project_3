@@ -1,7 +1,12 @@
+import { useGlobalStore } from "@/app/store/globalStore";
 import { openConfirm } from "@/shared/lib/modal";
 import { ButtonBox } from "@/shared/ui/Button";
+import { useNavigate } from "react-router-dom";
 
 export const UserSettingModal = () => {
+  const navigate = useNavigate();
+  const { logout } = useGlobalStore();
+
   return (
     <div className="flex flex-col gap-3 px-2 pb-2 pt-3">
       <ButtonBox className="w-full text-left">
@@ -10,7 +15,14 @@ export const UserSettingModal = () => {
           email@email.com
         </div>
       </ButtonBox>
-      <ButtonBox className="w-full text-left">로그아웃</ButtonBox>
+      <ButtonBox className="w-full text-left"
+        onClick={() => {
+          logout();
+          navigate("/");
+        }}
+      >
+        로그아웃
+      </ButtonBox>
       <div
         onClick={() =>
           openConfirm({
