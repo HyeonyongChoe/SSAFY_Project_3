@@ -5,18 +5,22 @@ pipeline {
   }
   stages {
     stage('Checkout') {
-      steps { checkout scm }
+      steps { 
+        checkout scm }
     }
+
     stage('Build Static') {
       steps {
         dir('frontend') {
             script {
                 docker.image('node:18').inside {
                 sh 'npm ci && npm run build'
+                }
             }
         }
       }
     }
+
     stage('Sync to EC2') {
       steps {
         sh '''
@@ -26,6 +30,7 @@ pipeline {
         '''
       }
     }
+    
     stage('Reload Nginx') {
       steps {
         sh 'docker exec react-nginx nginx -s reload'
