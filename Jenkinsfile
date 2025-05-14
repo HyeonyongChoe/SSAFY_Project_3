@@ -11,13 +11,13 @@ pipeline {
 
     stage('Build Static') {
       steps {
-        dir('frontend') {
-            script {
-                docker.image('node:18').inside {
-                sh 'npm ci && npm run build'
-                }
-            }
-        }
+        sh '''
+          docker run --rm \
+            -v $WORKSPACE/frontend:/app \
+            -w /app \
+            node:18 \
+            sh -c "npm ci && npm run build"
+        '''
       }
     }
 
