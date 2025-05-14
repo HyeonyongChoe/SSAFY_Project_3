@@ -10,7 +10,10 @@ pipeline {
     stage('Build Static') {
       steps {
         dir('frontend') {
-          sh 'npm ci && npm run build'
+            script {
+                docker.image('node:18').inside {
+                sh 'npm ci && npm run build'
+            }
         }
       }
     }
