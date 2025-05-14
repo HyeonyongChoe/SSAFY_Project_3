@@ -1,10 +1,22 @@
+import { useGlobalStore } from "@/app/store/globalStore";
 import { openConfirm } from "@/shared/lib/modal";
+import { useNavigate } from "react-router-dom";
 
 export const UserSettingModal = () => {
+  const navigate = useNavigate();
+  const { logout } = useGlobalStore();
+
   return (
     <div>
       <div>이름과 이메일</div>
-      <div>로그아웃</div>
+      <div
+        onClick={() => {
+          logout();
+          navigate("/");
+        }}
+      >
+        로그아웃
+      </div>
       <div
         onClick={() =>
           openConfirm({
