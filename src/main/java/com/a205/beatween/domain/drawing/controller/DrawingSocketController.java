@@ -16,9 +16,19 @@ public class DrawingSocketController {
     private final DrawingService drawingService;
     private final SimpMessagingTemplate messagingTemplate;
 
+//    @MessageMapping("/draw")
+//    public void handleDraw(DrawingUpdateMessage message) {
+//        drawingService.updateDrawing(message);
+//        messagingTemplate.convertAndSend("/topic/draw/" + message.getSheetId(), message);
+//    }
+
     @MessageMapping("/draw")
     public void handleDraw(DrawingUpdateMessage message) {
+        log.info("📥 Drawing 수신 - sheetId: {}, x: {}, y: {}, color: {}",
+                message.getSheetId(), message.getRelativeX(), message.getRelativeY(), message.getColor());
+
         drawingService.updateDrawing(message);
         messagingTemplate.convertAndSend("/topic/draw/" + message.getSheetId(), message);
     }
+
 }
