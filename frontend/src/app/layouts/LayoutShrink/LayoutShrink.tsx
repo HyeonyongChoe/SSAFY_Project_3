@@ -57,7 +57,7 @@ export const LayoutShrink = ({
           />
         )}
         <div
-          className={`h-full ${
+          className={`${
             isShrunk
               ? "translate-y-[-10.2%] rounded-[2%] overflow-hidden w-[100vw] scale-[51%] md:translate-x-[calc(15%-5rem)] h-[75vw]"
               : "w-full h-full"
