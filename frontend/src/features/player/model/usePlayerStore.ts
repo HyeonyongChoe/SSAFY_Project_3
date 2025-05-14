@@ -1,4 +1,6 @@
+// src/features/player/model/usePlayerStore.ts
 import { create } from "zustand";
+import { useScoreStore } from "@/features/score/model/useScoreStore";
 
 interface PlayerState {
   isPlaying: boolean;
@@ -12,16 +14,35 @@ interface PlayerState {
   setCurrentMeasure: (n: number) => void;
 }
 
-export const usePlayerStore = create<PlayerState>((set) => ({
-  isPlaying: false,
-  bpm: 120,
-  originalBpm: 120,
-  currentMeasure: 0,
+export const usePlayerStore = create<PlayerState>(() => ({
+  get isPlaying() {
+    return useScoreStore.getState().isPlaying;
+  },
+  get bpm() {
+    return useScoreStore.getState().bpm;
+  },
+  originalBpm: useScoreStore.getState().bpm,
+  get currentMeasure() {
+    return useScoreStore.getState().currentMeasure;
+  },
 
-  togglePlay: () =>
-    set((state) => ({ isPlaying: !state.isPlaying })),
-  setBpm: (bpm) => set({ bpm }),
-  resetBpm: () =>
-    set((state) => ({ bpm: state.originalBpm })),
-  setCurrentMeasure: (n) => set({ currentMeasure: n }),
+  togglePlay: () => {
+    const next = !useScoreStore.getState().isPlaying;
+    useScoreStore.getState().setIsPlaying(next);
+    if (next) {
+      useScoreStore.getState().setCurrentMeasure(0);
+    }
+  },
+
+  setBpm: (bpm: number) => {
+    useScoreStore.getState().setBpm(bpm);
+  },
+
+  resetBpm: () => {
+    useScoreStore.getState().setBpm(usePlayerStore.getState().originalBpm);
+  },
+
+  setCurrentMeasure: (n: number) => {
+    useScoreStore.getState().setCurrentMeasure(n);
+  },
 }));

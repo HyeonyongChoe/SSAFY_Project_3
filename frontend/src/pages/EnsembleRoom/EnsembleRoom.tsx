@@ -1,7 +1,7 @@
 // src/pages/EnsembleRoom/EnsembleRoom.tsx
 import { EnsembleRoomHeader } from "@/widgets/EnsembleRoomHeader";
-import { ScoreSheetViewer } from "@/widgets/ScoreSheetViewer";
-import { EnsembleRoomFooter } from "@/widgets/EnsembleRoomFooter";
+import ScoreSheetViewer from "@/widgets/ScoreSheetViewer";
+import EnsembleRoomFooter from "@/widgets/EnsembleRoomFooter";
 
 export default function EnsembleRoom() {
   return (
