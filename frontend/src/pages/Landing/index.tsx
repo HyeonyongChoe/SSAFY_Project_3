@@ -55,8 +55,8 @@ export const LandingPage = () => {
         className="absolute w-[calc(20vw+33vh)] -translate-x-[7%] translate-y-[46%]"
       />
       <div className="text-neutral100 text-[14vw] flex gap-28">
-        <span className="font-cafe24">BEAT</span>
-        <span className="font-cafe24">WEEN</span>
+        <span className="font-cafe24">B</span>
+        <span className="font-cafe24">W</span>
       </div>
     </div>
   );
