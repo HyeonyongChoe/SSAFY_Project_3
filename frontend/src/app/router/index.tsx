@@ -23,7 +23,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/team/:teamId",
-            element: <TeamSpacePage />,
+            // element: <TeamSpacePage />,
           },
         ],
       },
