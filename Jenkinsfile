@@ -25,16 +25,6 @@ pipeline {
         }
     }
 
-    // stage('Sync to EC2') {                // ← 이 스테이지를 추가합니다
-    //     steps {
-    //         sh '''
-    //             mkdir -p $DEPLOY_DIR/frontend
-    //             cp -R frontend/dist $DEPLOY_DIR/frontend/dist
-    //             cp    frontend/nginx.conf $DEPLOY_DIR/frontend/nginx.conf
-    //         '''
-    //     }
-    // }
-
     stage('Sync to EC2') {
         steps {
             sh '''
@@ -58,7 +48,9 @@ pipeline {
     
     stage('Reload Nginx') {
         steps {
-            sh 'docker exec react-nginx nginx -s reload'
+            dir('/home/ubuntu/deployment') {
+                sh 'docker compose up -d --force-recreate react-nginx'
+            }
         }
     }
   }
