@@ -2,30 +2,77 @@
 * common style *
 ****************/
 * {
-  font-family: "Pretendard Variable", "sans-serif";
+  @apply font-pretendard;
+  line-height: 1.625;
+  letter-spacing: -0.025em;
+}
+
+body {
+  @apply text-neutral100;
 }
 
 /*************** 
 **** layout ****
 ****************/
 #root {
-  margin: 0 auto;
-  text-align: center;
+  @apply mx-auto text-center;
+}
+
+html,
+body,
+#root {
+  @apply w-full h-full overflow-hidden;
 }
 
 /*************** 
 ** custom style **
 ****************/
+.scroll-custom::-webkit-scrollbar {
+  width: 4px;
+}
+.scroll-custom::-webkit-scrollbar-thumb {
+  @apply bg-neutral600 rounded-[10px];
+}
+.scroll-custom::-webkit-scrollbar-track {
+  /* 스크롤 배경색, 지정하게 될 일이 있을까 하여 남겨둡니다 */
+}
+
+.scroll-custom::-webkit-scrollbar-button:vertical:end:increment {
+  @apply block h-2;
+}
+.scroll-custom::-webkit-scrollbar-button:vertical:start:decrement {
+  @apply block h-2;
+}
+
+.scroll-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.divider {
+  @apply border-t border-neutral100/30 w-full;
+}
+
+.shadow-custom {
+  @apply shadow-[0_0_100px_0_rgba(2,9,35,0.3)];
+}
+
+.b-blur {
+  @apply backdrop-blur-sm;
+}
+
 .bg-noise {
   background-image: url("../assets/images/noise.png");
-  background-repeat: repeat;
-  background-size: contain;
-  background-blend-mode: overlay;
+  @apply bg-repeat bg-contain bg-blend-overlay;
 }
 .bg-noise.gradient {
   mix-blend-mode: overlay;
 }
 
+<<<<<<< HEAD
 /* 추가 스타일 */
 .text-neutral100 {
   color: #ffffff;
@@ -74,4 +121,29 @@ body {
   fill: yellow;
   fill-opacity: 0.3;
   pointer-events: none;
+=======
+/* tooltip custom */
+.custom-tooltip .dark {
+  @apply bg-neutral1000 text-neutral100;
+}
+
+.custom-tooltip .light {
+  @apply bg-neutral100 text-neutral1000;
+}
+
+.custom-tooltip .success {
+  @apply bg-brandcolor200 text-neutral1000;
+}
+
+.custom-tooltip .warning {
+  @apply bg-warning text-neutral1000;
+}
+
+.custom-tooltip .error {
+  @apply bg-error text-neutral100;
+}
+
+.custom-tooltip .info {
+  @apply bg-brandcolor100 text-neutral100;
+>>>>>>> fc207f268e5d90bbb99f2d88b7dbae08a5f6ce66
 }

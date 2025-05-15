@@ -1,14 +1,13 @@
-import { ReactNode } from "react";
+import { SpaceNav } from "./ui/SpaceNav";
+import { Outlet } from "react-router-dom";
 
-interface LayoutDefaultProps {
-  children: ReactNode;
-}
-
-export const SpaceLayout = ({ children }: LayoutDefaultProps) => {
+export const SpaceLayout = () => {
   return (
-    <div>
-      <aside>nav 바 구현 예정</aside>
-      <section>{children}</section>
+    <div className="flex w-full h-full px-4 py-5 gap-4">
+      <SpaceNav />
+      <section className="bg-neutral100/10 shadow-custom w-full h-full rounded-xl overflow-y-auto">
+        <Outlet />
+      </section>
     </div>
   );
 };

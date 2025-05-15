@@ -44,7 +44,6 @@ export function useVerovioLoader(
         toolkit.loadData(xml);
 
         const pageCount = toolkit.getPageCount();
-        store.setMeasureCount(pageCount); // 임시로 페이지 수를 마디 수로 설정
 
         let svgAllPages = "";
         const thumbs: string[] = [];
@@ -60,6 +59,14 @@ export function useVerovioLoader(
         const container = containerRef.current;
         if (container) {
           container.innerHTML = svgAllPages;
+
+          // 🔽 여기서 measureCount를 실제 DOM 기준으로 설정
+          const measureElements = container.querySelectorAll("g.measure");
+          console.log(
+            "🛠 measureCount 설정 (DOM 기준):",
+            measureElements.length
+          );
+          store.setMeasureCount(measureElements.length);
         }
 
         cleanup = () => {
@@ -68,11 +75,15 @@ export function useVerovioLoader(
 
         try {
           const timeMap = toolkit.renderToMIDI();
-          const bpmMatch = timeMap.match(/Tempo="(\d+)"/);
+          const bpmMatch = timeMap?.match(/Tempo="?(\d+)"?/i);
           if (bpmMatch) {
             const parsedBpm = parseInt(bpmMatch[1], 10);
             if (!isNaN(parsedBpm)) {
               store.setBpm(parsedBpm);
+              console.log(
+                "📥 store 상태에 저장된 BPM:",
+                useScoreStore.getState().bpm
+              ); // ✅ 상태 확인
             }
           }
         } catch (err) {

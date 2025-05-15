@@ -1,4 +1,3 @@
-import { bgColorClassMap } from "@/shared/lib/bgColorClassMap";
 import bassImage from "./assets/images/bass.svg";
 import drumImage from "./assets/images/drum.svg";
 import guitarImage from "./assets/images/guitar.svg";
@@ -11,7 +10,7 @@ import tapeTwoImage from "./assets/images/tape02.svg";
 export const LandingPage = () => {
   return (
     <div
-      className={`z-0 overflow-hidden w-screen h-screen relative flex items-center justify-center text-center p-8 bg-blue-gradient`}
+      className={`z-0 overflow-hidden w-full h-full relative flex items-center justify-center text-center p-8 bg-blue-gradient`}
     >
       <div className="z-[-3] w-full h-full absolute inset-0 bg-noise gradient"></div>
       <img

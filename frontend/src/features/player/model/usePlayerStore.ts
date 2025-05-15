@@ -27,13 +27,20 @@ export const usePlayerStore = create<PlayerState>(() => ({
   },
 
   togglePlay: () => {
+    const score = useScoreStore.getState();
     const next = !useScoreStore.getState().isPlaying;
     useScoreStore.getState().setIsPlaying(next);
-    if (next) {
+    score.setIsPlaying(next);
+
+    if (next && score.currentMeasure >= score.measureCount) {
       useScoreStore.getState().setCurrentMeasure(0);
     }
   },
-
+  stop: () => {
+    const score = useScoreStore.getState();
+    score.setIsPlaying(false);
+    score.setCurrentMeasure(0);
+  },
   setBpm: (bpm: number) => {
     useScoreStore.getState().setBpm(bpm);
   },
