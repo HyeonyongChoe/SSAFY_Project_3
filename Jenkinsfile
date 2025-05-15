@@ -48,9 +48,10 @@ pipeline {
     
     stage('Reload Nginx') {
         steps {
-            dir("${DEPLOY_DIR}") {
-                sh 'docker-compose up -d --force-recreate react-nginx'
-            }
+            sh '''
+                cd /home/ubuntu/deployment
+                docker-compose up -d --force-recreate react-nginx
+            '''
         }
     }
   }
