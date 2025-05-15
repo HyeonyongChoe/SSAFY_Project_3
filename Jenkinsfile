@@ -34,11 +34,10 @@ pipeline {
 
     stage('Build Docker Image') {
       steps {
-        // 워크스페이스(컨테이너 내부 /var/jenkins_home/workspace/…)를
-        // 빌드 컨텍스트로 지정
         sh """
           docker-compose \
             -f ${COMPOSE_FILE} \
+            --project-directory ${WORKSPACE} \
             build spring-boot
         """
       }
@@ -58,6 +57,7 @@ pipeline {
         sh """
           docker-compose \
             -f ${COMPOSE_FILE} \
+            --project-directory ${WORKSPACE} \
             up -d spring-boot
         """
       }
