@@ -33,16 +33,4 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOrigins("*")
                 .addInterceptors();
     }
-
-    @EventListener
-    public void handleWebSocketConnectListener(SessionConnectEvent event) {
-        int count = connectionCount.incrementAndGet();
-        log.info("🟢 WebSocket 연결됨 - 현재 연결 수: {}", count);
-    }
-
-    @EventListener
-    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        int count = connectionCount.decrementAndGet();
-        log.info("🔴 WebSocket 연결 해제됨 - 현재 연결 수: {}", count);
-    }
 }

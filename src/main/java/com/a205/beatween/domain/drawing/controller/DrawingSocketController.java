@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Controller
 @RequiredArgsConstructor
@@ -16,17 +18,8 @@ public class DrawingSocketController {
     private final DrawingService drawingService;
     private final SimpMessagingTemplate messagingTemplate;
 
-//    @MessageMapping("/draw")
-//    public void handleDraw(DrawingUpdateMessage message) {
-//        drawingService.updateDrawing(message);
-//        messagingTemplate.convertAndSend("/topic/draw/" + message.getSheetId(), message);
-//    }
-
     @MessageMapping("/draw")
-    public void handleDraw(DrawingUpdateMessage message) {
-        log.info("📥 Drawing 수신 - sheetId: {}, x: {}, y: {}, color: {}",
-                message.getSheetId(), message.getRelativeX(), message.getRelativeY(), message.getColor());
-
+    public void updateDraw(DrawingUpdateMessage message) {
         drawingService.updateDrawing(message);
         messagingTemplate.convertAndSend("/topic/draw/" + message.getSheetId(), message);
     }
