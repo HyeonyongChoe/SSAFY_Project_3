@@ -1,4 +1,5 @@
 // src/pages/EnsembleRoom/EnsembleRoom.tsx
+import { useRef } from "react";
 import { EnsembleRoomHeader } from "@/widgets/EnsembleRoomHeader";
 import ScoreSheetViewer from "@/widgets/ScoreSheetViewer";
 import EnsembleRoomFooter from "@/widgets/EnsembleRoomFooter";
@@ -6,22 +7,24 @@ import { useGlobalStore } from "@/app/store/globalStore";
 
 export default function EnsembleRoom() {
   const { isPlaying, setIsPlaying } = useGlobalStore();
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleClick = () => {
     if (isPlaying) {
-      setIsPlaying(false); // ✅ 재생 중이면 상/하단 다시 표시
+      setIsPlaying(false);
     }
   };
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-neutral-100">
+    <div className="flex flex-col h-screen" onClick={handleClick}>
       <EnsembleRoomHeader />
-      <div className="flex-1 overflow-y-auto p-4" onClick={handleClick}>
-        <ScoreSheetViewer />
+
+      {/* 🧩 스크롤 가능한 메인 콘텐츠 */}
+      <div className="flex-1 overflow-y-auto scroll-custom">
+        <ScoreSheetViewer containerRef={containerRef} />
       </div>
-      <div className="border-t bg-white shadow-md">
-        <EnsembleRoomFooter />
-      </div>
+
+      <EnsembleRoomFooter containerRef={containerRef} />
     </div>
   );
 }

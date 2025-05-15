@@ -13,21 +13,14 @@
     "@stringsync/vexml": "^0.1.7",
     "axios": "^1.9.0",
     "classnames": "^2.5.1",
-<<<<<<< HEAD
-    "framer-motion": "^12.10.1",
     "opensheetmusicdisplay": "^1.9.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.5.3",
     "verovio": "^5.2.0",
-=======
     "framer-motion": "^12.10.0",
     "nanoid": "^5.1.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.3",
     "react-tooltip": "^5.28.1",
->>>>>>> fc207f268e5d90bbb99f2d88b7dbae08a5f6ce66
     "zustand": "^5.0.3"
   },
   "devDependencies": {

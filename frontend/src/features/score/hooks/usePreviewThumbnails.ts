@@ -2,7 +2,7 @@
 import { useScoreStore } from "@/features/score/model/useScoreStore";
 
 export function usePreviewThumbnails(
-  containerRef: React.RefObject<HTMLDivElement>
+  containerRef: React.RefObject<HTMLDivElement | null>
 ) {
   const thumbnails = useScoreStore((state) => state.thumbnails);
   const isPreviewVisible = useScoreStore((state) => state.isPreviewVisible);

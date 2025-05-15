@@ -1,3 +1,4 @@
+// src/features/score/hooks/useMeasureHighlight.ts
 import { useEffect, useRef } from "react";
 import { useScoreStore } from "@/features/score/model/useScoreStore";
 
@@ -41,12 +42,29 @@ export function useMeasureHighlight(
         rect.setAttribute("class", "measure-highlight");
         rect.setAttribute("pointer-events", "none");
         m.insertBefore(rect, m.firstChild);
+
+        // 🟡 스크롤 대상 계산 및 실행
+        const scrollTarget = m.parentElement;
+        if (
+          isPlaying &&
+          scrollTarget instanceof HTMLElement &&
+          container.contains(scrollTarget)
+        ) {
+          const containerTop = container.getBoundingClientRect().top;
+          const targetTop = scrollTarget.getBoundingClientRect().top;
+          const scrollY = container.scrollTop + (targetTop - containerTop);
+
+          container.scrollTo({
+            top: scrollY,
+            behavior: "smooth",
+          });
+        }
       }
     });
   };
 
   useEffect(() => {
-    updateHighlight(); // 항상 currentMeasure 기준 하이라이트 유지
+    updateHighlight(); // always keep highlight in sync
   }, [currentMeasure]);
 
   useEffect(() => {
@@ -61,7 +79,7 @@ export function useMeasureHighlight(
 
       if (next >= measureCount) {
         setIsPlaying(false);
-        setCurrentMeasure(0); // 재생 완료 시 0으로 초기화
+        setCurrentMeasure(0);
       } else {
         setCurrentMeasure(next);
         playTimerRef.current = setTimeout(step, interval);

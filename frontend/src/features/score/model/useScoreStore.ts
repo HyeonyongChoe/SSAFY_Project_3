@@ -1,7 +1,6 @@
-// features/score/model/useScoreStore.ts
 import { create } from "zustand";
 
-interface ScoreState {
+interface ScoreStore {
   xmlData: string;
   setXmlData: (data: string) => void;
 
@@ -28,9 +27,12 @@ interface ScoreState {
 
   isPlaying: boolean;
   setIsPlaying: (isPlaying: boolean) => void;
+
+  systems: { el: Element; measureIds: number[] }[];
+  setSystems: (systems: { el: Element; measureIds: number[] }[]) => void;
 }
 
-export const useScoreStore = create<ScoreState>((set) => ({
+export const useScoreStore = create<ScoreStore>((set) => ({
   xmlData: "",
   setXmlData: (data) => set({ xmlData: data }),
 
@@ -59,4 +61,7 @@ export const useScoreStore = create<ScoreState>((set) => ({
 
   isPlaying: false,
   setIsPlaying: (isPlaying) => set({ isPlaying }),
+
+  systems: [],
+  setSystems: (systems) => set({ systems }),
 }));

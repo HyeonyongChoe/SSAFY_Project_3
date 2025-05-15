@@ -44,7 +44,6 @@ export function useVerovioLoader(
         toolkit.loadData(xml);
 
         const pageCount = toolkit.getPageCount();
-
         let svgAllPages = "";
         const thumbs: string[] = [];
 
@@ -60,19 +59,45 @@ export function useVerovioLoader(
         if (container) {
           container.innerHTML = svgAllPages;
 
-          // 🔽 여기서 measureCount를 실제 DOM 기준으로 설정
+          // 마디 수 저장
           const measureElements = container.querySelectorAll("g.measure");
-          console.log(
-            "🛠 measureCount 설정 (DOM 기준):",
-            measureElements.length
-          );
           store.setMeasureCount(measureElements.length);
+
+          // 시스템 정보 저장
+          const systemElements = container.querySelectorAll("g.system");
+          const systemList: { el: Element; measureIds: number[] }[] = [];
+
+          systemElements.forEach((systemEl, index) => {
+            const measures = Array.from(systemEl.querySelectorAll("g.measure"));
+            const measureIds = measures
+              .map((el) => {
+                const id = el.getAttribute("id");
+                if (id && id.startsWith("measure-")) {
+                  const numStr = id.replace("measure-", "");
+                  const num = parseInt(numStr, 10);
+                  return isNaN(num) ? null : num;
+                }
+                return null;
+              })
+              .filter((n): n is number => n !== null);
+
+            console.log(`📋 [System ${index}] 추출된 measureIds:`, measureIds);
+
+            systemList.push({
+              el: systemEl,
+              measureIds,
+            });
+          });
+
+          console.log("🧠 줄 단위 시스템 정보 저장됨:", systemList);
+          store.setSystems(systemList);
         }
 
         cleanup = () => {
           if (container) container.innerHTML = "";
         };
 
+        // BPM 추출
         try {
           const timeMap = toolkit.renderToMIDI();
           const bpmMatch = timeMap?.match(/Tempo="?(\d+)"?/i);
@@ -80,10 +105,7 @@ export function useVerovioLoader(
             const parsedBpm = parseInt(bpmMatch[1], 10);
             if (!isNaN(parsedBpm)) {
               store.setBpm(parsedBpm);
-              console.log(
-                "📥 store 상태에 저장된 BPM:",
-                useScoreStore.getState().bpm
-              ); // ✅ 상태 확인
+              console.log("📥 저장된 BPM:", useScoreStore.getState().bpm);
             }
           }
         } catch (err) {

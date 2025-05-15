@@ -19,9 +19,14 @@ body {
 }
 
 html,
-body,
+body {
+  @apply w-full h-full;
+  overflow-x: hidden; /* 가로 스크롤은 계속 숨기고 */
+  overflow-y: auto; /* 세로 스크롤은 허용 */
+}
+
 #root {
-  @apply w-full h-full overflow-hidden;
+  @apply w-full h-full;
 }
 
 /*************** 
@@ -72,7 +77,6 @@ body,
   mix-blend-mode: overlay;
 }
 
-<<<<<<< HEAD
 /* 추가 스타일 */
 .text-neutral100 {
   color: #ffffff;
@@ -121,7 +125,7 @@ body {
   fill: yellow;
   fill-opacity: 0.3;
   pointer-events: none;
-=======
+}
 /* tooltip custom */
 .custom-tooltip .dark {
   @apply bg-neutral1000 text-neutral100;
@@ -145,5 +149,4 @@ body {
 
 .custom-tooltip .info {
   @apply bg-brandcolor100 text-neutral100;
->>>>>>> fc207f268e5d90bbb99f2d88b7dbae08a5f6ce66
 }

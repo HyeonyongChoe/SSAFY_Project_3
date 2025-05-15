@@ -4,6 +4,10 @@ import { SignPage } from "@/pages/Sign";
 import { PersonalSpacePage } from "@/pages/PersonalSpace";
 import { TeamSpacePage } from "@/pages/TeamSpace";
 import EnsembleRoom from "@/pages/EnsembleRoom/EnsembleRoom";
+import { useGlobalStore } from "@/app/store/globalStore";
+import { useState } from "react";
+import { IntroPage } from "@/pages/Intro";
+// import { ScorePage } from '@/pages/Score';
 import { LayoutShrink } from "../layouts/LayoutShrink";
 import PageKakaoRedirect from "@/features/auth/kakao/ui/PageKakaoRedirect";
 import { LayoutSwitcher } from "../layouts/LayoutSwitcher";
@@ -48,19 +52,19 @@ const router = createBrowserRouter([
     path: "/room",
     element: <EnsembleRoom />,
   },
-  
-//   {
-//     path: '/signup',
-//     element: <SignUpPage />,
-//   },
-//   {
-//     path: '/team/:teamId',
-//     element: <TeamSpacePage />,
-//   },
-//   {
-//     path: '/score/:scoreId',
-//     element: <ScorePage />,
-//   },
+
+  //   {
+  //     path: '/signup',
+  //     element: <SignUpPage />,
+  //   },
+  //   {
+  //     path: '/team/:teamId',
+  //     element: <TeamSpacePage />,
+  //   },
+  //   {
+  //     path: '/score/:scoreId',
+  //     element: <ScorePage />,
+  //   },
   //   {
   //     path: '/team/:teamId',
   //     element: <TeamSpacePage />,
