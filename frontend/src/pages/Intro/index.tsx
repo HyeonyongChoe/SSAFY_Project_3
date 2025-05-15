@@ -30,7 +30,7 @@ export const IntroPage = ({ onFinish }: IntroPageProps) => {
           exit={{ opacity: 0 }}
           transition={{ duration: 1 }}
         >
-          <div className="text-neutral100">박자로 채워짐??</div>
+          <div className="text-neutral100">머지 테스트를 해봅니다</div>
         </motion.div>
       )}
     </AnimatePresence>
