@@ -6,7 +6,8 @@ pipeline {
   stages {
     stage('Checkout') {
         steps { 
-            checkout scm 
+            checkout scm
+            sh 'echo "Checked out commit: $(git rev-parse HEAD)"'
         }
     }
 
