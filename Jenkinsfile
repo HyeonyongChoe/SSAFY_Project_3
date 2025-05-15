@@ -15,9 +15,9 @@ pipeline {
             dir('frontend') {
                 script {
                     // node:18 이미지를 받아 임시 컨테이너 안에서 실행
-                    docker.image('node:18').inside {
-                    sh 'npm ci'
-                    sh 'npm run build'
+                    docker.image('node:20').inside('-u 0:0') {
+                        sh 'npm ci'
+                        sh 'npm run build'
                     }
                 }
             }
