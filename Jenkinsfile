@@ -58,7 +58,7 @@ pipeline {
           docker-compose \
             -f ${COMPOSE_FILE} \
             --project-directory ${WORKSPACE} \
-            up -d spring-boot
+             up -d --force-recreate --remove-orphans spring-boot
         """
       }
     }
