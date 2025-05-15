@@ -46,7 +46,7 @@ pipeline {
 
                 # 3) 최신 파일 복사
                 cp -R frontend/dist $DEPLOY_DIR/frontend/dist
-                // cp    frontend/nginx.conf $DEPLOY_DIR/frontend/nginx.conf
+                ##### cp    frontend/nginx.conf $DEPLOY_DIR/frontend/nginx.conf
                 cp    frontend/server.conf $DEPLOY_DIR/frontend/server.conf
 
                 chmod -R a+rX $DEPLOY_DIR/frontend/dist
