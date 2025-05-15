@@ -25,10 +25,26 @@ pipeline {
         }
     }
 
-    stage('Sync to EC2') {                // ← 이 스테이지를 추가합니다
+    // stage('Sync to EC2') {                // ← 이 스테이지를 추가합니다
+    //     steps {
+    //         sh '''
+    //             mkdir -p $DEPLOY_DIR/frontend
+    //             cp -R frontend/dist $DEPLOY_DIR/frontend/dist
+    //             cp    frontend/nginx.conf $DEPLOY_DIR/frontend/nginx.conf
+    //         '''
+    //     }
+    // }
+
+    stage('Sync to EC2') {
         steps {
             sh '''
+                # 1) 기존 정적 파일 완전 삭제
+                rm -rf $DEPLOY_DIR/frontend/dist
+
+                # 2) 디렉터리 재생성
                 mkdir -p $DEPLOY_DIR/frontend
+
+                # 3) 최신 파일 복사
                 cp -R frontend/dist $DEPLOY_DIR/frontend/dist
                 cp    frontend/nginx.conf $DEPLOY_DIR/frontend/nginx.conf
             '''
