@@ -40,6 +40,7 @@ pipeline {
             sh '''
                 # 1) 기존 정적 파일 완전 삭제
                 rm -rf $DEPLOY_DIR/frontend/dist
+                rm -rf $DEPLOY_DIR/frontend/server.conf
 
                 # 2) 디렉터리 재생성
                 mkdir -p $DEPLOY_DIR/frontend
