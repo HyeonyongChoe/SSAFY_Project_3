@@ -11,19 +11,13 @@ pipeline {
     }
 
     stage('Build Static') {
-      steps {
+        agent { docker { image 'node:18' } }   // 여기서만 Node 컨테이너 사용
+        steps {
             dir('frontend') {
-                // node:18 이미지 안에서 build
-                sh """
-                    docker run --rm \
-                    -v "${WORKSPACE}/frontend":/app \
-                    -w /app \
-                    node:18 \
-                    sh -c "npm ci && npm run build"
-                """
-                // 빌드 산출물이 호스트의 frontend/dist 에 생성됨됨
+                sh 'npm ci'
+                sh 'npm run build'
             }
-      }
+        }
     }
 
     stage('Sync to EC2') {
