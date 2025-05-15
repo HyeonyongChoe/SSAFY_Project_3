@@ -11,11 +11,15 @@ pipeline {
     }
 
     stage('Build Static') {
-        // 이 스테이지만 node:18 컨테이너 안에서 실행
+        // 이 스테이지만 node:18 컨테이너 안에서 실행 아 npm이 문제네
       agent { docker { image 'node:18' } }
       steps {
             dir('frontend') {
-            sh 'npm ci && npm run build'
+                sh 'npm ci && npm run build'
+                sh '''
+                    echo "=== After build in $(pwd) ==="
+                    ls -R .
+                '''
             }
       }
     }
