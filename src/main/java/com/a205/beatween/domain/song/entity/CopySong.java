@@ -1,6 +1,7 @@
 package com.a205.beatween.domain.song.entity;
 
 
+import com.a205.beatween.domain.space.entity.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,9 +25,9 @@ public class CopySong {
     @JoinColumn(name = "original_song_id", nullable = false)
     private OriginalSong originalSong;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "category_id", nullable = false)
-//    private Integer category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Column(name = "title", length = 50, nullable = false)
     private String title;
