@@ -24,15 +24,6 @@ pipeline {
         }
     }
 
-    stage('Sync to EC2') {
-        steps {
-            sh '''
-            mkdir -p $DEPLOY_DIR/frontend
-            cp -R frontend/dist $DEPLOY_DIR/frontend/dist
-            cp frontend/nginx.conf $DEPLOY_DIR/frontend/nginx.conf
-            '''
-        }
-    }
     
     stage('Reload Nginx') {
         steps {
