@@ -31,7 +31,7 @@ export const HeaderDefault = ({
       <div>
         <Logo onClick={onLogoClick} />
       </div>
-      <div>몰라몰라몰라???</div>
+      <div>머지가 되어라???</div>
       <div>
         {isLoggedIn ? (
           <IconButton
