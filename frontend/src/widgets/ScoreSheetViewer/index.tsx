@@ -15,23 +15,40 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
 
   useVerovioLoader(containerRef);
   useMeasureHighlight(containerRef);
-
+useEffect(() => {
+  const container = containerRef.current;
+  if (container) {
+    console.log("🧪 scrollHeight:", container.scrollHeight);
+    console.log("🧪 clientHeight:", container.clientHeight);
+  }
+}, []);
   useEffect(() => {
-    if (!containerRef.current) return;
+  if (!containerRef.current) return;
 
-    const system = systems.find((sys) =>
-      sys.measureIds.includes(currentMeasure)
-    );
+  const system = systems.find((sys) =>
+    sys.measureIds.includes(currentMeasure)
+  );
 
-    if (system) {
-      const systemEl = system.el as HTMLElement;
-      systemEl.scrollIntoView({ behavior: "smooth", block: "center" });
+  console.log("🔍 currentMeasure:", currentMeasure);
+  console.log("📦 systems:", systems);
+  console.log("✅ matched system:", system);
+
+  if (system) {
+    const systemEl = system.el as HTMLElement;
+    const pageWrapper = systemEl.closest(".page-wrapper") as HTMLElement;
+
+    console.log("📌 systemEl:", systemEl);
+    console.log("📄 pageWrapper:", pageWrapper);
+
+    if (pageWrapper && containerRef.current.contains(pageWrapper)) {
+      pageWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
     } else {
-      console.warn("⚠️ System not found for measure:", currentMeasure);
-      console.log("🧪 현재 measure:", currentMeasure);
-      console.log("📦 systems snapshot:", systems);
+      console.warn("❌ pageWrapper not found or not in container");
     }
-  }, [currentMeasure, systems, containerRef]);
+  } else {
+    console.warn("⚠️ System not found for measure:", currentMeasure);
+  }
+}, [currentMeasure, systems, containerRef]);
 
   return (
     <div
