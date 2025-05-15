@@ -28,7 +28,7 @@ pipeline {
           docker-compose \
             -f ${COMPOSE_FILE} \
             --project-directory ${WORKSPACE} \
-            build
+            build spring-boot
         """
       }
     }
