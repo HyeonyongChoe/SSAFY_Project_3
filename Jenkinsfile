@@ -13,11 +13,15 @@ pipeline {
     stage('Build Static') {
       steps {
             dir('frontend') {
-                sh 'npm ci && npm run build'
-                sh '''
-                    echo "=== After build in $(pwd) ==="
-                    ls -R .
-                '''
+                // node:18 이미지 안에서 build
+                sh """
+                    docker run --rm \
+                    -v "${WORKSPACE}/frontend":/app \
+                    -w /app \
+                    node:18 \
+                    sh -c "npm ci && npm run build"
+                """
+                // 빌드 산출물이 호스트의 frontend/dist 에 생성됨됨
             }
       }
     }
