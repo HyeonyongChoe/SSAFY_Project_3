@@ -43,7 +43,7 @@ pipeline {
         }
     }
 
-    stage('Reload Nginx') {
+    stage('Deploy Frontend') {
         steps {
             sh '''
                 cd /home/ubuntu/deployment
