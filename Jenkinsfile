@@ -13,9 +13,20 @@ pipeline {
       }
     }
 
+    stage('Build JAR') {
+      steps {
+        sh './gradlew clean bootJar'
+      }
+    }
+
+    stage('Copy JAR to deploy dir') {
+      steps {
+        sh 'cp build/libs/*.jar /home/ubuntu/deployment/app.jar'
+      }
+    }
+
     stage('Prepare .env') {
       steps {
-        // 호스트 /home/ubuntu/deployment/.env 를 워크스페이스로 복사
         sh 'cp /home/ubuntu/deployment/.env ${WORKSPACE}/.env'
       }
     }
@@ -27,7 +38,6 @@ pipeline {
         sh """
           docker-compose \
             -f ${COMPOSE_FILE} \
-            --project-directory ${WORKSPACE} \
             build spring-boot
         """
       }
@@ -47,8 +57,7 @@ pipeline {
         sh """
           docker-compose \
             -f ${COMPOSE_FILE} \
-            --project-directory ${WORKSPACE} \
-            up -d spring-boot # docker-compose.yml에 있는 services: 아래의 key값
+            up -d spring-boot
         """
       }
     }
