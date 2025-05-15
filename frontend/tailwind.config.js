@@ -16,6 +16,7 @@ export default {
         neutral800: "#324655",
         neutral900: "#152838",
         neutral1000: "#020923",
+        red: "#F24F6D",
         error: "#FF686B",
         warning: "#FFCB47",
         success: "#68FFA4",
@@ -27,11 +28,11 @@ export default {
         "blue-gradient":
           "linear-gradient(-24deg, #121722 0%, #485A88 25%, #4260AE 100%)",
         "error-gradient":
-          "linear-gradient(to right, rgba(255, 104, 107, 0.7) 0%, rgba(103, 118, 129, 0.7) 100%)",
+          "linear-gradient(to right, rgba(255, 104, 107, 0.7) 0%, rgba(103, 118, 129, 0.7) 40%)",
         "success-gradient":
-          "linear-gradient(to right, rgba(104, 255, 164, 0.7) 0%, rgba(103, 118, 129, 0.7) 100%)",
+          "linear-gradient(to right, rgba(104, 255, 164, 0.7) 0%, rgba(103, 118, 129, 0.7) 40%)",
         "warning-gradient":
-          "linear-gradient(to right, rgba(255, 203, 71, 0.7) 0%, rgba(103, 118, 129, 0.7) 100%)",
+          "linear-gradient(to right, rgba(255, 203, 71, 0.7) 0%, rgba(103, 118, 129, 0.7) 40%)",
       },
       fontFamily: {
         cafe24: ["Cafe24ClassicType-Regular", "sans-serif"],

@@ -1,12 +1,29 @@
 // src/app/store/globalStore.ts
-import { create } from 'zustand';
+import { create } from "zustand";
 
 type GlobalState = {
   isLoggedIn: boolean;
-  setIsLoggedIn: (status: boolean) => void;
+  accessToken: string | null;
+  login: (status: boolean) => void;
+  // login: (token: string) => void;
+  logout: () => void;
+  introShown: boolean;
+  setIntroShown: (shown: boolean) => void;
 };
 
 export const useGlobalStore = create<GlobalState>((set) => ({
   isLoggedIn: false,
-  setIsLoggedIn: (status) => set({ isLoggedIn: status }),
+  accessToken: null,
+  login: (status) =>
+    set(() => ({
+      isLoggedIn: true,
+      accessToken: `${status}`,
+    })),
+  logout: () =>
+    set(() => ({
+      isLoggedIn: false,
+      accessToken: null,
+    })),
+  introShown: false,
+  setIntroShown: (shown) => set({ introShown: shown }),
 }));

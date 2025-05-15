@@ -23,7 +23,7 @@ export const HeaderDefault = ({
   return (
     <header
       className={classNames(
-        "z-30 w-full flex bg-neutral100/30 justify-between items-center px-6 py-2 border-b border-neutral100/30 backdrop-blur-sm",
+        "z-30 h-[3.525rem] w-full flex bg-neutral100/30 justify-between items-center px-6 py-2 border-b border-neutral100/30 b-blur",
         className
       )}
       {...props}
