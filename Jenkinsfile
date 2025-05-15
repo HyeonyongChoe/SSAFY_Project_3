@@ -22,7 +22,7 @@ pipeline {
 
     stage('Copy JAR to deploy dir') {
       steps {
-        sh 'cp build/libs/*.jar /home/ubuntu/deployment/app.jar'
+        sh 'cp build/libs/*.jar ${WORKSPACE}/app.jar'
       }
     }
 
