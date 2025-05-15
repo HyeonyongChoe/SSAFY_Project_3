@@ -60,7 +60,7 @@ pipeline {
         steps {
             sh '''
                 cd /home/ubuntu/deployment
-                docker-compose up -d --force-recreate react-nginx
+                docker compose up -d --force-recreate react-nginx
             '''
         }
     }
