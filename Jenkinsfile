@@ -13,10 +13,12 @@ pipeline {
     stage('Build Static') {
         steps {
             dir('frontend') {
-                // node:18 이미지를 받아 임시 컨테이너 안에서 실행
-                docker.image('node:18').inside {
-                sh 'npm ci'
-                sh 'npm run build'
+                script {
+                    // node:18 이미지를 받아 임시 컨테이너 안에서 실행
+                    docker.image('node:18').inside {
+                    sh 'npm ci'
+                    sh 'npm run build'
+                    }
                 }
             }
         }
