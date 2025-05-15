@@ -43,19 +43,6 @@ pipeline {
         }
     }
 
-    stage('Install Compose Plugin') {
-        steps {
-            sh '''
-                # docker compose 플러그인 설치 (이미 설치돼 있으면 넘어감)
-                if ! docker compose version >/dev/null 2>&1; then
-                    apt-get update
-                    apt-get install -y docker-compose-plugin
-                fi
-            '''
-        }
-    }
-
-    
     stage('Reload Nginx') {
         steps {
             sh '''
