@@ -4,6 +4,8 @@ import { Button } from "@/shared/ui/Button";
 import { Logo } from "@/shared/ui/Logo";
 import classNames from "classnames";
 import { HtmlHTMLAttributes } from "react";
+import { useCallback } from "react";
+import axios from "axios";
 
 interface HeaderDefaultProps extends HtmlHTMLAttributes<HTMLDivElement> {
   onLogoClick?: () => void;
@@ -19,6 +21,20 @@ export const HeaderDefault = ({
   ...props
 }: HeaderDefaultProps) => {
   const isLoggedIn = useGlobalStore((state) => state.isLoggedIn);
+
+  // 배포 환경에서 nginx가 /api/* 를 스프링부트로 포워딩
+  const proxyTest = useCallback(async () => {
+    try {
+      const response = await axios.get<string>("/api/test");
+      console.log("✅ /api/test 응답:", response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("🚨 Axios error:", error.response?.status, error.message);
+      } else {
+        console.error("🚨 Unknown error:", error);
+      }
+    }
+  }, []);
 
   return (
     <header
@@ -43,7 +59,7 @@ export const HeaderDefault = ({
             className="-mr-2"
           />
         ) : (
-          <Button onClick={onShrink}>로그인/회원가입하러 가기</Button>
+          <Button onClick={proxyTest}>v프록시 테스트</Button>
         )}
       </div>
     </header>
