@@ -24,8 +24,8 @@ public class PlaySocketController {
      *
      * @param message PlayControlMessage (sender 필드에 userId 포함)
      */
-    @MessageMapping("/play/start")
-    public void startPlay(PlayControlMessage message) {
+    @MessageMapping("/play/update")
+    public void updatePlayState(PlayControlMessage message) {
         Integer userId = message.getSender();
         Integer spaceId = message.getSpaceId();
 
