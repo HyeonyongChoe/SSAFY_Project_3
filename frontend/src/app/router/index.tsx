@@ -8,6 +8,8 @@ import { LayoutShrink } from "../layouts/LayoutShrink";
 import PageKakaoRedirect from "@/features/auth/kakao/ui/PageKakaoRedirect";
 import { LayoutSwitcher } from "../layouts/LayoutSwitcher";
 import { SpaceLayout } from "@/widgets/SpaceLayout";
+import { LayoutDefault } from "../layouts/LayoutDefault";
+import { TestPlaywithPage, TestSheetPage } from "@/pages/Test";
 
 const router = createBrowserRouter([
   {
@@ -43,6 +45,22 @@ const router = createBrowserRouter([
   {
     path: import.meta.env.VITE_KAKAO_REDIRECT_URI,
     element: <PageKakaoRedirect />,
+  },
+  {
+    path: "/test/sheet",
+    element: (
+      <LayoutDefault bgColor="black" noScroll>
+        <TestSheetPage />
+      </LayoutDefault>
+    ),
+  },
+  {
+    path: "/test/playwith/:spaceId",
+    element: (
+      <LayoutDefault bgColor="black" noScroll>
+        <TestPlaywithPage />
+      </LayoutDefault>
+    ),
   },
   //   {
   //     path: '/score/:scoreId',
