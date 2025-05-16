@@ -25,6 +25,7 @@ public class UserSpace {
     @JoinColumn(name = "space_id", nullable = false)
     private Space space;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false,
             columnDefinition = "ENUM('OWNER','MEMBER') default 'OWNER'")

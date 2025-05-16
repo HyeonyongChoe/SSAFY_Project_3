@@ -28,6 +28,7 @@ public class User {
     @Column(name = "profile_image_url", nullable = false, length = 255)
     private String profileImageUrl;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false,
             columnDefinition = "ENUM('ACTIVE','DELETED') default 'ACTIVE'")
