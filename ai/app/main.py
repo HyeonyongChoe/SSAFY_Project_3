@@ -4,6 +4,7 @@ import services.download_wav as dlw
 import services.separate_wav as spw
 import services.transcribe_to_midi as tcm
 from pydub import AudioSegment
+from fastapi.middleware.cors import CORSMiddleware
 
 from schemas.request import YoutubeRequest
 
@@ -12,6 +13,16 @@ api_router = APIRouter(prefix="/ai")
 BASE_DIR = Path(__file__).parent.resolve()
 STORAGE_PATH = BASE_DIR / ".." / "storage"
 STORAGE_PATH.mkdir(parents=True, exist_ok=True)
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["k12a205.p.ssafy.io:8080","localhost:8080"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @api_router.post("/transcription")
 async def process_youtube(req: YoutubeRequest):
@@ -61,5 +72,4 @@ async def process_youtube(req: YoutubeRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-app = FastAPI()
 app.include_router(api_router)
