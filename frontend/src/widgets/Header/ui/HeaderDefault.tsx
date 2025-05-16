@@ -59,7 +59,7 @@ export const HeaderDefault = ({
             className="-mr-2"
           />
         ) : (
-          <Button onClick={proxyTest}>v프록시 테스트</Button>
+          <Button onClick={proxyTest}>v프록시 테스트!</Button>
         )}
       </div>
     </header>
