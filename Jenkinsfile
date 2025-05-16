@@ -52,10 +52,10 @@ pipeline {
       }
     }
 
-    stage('Deploy Container') {
+    stage('Deploy Backend') {
       steps {
         sh """
-          docker-compose \
+          docker compose \
             -f ${COMPOSE_FILE} \
             --project-directory ${WORKSPACE} \
              up -d --force-recreate --remove-orphans spring-boot
