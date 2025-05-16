@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface CopySheetRepository extends JpaRepository<CopySheet, Integer> {
-
+    Optional<CopySheet> findByCopySheetIdAndCopySong_CopySongId(Integer copySheetId, Integer copySongId);
 }

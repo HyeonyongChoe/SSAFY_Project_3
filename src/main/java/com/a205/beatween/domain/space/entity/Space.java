@@ -35,6 +35,7 @@ public class Space {
     @Column(name = "share_url", length = 255)
     private String shareUrl;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false,
             columnDefinition = "ENUM('PERSONAL','TEAM') default 'PERSONAL'")
