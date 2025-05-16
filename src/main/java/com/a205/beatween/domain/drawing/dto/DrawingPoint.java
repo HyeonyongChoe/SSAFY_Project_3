@@ -19,4 +19,8 @@ public class DrawingPoint {
                 .color(msg.getColor())
                 .build();
     }
+
+    public String getKey() {
+        return relativeX + "," + relativeY;
+    }
 }

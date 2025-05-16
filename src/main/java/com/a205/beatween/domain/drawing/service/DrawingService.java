@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface DrawingService {
 
-    List<DrawingPoint> getDrawingList(int sheetId);
-
     void updateDrawing(DrawingUpdateMessage message);
 
-    void saveAllDrawingList(int songId);
+    List<DrawingPoint> getDrawingBySheet(int copySheetId);
+
+    void saveAllDrawings(List<Integer> copySheetIds);
 
 
 }
