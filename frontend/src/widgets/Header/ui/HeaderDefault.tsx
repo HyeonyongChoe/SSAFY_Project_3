@@ -4,17 +4,22 @@ import { Button } from "@/shared/ui/Button";
 import { Logo } from "@/shared/ui/Logo";
 import classNames from "classnames";
 import { HtmlHTMLAttributes } from "react";
+import { motion } from "framer-motion";
 
 interface HeaderDefaultProps extends HtmlHTMLAttributes<HTMLDivElement> {
+  text?: String;
   onLogoClick?: () => void;
   onShrink?: () => void;
   onExpand?: () => void;
+  isSignPage?: boolean;
 }
 
 export const HeaderDefault = ({
+  text,
   onLogoClick,
   onShrink,
   onExpand,
+  isSignPage,
   className,
   ...props
 }: HeaderDefaultProps) => {
@@ -31,7 +36,7 @@ export const HeaderDefault = ({
       <div>
         <Logo onClick={onLogoClick} />
       </div>
-      <div>머지가 되어라???</div>
+      {text && <div>{text}</div>}
       <div>
         {isLoggedIn ? (
           <IconButton
@@ -42,9 +47,17 @@ export const HeaderDefault = ({
             }}
             className="-mr-2"
           />
-        ) : (
-          <Button onClick={onShrink}>로그인/회원가입하러 가기</Button>
-        )}
+        ) : !isSignPage ? (
+          <motion.div
+            key="login-button"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Button onClick={onShrink}>로그인/회원가입하러 가기</Button>
+          </motion.div>
+        ) : null}
       </div>
     </header>
   );
