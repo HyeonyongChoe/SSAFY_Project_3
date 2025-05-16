@@ -4,7 +4,6 @@ import { Button } from "@/shared/ui/Button";
 import { Logo } from "@/shared/ui/Logo";
 import classNames from "classnames";
 import { HtmlHTMLAttributes } from "react";
-import { useCallback } from "react";
 
 interface HeaderDefaultProps extends HtmlHTMLAttributes<HTMLDivElement> {
   onLogoClick?: () => void;
@@ -20,12 +19,6 @@ export const HeaderDefault = ({
   ...props
 }: HeaderDefaultProps) => {
   const isLoggedIn = useGlobalStore((state) => state.isLoggedIn);
-
-  // 배포 환경에서 nginx가 /api/* 를 스프링부트로 포워딩
-  // 클릭 시 화면 전체를 /api/test 로 내비게이트
-  const proxyTest = useCallback(() => {
-    window.location.href = "/api/test";
-  }, []);
 
   return (
     <header
@@ -50,7 +43,7 @@ export const HeaderDefault = ({
             className="-mr-2"
           />
         ) : (
-          <Button onClick={proxyTest}>v프록시 테스트!</Button>
+          <Button onClick={onShrink}>로그인/회원가입하러 가기</Button>
         )}
       </div>
     </header>
