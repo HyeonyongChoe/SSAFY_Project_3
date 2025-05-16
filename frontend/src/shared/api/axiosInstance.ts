@@ -20,6 +20,10 @@ const requestHandler = (config: InternalAxiosRequestConfig) => {
 
   if (token && isHeaderSettable) {
     config.headers.set("Authorization", `Bearer ${token}`);
+  } else {
+    // 로그인 구현 이전 임시 헤더
+    config.headers = config.headers || {};
+    config.headers["X-USER-ID"] = "1"; // 임시 userId
   }
 
   return config;

@@ -32,7 +32,6 @@ export function useVerovioLoader(
           header: "none",
           spacingNonLinear: 0,
           spacingStaff: 6.5,
-          systemMaxPerPage: 2, // 2줄씩 한 페이지
         });
 
         const response = await fetch(

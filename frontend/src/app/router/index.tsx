@@ -2,16 +2,22 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { LandingPage } from "@/pages/Landing/index";
 import { SignPage } from "@/pages/Sign";
 import { PersonalSpacePage } from "@/pages/PersonalSpace";
+<<<<<<< HEAD
 import { TeamSpacePage } from "@/pages/TeamSpace";
 import EnsembleRoom from "@/pages/EnsembleRoom/EnsembleRoom";
 import { useGlobalStore } from "@/app/store/globalStore";
 import { useState } from "react";
 import { IntroPage } from "@/pages/Intro";
+=======
+// import { TeamSpacePage } from "@/pages/TeamSpace";
+>>>>>>> 4aaf5dba2b99be7b1a22a36627517fcca78dc9f4
 // import { ScorePage } from '@/pages/Score';
 import { LayoutShrink } from "../layouts/LayoutShrink";
 import PageKakaoRedirect from "@/features/auth/kakao/ui/PageKakaoRedirect";
 import { LayoutSwitcher } from "../layouts/LayoutSwitcher";
 import { SpaceLayout } from "@/widgets/SpaceLayout";
+import { LayoutDefault } from "../layouts/LayoutDefault";
+import { TestPlaywithPage, TestSheetPage } from "@/pages/Test";
 
 const router = createBrowserRouter([
   {
@@ -27,7 +33,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/team/:teamId",
-            element: <TeamSpacePage />,
+            // element: <TeamSpacePage />,
           },
         ],
       },
@@ -49,6 +55,7 @@ const router = createBrowserRouter([
     element: <PageKakaoRedirect />,
   },
   {
+<<<<<<< HEAD
     path: "/room",
     element: <EnsembleRoom />,
   },
@@ -69,6 +76,23 @@ const router = createBrowserRouter([
   //     path: '/team/:teamId',
   //     element: <TeamSpacePage />,
   //   },
+=======
+    path: "/test/sheet",
+    element: (
+      <LayoutDefault bgColor="black" noScroll>
+        <TestSheetPage />
+      </LayoutDefault>
+    ),
+  },
+  {
+    path: "/test/playwith/:spaceId",
+    element: (
+      <LayoutDefault bgColor="black" noScroll>
+        <TestPlaywithPage />
+      </LayoutDefault>
+    ),
+  },
+>>>>>>> 4aaf5dba2b99be7b1a22a36627517fcca78dc9f4
   //   {
   //     path: '/score/:scoreId',
   //     element: <ScorePage />,
