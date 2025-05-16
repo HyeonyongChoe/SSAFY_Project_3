@@ -5,7 +5,6 @@ import { Logo } from "@/shared/ui/Logo";
 import classNames from "classnames";
 import { HtmlHTMLAttributes } from "react";
 import { useCallback } from "react";
-import axios from "axios";
 
 interface HeaderDefaultProps extends HtmlHTMLAttributes<HTMLDivElement> {
   onLogoClick?: () => void;
