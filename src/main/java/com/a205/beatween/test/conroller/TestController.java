@@ -11,6 +11,6 @@ public class TestController {
 
     @GetMapping(value = "/api/test", produces = MediaType.TEXT_HTML_VALUE)
     public String test() {
-        return "<h1>beatween auto-deployment complete!</h1>";
+        return "<h1>TEST COMPELETE!</h1>";
     }
 }
