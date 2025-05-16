@@ -1,10 +1,10 @@
 import axiosInstance from "@/shared/api/axiosInstance";
-import { PlayStateResponseDto } from "../types/Play.types";
+import { PlayControlMessage } from "../types/Play.types";
 
 export const fetchPlayState = async (
   spaceId: string
-): Promise<PlayStateResponseDto> => {
-  const res = await axiosInstance.get<PlayStateResponseDto>(
+): Promise<PlayControlMessage> => {
+  const res = await axiosInstance.get<PlayControlMessage>(
     `/api/v1/play/state/${spaceId}`
   );
   return res.data;
