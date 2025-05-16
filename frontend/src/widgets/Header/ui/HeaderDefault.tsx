@@ -23,17 +23,9 @@ export const HeaderDefault = ({
   const isLoggedIn = useGlobalStore((state) => state.isLoggedIn);
 
   // 배포 환경에서 nginx가 /api/* 를 스프링부트로 포워딩
-  const proxyTest = useCallback(async () => {
-    try {
-      const response = await axios.get<string>("/api/test");
-      console.log("✅ /api/test 응답:", response.data);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("🚨 Axios error:", error.response?.status, error.message);
-      } else {
-        console.error("🚨 Unknown error:", error);
-      }
-    }
+  // 클릭 시 화면 전체를 /api/test 로 내비게이트
+  const proxyTest = useCallback(() => {
+    window.location.href = "/api/test";
   }, []);
 
   return (
