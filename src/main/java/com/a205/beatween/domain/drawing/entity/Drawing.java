@@ -1,5 +1,6 @@
 package com.a205.beatween.domain.drawing.entity;
 
+import com.a205.beatween.domain.song.entity.CopySheet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,8 +20,9 @@ public class Drawing {
     @Column(name = "drawing_id", nullable = false)
     private Integer drawingId;
 
-    @Column(name = "copy_sheet_id", nullable = false)
-    private Integer copySheetId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "copy_sheet_id", nullable = false)
+    private CopySheet copySheet;
 
     @Column(name = "x", nullable = false)
     private double x;

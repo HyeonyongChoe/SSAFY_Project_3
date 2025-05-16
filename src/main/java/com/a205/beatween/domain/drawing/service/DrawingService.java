@@ -8,11 +8,9 @@ public interface DrawingService {
 
     void updateDrawing(DrawingUpdateMessage message);
 
+    List<DrawingPoint> getDrawingBySheet(int copySheetId);
+
     void saveAllDrawings(List<Integer> copySheetIds);
-
-    List<DrawingPoint> getDrawingList(int sheetId);
-
-
 
 
 }

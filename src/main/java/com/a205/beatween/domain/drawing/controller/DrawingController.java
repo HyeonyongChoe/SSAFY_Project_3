@@ -18,10 +18,5 @@ import java.util.List;
 @Slf4j
 public class DrawingController {
 
-    private final DrawingService drawingService;
 
-    @GetMapping("/{sheetId}")
-    public ResponseEntity<List<DrawingPoint>> getDrawings(@PathVariable int sheetId) {
-        return ResponseEntity.ok(drawingService.getDrawingList(sheetId));
-    }
 }

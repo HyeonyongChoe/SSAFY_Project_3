@@ -12,4 +12,5 @@ public class DrawingUpdateMessage {
     private double relativeX;
     private double relativeY;
     private String color;
+    private boolean erase;
 }

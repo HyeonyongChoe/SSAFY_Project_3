@@ -1,0 +1,12 @@
+package com.a205.beatween.domain.song.repository;
+
+import com.a205.beatween.domain.song.entity.CopySheet;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface CopySheetRepository extends JpaRepository<CopySheet, Integer> {
+
+}
