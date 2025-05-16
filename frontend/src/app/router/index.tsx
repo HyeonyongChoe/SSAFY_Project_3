@@ -2,11 +2,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { LandingPage } from "@/pages/Landing/index";
 import { SignPage } from "@/pages/Sign";
 import { PersonalSpacePage } from "@/pages/PersonalSpace";
-import { TeamSpacePage } from "@/pages/TeamSpace";
-import EnsembleRoom from "@/pages/EnsembleRoom/EnsembleRoom";
-import { useGlobalStore } from "@/app/store/globalStore";
-import { useState } from "react";
-import { IntroPage } from "@/pages/Intro";
 // import { TeamSpacePage } from "@/pages/TeamSpace";
 // import { ScorePage } from '@/pages/Score';
 import { LayoutShrink } from "../layouts/LayoutShrink";
@@ -52,27 +47,6 @@ const router = createBrowserRouter([
     element: <PageKakaoRedirect />,
   },
   {
-    path: "/room",
-    element: <EnsembleRoom />,
-  },
-
-  //   {
-  //     path: '/signup',
-  //     element: <SignUpPage />,
-  //   },
-  //   {
-  //     path: '/team/:teamId',
-  //     element: <TeamSpacePage />,
-  //   },
-  //   {
-  //     path: '/score/:scoreId',
-  //     element: <ScorePage />,
-  //   },
-  //   {
-  //     path: '/team/:teamId',
-  //     element: <TeamSpacePage />,
-  //   },
-  {
     path: "/test/sheet",
     element: (
       <LayoutDefault bgColor="black" noScroll>
@@ -94,4 +68,6 @@ const router = createBrowserRouter([
   //   },
 ]);
 
-export const AppRouter = () => <RouterProvider router={router} />;
+export const AppRouter = () => {
+  return <RouterProvider router={router} />;
+};

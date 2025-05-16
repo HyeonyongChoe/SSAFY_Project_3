@@ -1,9 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.highlight-measure {
-    stroke: #ff7675 !important;
-    stroke-width: 2 !important;
-    fill: rgba(255, 118, 117, 0.1); /* 살짝 배경도 줄 수 있음 */
-  }
