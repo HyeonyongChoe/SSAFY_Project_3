@@ -1,8 +1,11 @@
+// src/widgets/ScoreSheetViewer/index.tsx
 import React, { useEffect, useRef } from "react";
 import { useScoreStore } from "@/features/score/model/useScoreStore";
 import { useMeasureHighlight } from "@/features/score/hooks/useMeasureHighlight";
 import { useVerovioLoader } from "@/features/score/hooks/useVerovioLoader";
 import { PlayControl } from "@/widgets/PlayControl";
+import { usePlaySync } from "@/shared/hooks/usePlaySync";
+import { useGlobalStore } from "@/app/store/globalStore";
 
 interface ScoreSheetViewerProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
@@ -12,8 +15,12 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   containerRef,
 }) => {
   const { isFullscreen, currentMeasure, systems } = useScoreStore();
+  const clientId = useGlobalStore((state) => state.clientId);
 
-  // ✅ 올바른 위치
+  console.log("🎯 ScoreSheetViewer mounted with clientId:", clientId);
+
+  usePlaySync("1", clientId); // clientId는 number 타입
+
   const lastSystemIndexRef = useRef<number | null>(null);
 
   useVerovioLoader(containerRef);
@@ -28,6 +35,8 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   }, []);
 
   useEffect(() => {
+    console.log("🎼 currentMeasure changed:", currentMeasure);
+
     if (!containerRef.current) return;
 
     const currentSystemIndex = systems.findIndex((sys) =>
@@ -40,13 +49,14 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
     }
 
     if (lastSystemIndexRef.current !== currentSystemIndex) {
+      console.log("📍 scrolling to system index:", currentSystemIndex);
       const system = systems[currentSystemIndex];
       const systemEl = system.el as SVGGraphicsElement;
 
       if (containerRef.current && systemEl) {
         systemEl.scrollIntoView({
           behavior: "smooth",
-          block: "center",
+          block: "start",
           inline: "nearest",
         });
         lastSystemIndexRef.current = currentSystemIndex;
