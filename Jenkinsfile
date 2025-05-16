@@ -54,11 +54,10 @@ pipeline {
 
     stage('Deploy Backend') {
       steps {
-        sh """
-          docker compose \
-            -f ${COMPOSE_FILE} \
-             up -d --force-recreate --remove-orphans spring-boot
-        """
+        sh '''
+          cd /home/ubuntu/deployment
+          docker compose up -d --force-recreate --remove-orphans spring-boot
+         '''
       }
     }
   }
