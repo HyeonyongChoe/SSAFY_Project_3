@@ -8,11 +8,11 @@ public interface DrawingService {
 
     void updateDrawing(DrawingUpdateMessage message);
 
-
+    void saveAllDrawings(List<Integer> copySheetIds);
 
     List<DrawingPoint> getDrawingList(int sheetId);
 
-    void saveAllDrawingList(int songId);
+
 
 
 }

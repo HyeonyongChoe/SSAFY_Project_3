@@ -22,6 +22,12 @@ public class Drawing {
     @Column(name = "copy_sheet_id", nullable = false)
     private Integer copySheetId;
 
-    @Column(name = "drawing_data", nullable = false)
-    private String drawingData;
+    @Column(name = "x", nullable = false)
+    private double x;
+
+    @Column(name = "y", nullable = false)
+    private double y;
+
+    @Column(name = "color", nullable = false)
+    private String color;
 }

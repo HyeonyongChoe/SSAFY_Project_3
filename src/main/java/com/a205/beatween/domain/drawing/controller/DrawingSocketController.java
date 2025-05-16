@@ -21,7 +21,7 @@ public class DrawingSocketController {
     @MessageMapping("/draw")
     public void updateDraw(DrawingUpdateMessage message) {
         drawingService.updateDrawing(message);
-        messagingTemplate.convertAndSend("/topic/draw/" + message.getSheetId(), message);
+        messagingTemplate.convertAndSend("/topic/draw/" + message.getCopySheetId(), message);
     }
 
 }
