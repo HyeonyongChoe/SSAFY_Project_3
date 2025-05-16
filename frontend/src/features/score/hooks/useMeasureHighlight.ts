@@ -26,7 +26,10 @@ export function useMeasureHighlight(
       const old = m.querySelector("rect.measure-highlight");
       if (old) m.removeChild(old);
 
-      if (i === currentMeasure) {
+      // 순차적 인덱스를 마디 번호로 간주
+      const id = i;
+
+      if (id === currentMeasure) {
         const bbox = (m as SVGGElement).getBBox();
         const rect = document.createElementNS(
           "http://www.w3.org/2000/svg",
@@ -42,23 +45,6 @@ export function useMeasureHighlight(
         rect.setAttribute("class", "measure-highlight");
         rect.setAttribute("pointer-events", "none");
         m.insertBefore(rect, m.firstChild);
-
-        // 🟡 스크롤 대상 계산 및 실행
-        const scrollTarget = m.parentElement;
-        if (
-          isPlaying &&
-          scrollTarget instanceof HTMLElement &&
-          container.contains(scrollTarget)
-        ) {
-          const containerTop = container.getBoundingClientRect().top;
-          const targetTop = scrollTarget.getBoundingClientRect().top;
-          const scrollY = container.scrollTop + (targetTop - containerTop);
-
-          container.scrollTo({
-            top: scrollY,
-            behavior: "smooth",
-          });
-        }
       }
     });
   };

@@ -1,4 +1,4 @@
-// features/score/hooks/useVerovioLoader.ts
+// src/features/score/hooks/useVerovioLoader.ts
 import { useEffect, useRef } from "react";
 import { VerovioToolkit } from "verovio/esm";
 import createVerovioModule from "verovio/wasm";
@@ -51,7 +51,7 @@ export function useVerovioLoader(
         for (let i = 1; i <= pageCount; i++) {
           const svg = toolkit.renderToSVG(i);
           thumbs.push(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
-          svgAllPages += `<div class="page-wrapper" data-page="${i}">${svg}</div>`;
+          svgAllPages += `<div class="page-wrapper py-16 scroll-mt-10" data-page="${i}">${svg}</div>`;
         }
 
         store.setThumbnails(thumbs);
@@ -67,20 +67,11 @@ export function useVerovioLoader(
           // 시스템 정보 저장
           const systemElements = container.querySelectorAll("g.system");
           const systemList: { el: Element; measureIds: number[] }[] = [];
+          let globalMeasureIndex = 0;
 
           systemElements.forEach((systemEl, index) => {
             const measures = Array.from(systemEl.querySelectorAll("g.measure"));
-            const measureIds = measures
-              .map((el) => {
-                const id = el.getAttribute("id");
-                if (id && id.startsWith("measure-")) {
-                  const numStr = id.replace("measure-", "");
-                  const num = parseInt(numStr, 10);
-                  return isNaN(num) ? null : num;
-                }
-                return null;
-              })
-              .filter((n): n is number => n !== null);
+            const measureIds = measures.map(() => globalMeasureIndex++);
 
             console.log(`📋 [System ${index}] 추출된 measureIds:`, measureIds);
 
