@@ -24,7 +24,7 @@ export function PlayControl() {
         startTimestamp: Date.now(),
         playing: !isCurrentlyPlaying,
         currentMeasure,
-        sender: clientId,
+        sender: "1",
       };
 
       console.log("🔼 [publish] send play/start message", message);
@@ -50,7 +50,7 @@ export function PlayControl() {
         startTimestamp: Date.now(),
         playing: false,
         currentMeasure: 0,
-        sender: clientId,
+        sender: "1",
       };
 
       console.log("🔼 [publish] send stop message", message);

@@ -9,5 +9,8 @@ type SocketState = {
 
 export const useSocketStore = create<SocketState>((set) => ({
   stompClient: null,
-  setStompClient: (client) => set({ stompClient: client }),
+  setStompClient: (client) => {
+    console.log("✅ [Zustand] stompClient 설정됨:", client); // 콘솔 로그 추가
+    set({ stompClient: client });
+  },
 }));
