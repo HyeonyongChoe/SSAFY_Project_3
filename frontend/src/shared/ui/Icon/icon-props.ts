@@ -5,4 +5,6 @@ export interface IconProps {
   fill?: boolean;
   size?: number;
   tone?: Tone;
+  className?: string; // ✅ 추가
+
 }

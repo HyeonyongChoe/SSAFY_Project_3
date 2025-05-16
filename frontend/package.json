@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stringsync/vexml": "^0.1.7",
     "@stomp/stompjs": "^7.1.1",
     "@tanstack/react-query": "^5.76.1",
     "axios": "^1.9.0",
     "classnames": "^2.5.1",
+    "opensheetmusicdisplay": "^1.9.0",
+    "verovio": "^5.2.0",
     "framer-motion": "^12.10.0",
     "nanoid": "^5.1.5",
     "react": "^19.0.0",
@@ -31,6 +34,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^9.8.8",
     "eslint": "^9.26.0",
+    "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",

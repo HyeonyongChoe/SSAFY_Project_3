@@ -27,7 +27,10 @@ export default defineConfig([
     rules: {
       "no-unused-vars": "warn",
       "@typescript-eslint/no-unused-vars": "warn",
+<<<<<<< HEAD
+=======
       "react/react-in-jsx-scope": "off",
+>>>>>>> 4aaf5dba2b99be7b1a22a36627517fcca78dc9f4
     },
   },
 ]);

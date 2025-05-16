@@ -4,12 +4,10 @@ import { ToastProvider } from "./providers/ToastProvider";
 
 function App() {
   return (
-    <>
-      <ToastProvider>
-        <AppRouter />
-        <ModalProvider />
-      </ToastProvider>
-    </>
+    <ToastProvider>
+      <AppRouter />
+      <ModalProvider />
+    </ToastProvider>
   );
 }
 
