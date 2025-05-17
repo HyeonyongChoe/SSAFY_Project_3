@@ -1,15 +1,16 @@
 package com.a205.beatween.domain.space.service;
 
 import com.a205.beatween.domain.space.repository.SpaceRepository;
+import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class SpaceService {
-    private final SpaceRepository spaceRepository;
+    private final UserSpaceRepository userSpaceRepository;
 
     public boolean checkUserIsMemberOfSpace(Integer userId, Integer spaceId){
-        return spaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
+        return userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
     }
 }

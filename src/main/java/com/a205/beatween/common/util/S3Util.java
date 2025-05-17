@@ -6,12 +6,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.S3Utilities;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.net.URL;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -24,16 +23,13 @@ public class S3Util {
     private String bucket;
 
     /**
-     * 공통 S3 업로드 유틸
-     * @param imageBytes 업로드할 파일 바이너리
-     * @param contentType 파일 타입 (예: image/png, application/xml)
-     * @param prefix 경로 prefix (예: "display/1/2/3" 또는 "sheets/drum")
-     * @param extension 확장자 (예: "png", "xml")
-     * @return S3에 업로드된 파일의 전체 URL
+     * S3에 파일 업로드
+     * @param fileBytes 업로드할 파일의 byte[]
+     * @param contentType MIME 타입 (예: image/png, application/xml)
+     * @param key 업로드 경로 및 파일명 (예: profiles/123.png)
+     * @return S3 URL 문자열
      */
-    public String upload(byte[] imageBytes, String contentType, String prefix, String extension) {
-        String key = String.format("%s/%s.%s", prefix, UUID.randomUUID(), extension);
-
+    public String upload(byte[] fileBytes, String contentType, String key) {
         try {
             PutObjectRequest req = PutObjectRequest.builder()
                     .bucket(bucket)
@@ -41,14 +37,48 @@ public class S3Util {
                     .contentType(contentType)
                     .build();
 
-            s3Client.putObject(req, RequestBody.fromBytes(imageBytes));
+            s3Client.putObject(req, RequestBody.fromBytes(fileBytes));
 
-            S3Utilities s3Utilities = s3Client.utilities();
-            URL url = s3Utilities.getUrl(builder -> builder.bucket(bucket).key(key));
+            URL url = s3Client.utilities()
+                    .getUrl(b -> b.bucket(bucket).key(key));
             return url.toString();
         } catch (S3Exception e) {
-            log.error("S3 upload failed for key={} message={}", key, e.getMessage());
-            throw new IllegalStateException("Failed to upload file to S3", e);
+            log.error("S3 upload failed for key={} : {}", key, e.getMessage());
+            throw new IllegalStateException("S3 업로드 실패", e);
+        }
+    }
+
+    /**
+     * S3에서 파일 삭제
+     * @param key 삭제할 파일의 key
+     */
+    public void delete(String key) {
+        try {
+            DeleteObjectRequest req = DeleteObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build();
+
+            s3Client.deleteObject(req);
+        } catch (S3Exception e) {
+            log.error("S3 delete failed for key={} : {}", key, e.getMessage());
+            throw new IllegalStateException("S3 삭제 실패", e);
+        }
+    }
+
+    /**
+     * S3 URL 반환
+     * @param key 파일 key
+     * @return 전체 URL 문자열
+     */
+    public String getUrl(String key) {
+        try {
+            URL url = s3Client.utilities()
+                    .getUrl(b -> b.bucket(bucket).key(key));
+            return url.toString();
+        } catch (S3Exception e) {
+            log.error("S3 URL 조회 실패 key={} : {}", key, e.getMessage());
+            throw new IllegalStateException("S3 URL 조회 실패", e);
         }
     }
 }
