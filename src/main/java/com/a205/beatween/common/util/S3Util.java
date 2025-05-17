@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -81,4 +82,57 @@ public class S3Util {
             throw new IllegalStateException("S3 URL 조회 실패", e);
         }
     }
+
+
+    /**
+     * S3 내부 객체 복사 (source → destination)
+     * @param sourceKey 원본 key (예: "sheets/original.xml")
+     * @param destinationKey 복사된 key (예: "processed/converted.xml")
+     * @return 복사된 객체의 전체 URL
+     */
+    public String copy(String sourceKey, String destinationKey) {
+        try {
+            CopyObjectRequest copyRequest = CopyObjectRequest.builder()
+                    .sourceBucket(bucket)
+                    .sourceKey(sourceKey)
+                    .destinationBucket(bucket)
+                    .destinationKey(destinationKey)
+                    .build();
+
+            s3Client.copyObject(copyRequest);
+
+            URL url = s3Client.utilities()
+                    .getUrl(b -> b.bucket(bucket).key(destinationKey));
+            return url.toString();
+        } catch (S3Exception e) {
+            log.error("S3 복사 실패: {} → {} : {}", sourceKey, destinationKey, e.getMessage());
+            throw new IllegalStateException("S3 복사 실패", e);
+        }
+    }
+
+    /**
+     * S3 URL로부터 원본 key를 추출하여, 지정한 새 key로 복사
+     * @param sourceUrl S3 파일 URL
+     * @param destinationKey 새로 저장할 key
+     * @return 복사된 객체의 전체 URL
+     */
+    public String copyFromUrl(String sourceUrl, String destinationKey) {
+        try {
+            // 버킷 호스트명 접두어 제거 → key 추출
+            String hostPrefix = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/";
+            if (!sourceUrl.startsWith(hostPrefix)) {
+                throw new IllegalArgumentException("지원하지 않는 S3 URL 형식입니다.");
+            }
+
+            String sourceKey = sourceUrl.replace(hostPrefix, "");
+
+            // 내부 복사 수행
+            return this.copy(sourceKey, destinationKey);
+
+        } catch (Exception e) {
+            log.error("S3 URL 복사 실패: {} → {} : {}", sourceUrl, destinationKey, e.getMessage());
+            throw new IllegalStateException("S3 URL 기반 복사 실패", e);
+        }
+    }
+
 }
