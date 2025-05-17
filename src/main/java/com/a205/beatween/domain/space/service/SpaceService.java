@@ -1,6 +1,5 @@
 package com.a205.beatween.domain.space.service;
 
-import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

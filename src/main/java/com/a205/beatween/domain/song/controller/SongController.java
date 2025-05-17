@@ -3,6 +3,7 @@ package com.a205.beatween.domain.song.controller;
 import com.a205.beatween.common.reponse.ResponseDto;
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.domain.song.dto.CopySheetResponseDto;
+import com.a205.beatween.domain.song.dto.UrlRequestDto;
 import com.a205.beatween.domain.song.service.SongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,5 +25,15 @@ public class SongController {
     ){
         Result<CopySheetResponseDto> result = songService.getCopySheet(userId, spaceId, songId, categoryId, sheetId);
         return ResponseEntity.ok(ResponseDto.from(result));
+    }
+
+    @PostMapping("/sheets")
+    public ResponseEntity<String> createSheet(
+            @PathVariable("spaceId") Integer spaceId,
+            @RequestHeader("X-USER-ID") Integer userId, //로그인 구현 이전 임시 헤더
+            @RequestBody UrlRequestDto urlRequestDto) {
+
+        String result = songService.createSheet(urlRequestDto, userId, spaceId);
+        return ResponseEntity.accepted().body(result);
     }
 }
