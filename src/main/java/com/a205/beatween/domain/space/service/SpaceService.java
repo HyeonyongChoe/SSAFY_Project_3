@@ -46,9 +46,17 @@ public class SpaceService {
 
         spaceRepository.save(teamspace);
 
+        // 스페이스 이름 기반 슬러그 생성
+        String slug = name
+                .toLowerCase()
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("(^-|-$)", "");
+
+        String shareUrlWithSlug = "/share/" + slug + "/" + shareKey;
+
         return CreateTeamDto.builder()
             .name(name)
-            .share_url(shareKey)
+            .share_url(shareUrlWithSlug)
             .build();
     }
 
