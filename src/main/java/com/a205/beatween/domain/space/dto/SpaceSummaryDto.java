@@ -7,4 +7,5 @@ import lombok.Data;
 @Builder
 public class SpaceSummaryDto {
     String spaceName;
+    int spaceId;
 }

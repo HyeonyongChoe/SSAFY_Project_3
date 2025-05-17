@@ -91,6 +91,7 @@ public class SpaceService {
         if(!isMember) {
             SpaceSummaryDto spaceSummaryDto = SpaceSummaryDto.builder()
                     .spaceName(space.getName())
+                    .spaceId(space.getSpaceId())
                     .build();
             return Result.success(InvitationDto.ofInviteNonMember(spaceSummaryDto));
         }
