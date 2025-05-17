@@ -22,3 +22,15 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> str:
     
     except Exception as e:
         raise RuntimeError(f"YouTube download failed: {str(e)}")
+
+import re
+
+def extract_youtube_id(url):
+    # 다양한 유튜브 URL 패턴을 지원하는 정규식
+    regex = (
+        r'(?:v=|\/)([0-9A-Za-z_-]{11})'
+    )
+    match = re.search(regex, url)
+    if match:
+        return match.group(1)
+    return None
