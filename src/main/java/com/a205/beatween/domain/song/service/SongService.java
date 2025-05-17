@@ -17,18 +17,14 @@ import com.a205.beatween.domain.space.entity.Category;
 import com.a205.beatween.domain.space.entity.Space;
 import com.a205.beatween.domain.space.repository.CategoryRepository;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
-import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import com.a205.beatween.domain.space.service.SpaceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @RequiredArgsConstructor
@@ -39,14 +35,11 @@ public class SongService {
 
     private final SpaceService spaceService;
     private final WebClient webClient = WebClient.create();
-    private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private final OriginalSongRepository originalSongRepository;
-    private final UserSpaceRepository userSpaceRepository;
     private final SpaceRepository spaceRepository;
     private final OriginalSheetRepository originalSheetRepository;
     private final S3Util s3Util;
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+
 
     public Result<CopySheetResponseDto> getCopySheet(Integer userId, Integer spaceId, Integer songId, Integer categoryId, Integer sheetId){
         boolean isMember = spaceService.checkUserIsMemberOfSpace(userId, spaceId);

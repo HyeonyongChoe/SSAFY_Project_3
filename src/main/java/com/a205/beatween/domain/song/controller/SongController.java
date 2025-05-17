@@ -28,12 +28,16 @@ public class SongController {
     }
 
     @PostMapping("/sheets")
-    public ResponseEntity<String> createSheet(
+    public ResponseEntity<ResponseDto<Object>> createSheet(
             @PathVariable("spaceId") Integer spaceId,
             @RequestHeader("X-USER-ID") Integer userId, //로그인 구현 이전 임시 헤더
             @RequestBody UrlRequestDto urlRequestDto) {
 
         String result = songService.createSheet(urlRequestDto, userId, spaceId);
-        return ResponseEntity.accepted().body(result);
+        ResponseDto<Object> responseDto = ResponseDto.builder()
+                .success(true)
+                .data(result)
+                .build();
+        return ResponseEntity.ok(responseDto);
     }
 }
