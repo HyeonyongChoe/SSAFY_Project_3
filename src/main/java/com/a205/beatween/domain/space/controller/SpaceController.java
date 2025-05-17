@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/v1/space")
+@RequestMapping("/api/v1/spaces")
 @RequiredArgsConstructor
 public class SpaceController {
 
