@@ -13,4 +13,5 @@ public interface SpaceRepository extends JpaRepository<Space, Integer> {
     @Query("SELECT MAX(s.spaceId) FROM Space s")
     Optional<Integer> findMaxSpaceId();
 
+    Optional<Space> findByShareKey(String shareKey);
 }
