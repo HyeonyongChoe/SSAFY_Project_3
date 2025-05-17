@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SpaceRepository extends JpaRepository<UserSpace, Integer> {
+public interface UserSpaceRepository extends JpaRepository<UserSpace, Integer> {
     boolean existsByUser_UserIdAndSpace_SpaceId(Integer userId, Integer spaceId);
 }
