@@ -14,16 +14,17 @@ interface EnsembleRoomFooterProps {
 export default function EnsembleRoomFooter({
   containerRef,
 }: EnsembleRoomFooterProps) {
-  const { isPlaying } = useGlobalStore(); // ✅ 전역 재생 상태 가져오기
+  const { isPlaying } = useGlobalStore();
 
   const { thumbnails, isPreviewVisible, handleThumbnailClick } =
     usePreviewThumbnails(containerRef);
-  if (isPlaying) return null; // ✅ 재생 중이면 아무것도 렌더하지 않음
+  if (isPlaying) return null;
 
   return (
-    <footer className="w-full fixed bottom-0 bg-[#2E3153] text-white text-sm z-50">
-      {/* 썸네일 바: 시각적으로 위쪽에 위치하도록 먼저 렌더 */}
-      {/* 썸네일 바 */}
+    <footer
+      onClick={(e) => e.stopPropagation()}
+      className="w-full fixed bottom-0 bg-[#2E3153] text-white text-sm z-50"
+    >
       {isPreviewVisible && (
         <div className="w-full px-4 py-2 bg-[#2E3153] border-t border-white/10 flex gap-2 overflow-x-auto">
           {thumbnails.map((thumb, index) => (
@@ -41,8 +42,6 @@ export default function EnsembleRoomFooter({
           ))}
         </div>
       )}
-
-      {/* 버튼 바: 항상 가장 아래 */}
       <div className="flex items-center justify-between px-6 py-2 order-2">
         <div className="flex items-center gap-4">
           <PlayControl />

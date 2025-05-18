@@ -1,12 +1,29 @@
 import { Icon } from "@/shared/ui/Icon";
-import { useScoreStore } from "@/features/score/model/useScoreStore"; // ✅ 추가
+import { useModalStore } from "@/shared/lib/store/modalStore";
+import BpmRatioSelector from "@/features/player/ui/BpmRatioSelector";
+import { useScoreStore } from "@/features/score/model/useScoreStore";
 
 export function BpmControlButton() {
-  const bpm = useScoreStore((state) => state.bpm); // ✅ 상태 연동
+  const { openModal, closeModal } = useModalStore();
+  const bpm = useScoreStore((state) => state.bpm); // 현재 BPM 가져오기
+
+  const handleClick = () => {
+    openModal("action", {
+      title: "",
+      info: "",
+      okText: null,
+      cancelText: null,
+      children: <BpmRatioSelector onClose={closeModal} />,
+    });
+  };
+
   return (
-    <button className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral800 hover:bg-neutral700 text-sm">
+    <button
+      onClick={handleClick}
+      className="flex items-center gap-1 px-3 py-1.5 rounded bg-neutral800 hover:bg-neutral700 text-sm"
+    >
       <Icon icon="settings" size={18} />
-      <span>{bpm}bpm</span>
+      <span>{bpm} bpm</span>
     </button>
   );
 }

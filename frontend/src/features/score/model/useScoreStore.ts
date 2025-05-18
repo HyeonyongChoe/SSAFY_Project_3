@@ -13,6 +13,9 @@ interface ScoreStore {
   bpm: number;
   setBpm: (bpm: number) => void;
 
+  baseBpm: number;
+  setBaseBpm: (bpm: number) => void;
+
   thumbnails: string[];
   setThumbnails: (thumbnails: string[]) => void;
 
@@ -44,6 +47,9 @@ export const useScoreStore = create<ScoreStore>((set) => ({
 
   bpm: 120,
   setBpm: (bpm) => set({ bpm }),
+
+  baseBpm: 120,
+  setBaseBpm: (bpm) => set({ baseBpm: bpm }),
 
   thumbnails: [],
   setThumbnails: (thumbnails) => set({ thumbnails }),

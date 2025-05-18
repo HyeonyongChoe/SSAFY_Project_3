@@ -1,4 +1,3 @@
-// src/widgets/ScoreSheetViewer/index.tsx
 import React, { useEffect, useRef } from "react";
 import { useScoreStore } from "@/features/score/model/useScoreStore";
 import { useMeasureHighlight } from "@/features/score/hooks/useMeasureHighlight";
@@ -14,12 +13,12 @@ interface ScoreSheetViewerProps {
 const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   containerRef,
 }) => {
-  const { isFullscreen, currentMeasure, systems } = useScoreStore();
+  const { isFullscreen, currentMeasure, systems, isPlaying } = useScoreStore();
   const clientId = useGlobalStore((state) => state.clientId);
 
   console.log("🎯 ScoreSheetViewer mounted with clientId:", clientId);
 
-  usePlaySync("1", clientId); // clientId는 number 타입
+  usePlaySync("1");
 
   const lastSystemIndexRef = useRef<number | null>(null);
 
@@ -35,36 +34,37 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   }, []);
 
   useEffect(() => {
-    console.log("🎼 currentMeasure changed:", currentMeasure);
-
     if (!containerRef.current) return;
+
+    const container = containerRef.current;
+    const systemElements = container.querySelectorAll("g.system");
+
+    // dimmed 효과 설정
+    if (isPlaying) {
+      systemElements.forEach((el) => el.classList.add("dimmed"));
+    } else {
+      systemElements.forEach((el) => el.classList.remove("dimmed"));
+    }
 
     const currentSystemIndex = systems.findIndex((sys) =>
       sys.measureIds.includes(currentMeasure)
     );
+    if (currentSystemIndex === -1) return;
 
-    if (currentSystemIndex === -1) {
-      console.warn("⚠️ System not found for measure:", currentMeasure);
-      return;
+    const currentSystem = systems[currentSystemIndex].el as SVGGraphicsElement;
+
+    if (isPlaying) currentSystem.classList.remove("dimmed");
+
+    // 재생 중일 때만 스크롤
+    if (isPlaying && lastSystemIndexRef.current !== currentSystemIndex) {
+      currentSystem.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+        inline: "nearest",
+      });
+      lastSystemIndexRef.current = currentSystemIndex;
     }
-
-    if (lastSystemIndexRef.current !== currentSystemIndex) {
-      console.log("📍 scrolling to system index:", currentSystemIndex);
-      const system = systems[currentSystemIndex];
-      const systemEl = system.el as SVGGraphicsElement;
-
-      if (containerRef.current && systemEl) {
-        systemEl.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-          inline: "nearest",
-        });
-        lastSystemIndexRef.current = currentSystemIndex;
-      } else {
-        console.warn("❌ systemEl not found or not in container");
-      }
-    }
-  }, [currentMeasure, systems, containerRef]);
+  }, [currentMeasure, systems, isPlaying]);
 
   return (
     <div

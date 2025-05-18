@@ -7,7 +7,6 @@ import { useSocketStore } from "@/app/store/socketStore";
 export function PlayControl() {
   const { isPlaying, togglePlay, currentMeasure } = usePlayerStore();
   const { measureCount, bpm } = useScoreStore();
-  const clientId = useGlobalStore((state) => state.clientId);
   const setGlobalPlaying = useGlobalStore((state) => state.setIsPlaying);
   const stompClient = useSocketStore((state) => state.stompClient);
 

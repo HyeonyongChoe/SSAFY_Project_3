@@ -150,3 +150,7 @@ body {
 .custom-tooltip .info {
   @apply bg-brandcolor100 text-neutral100;
 }
+g.system.dimmed {
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}

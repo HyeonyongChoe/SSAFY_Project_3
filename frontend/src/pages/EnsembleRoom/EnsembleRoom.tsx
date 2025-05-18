@@ -10,9 +10,7 @@ export default function EnsembleRoom() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleClick = () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-    }
+    setIsPlaying(!isPlaying); // 현재 상태를 반전시킴
   };
 
   return (

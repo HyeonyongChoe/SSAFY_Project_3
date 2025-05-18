@@ -1,33 +1,54 @@
 // src/pages/PersonalSpace/index.tsx
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Client } from "@stomp/stompjs";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/ui/Button";
 import { useSocketStore } from "@/app/store/socketStore";
+import { useGlobalStore } from "@/app/store/globalStore";
 
 export const PersonalSpacePage = () => {
   const navigate = useNavigate();
   const stompClientRef = useRef<Client | null>(null);
   const setStompClient = useSocketStore((state) => state.setStompClient);
 
+  // ✅ 쿠키에서 JSESSIONID 추출
+  const getSessionIdFromCookie = () => {
+    const match = document.cookie.match(/JSESSIONID=([^;]+)/);
+    return match ? match[1] : null;
+  };
+
   const connectAndEnter = () => {
-    // ✅ 중복 연결 방지
     if (stompClientRef.current?.connected) {
       console.log("⚠️ 이미 연결된 WebSocket입니다");
       navigate("/room");
       return;
     }
 
+    const clientId = useGlobalStore.getState().clientId;
+    const copySheetIds = ["101", "102", "103"];
+    const spaceId = "1";
+    const sessionId = getSessionIdFromCookie();
+
+    const headers = {
+      spaceId,
+      userId: String(clientId),
+      copySheetIds: copySheetIds.join(","),
+      sessionId: sessionId ?? "unknown",
+    };
+
+    console.log("📡 WebSocket connectHeaders:", headers);
+
     const client = new Client({
       brokerURL: import.meta.env.VITE_BROKER_URL,
       reconnectDelay: 5000,
+      connectHeaders: headers,
     });
 
     client.onConnect = () => {
       console.log("✅ WebSocket connected");
       stompClientRef.current = client;
-      setStompClient(client); // ✅ 전역 저장
-      navigate("/room"); // ✅ 연결 완료 후 이동
+      setStompClient(client);
+      navigate("/room");
     };
 
     client.onStompError = (frame) => {

@@ -7,3 +7,4 @@ export function isValidBpm(bpm: number): boolean {
 export function bpmRatio(original: number, current: number): number {
   return current / original;
 }
+export const ratioOptions = [0.25, 0.5, 0.75, 1];

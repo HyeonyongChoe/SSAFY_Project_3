@@ -1,4 +1,3 @@
-// src/features/score/hooks/useVerovioLoader.ts
 import { useEffect, useRef } from "react";
 import { VerovioToolkit } from "verovio/esm";
 import createVerovioModule from "verovio/wasm";
@@ -21,17 +20,17 @@ export function useVerovioLoader(
 
         const toolkit = new VerovioToolkit(VerovioModule);
         toolkit.setOptions({
-          scale: 18,
-          pageWidth: 3000,
-          pageHeight: 2970,
-          spacingLinear: 0.5,
+          scale: 13,
+          pageWidth: 2000,
           adjustPageHeight: true,
+          spacingLinear: 0.5,
+          spacingSystem: 18,
+          spacingStaff: 6.5,
+          spacingNonLinear: 0,
           breaks: "encoded",
           svgViewBox: true,
           footer: "none",
           header: "none",
-          spacingNonLinear: 0,
-          spacingStaff: 6.5,
         });
 
         const response = await fetch(
@@ -59,12 +58,9 @@ export function useVerovioLoader(
         if (container) {
           container.innerHTML = svgAllPages;
 
-          // 마디 수 저장
-          const measureElements = container.querySelectorAll("g.measure");
-          store.setMeasureCount(measureElements.length);
-
-          // 시스템 정보 저장
+          // 시스템 정보 계산 및 마디 클릭 이벤트 설정
           const systemElements = container.querySelectorAll("g.system");
+          let totalHeight = 0;
           const systemList: { el: Element; measureIds: number[] }[] = [];
           let globalMeasureIndex = 0;
 
@@ -72,15 +68,32 @@ export function useVerovioLoader(
             const measures = Array.from(systemEl.querySelectorAll("g.measure"));
             const measureIds = measures.map(() => globalMeasureIndex++);
 
-            console.log(`📋 [System ${index}] 추출된 measureIds:`, measureIds);
+            // ⬇️ 마디에 인덱스 속성과 클릭 이벤트 추가
+          measures.forEach((el, i) => {
+            const measureIndex = measureIds[i];
+            el.setAttribute("data-measure-index", String(measureIndex));
+            (el as SVGGraphicsElement).style.cursor = "pointer"; // ⬅ 수정
+            el.addEventListener("click", () => {
+              useScoreStore.getState().setCurrentMeasure(measureIndex);            });
+          });
+
+            const bbox = (systemEl as SVGGElement).getBBox();
+            console.log(`📐 System ${index}: height=${bbox.height.toFixed(2)}, y=${bbox.y.toFixed(2)}`);
+            totalHeight += bbox.height;
 
             systemList.push({
               el: systemEl,
               measureIds,
             });
+
+            console.log(`📋 [System ${index}] 추출된 measureIds:`, measureIds);
           });
 
-          console.log("🧠 줄 단위 시스템 정보 저장됨:", systemList);
+          const avgHeight = totalHeight / systemElements.length;
+          console.log(`📊 평균 시스템 높이: ${avgHeight.toFixed(2)}px`);
+
+          const measureElements = container.querySelectorAll("g.measure");
+          store.setMeasureCount(measureElements.length);
           store.setSystems(systemList);
         }
 
@@ -88,7 +101,6 @@ export function useVerovioLoader(
           if (container) container.innerHTML = "";
         };
 
-        // BPM 추출
         try {
           const timeMap = toolkit.renderToMIDI();
           const bpmMatch = timeMap?.match(/Tempo="?(\d+)"?/i);

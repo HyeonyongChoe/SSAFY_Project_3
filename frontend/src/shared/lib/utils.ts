@@ -27,7 +27,7 @@ export function parseMusicXML(xmlString: string) {
 }
 
 // 템포 변환 유틸리티
-export function bpmToMilliseconds(bpm: number, beatType = 4) {
+export function bpmToMilliseconds(bpm: number) {
   // 한 비트당 밀리초
   return (60 / bpm) * 1000
 }
