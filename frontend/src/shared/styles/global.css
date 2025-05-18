@@ -151,6 +151,8 @@ body {
   @apply bg-brandcolor100 text-neutral100;
 }
 g.system.dimmed {
+  fill: #333333 !important;
+  stroke: #333333 !important;
   opacity: 0.3;
   transition: opacity 0.3s ease;
 }

@@ -58,6 +58,21 @@ export function useVerovioLoader(
         if (container) {
           container.innerHTML = svgAllPages;
 
+          // ✅ 색상 정보 디버깅
+          const allElements = container.querySelectorAll("svg *");
+          console.log(`🎯 SVG 요소 개수: ${allElements.length}`);
+          allElements.forEach((el) => {
+            const tag = el.tagName;
+            const fill = el.getAttribute("fill") || "none";
+            const stroke = el.getAttribute("stroke") || "none";
+            const styleFill = (el as SVGElement).style.fill || "none";
+            const styleStroke = (el as SVGElement).style.stroke || "none";
+
+            console.log(
+              `[${tag}] fill=${fill}, stroke=${stroke}, style.fill=${styleFill}, style.stroke=${styleStroke}`
+            );
+          });
+
           // 시스템 정보 계산 및 마디 클릭 이벤트 설정
           const systemElements = container.querySelectorAll("g.system");
           let totalHeight = 0;
@@ -68,14 +83,16 @@ export function useVerovioLoader(
             const measures = Array.from(systemEl.querySelectorAll("g.measure"));
             const measureIds = measures.map(() => globalMeasureIndex++);
 
-            // ⬇️ 마디에 인덱스 속성과 클릭 이벤트 추가
-          measures.forEach((el, i) => {
-            const measureIndex = measureIds[i];
-            el.setAttribute("data-measure-index", String(measureIndex));
-            (el as SVGGraphicsElement).style.cursor = "pointer"; // ⬅ 수정
-            el.addEventListener("click", () => {
-              useScoreStore.getState().setCurrentMeasure(measureIndex);            });
-          });
+            measures.forEach((el, i) => {
+              const measureIndex = measureIds[i];
+              el.setAttribute("data-measure-index", String(measureIndex));
+              (el as SVGGraphicsElement).style.cursor = "pointer";
+              el.addEventListener("click", () => {
+                const { isPlaying } = useScoreStore.getState();
+                if (isPlaying) return;
+                useScoreStore.getState().setCurrentMeasure(measureIndex);
+              });
+            });
 
             const bbox = (systemEl as SVGGElement).getBBox();
             console.log(`📐 System ${index}: height=${bbox.height.toFixed(2)}, y=${bbox.y.toFixed(2)}`);

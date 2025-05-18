@@ -1,25 +1,28 @@
-// 📁 src/widgets/EnsembleRoomHeader/index.tsx
 import { useUserStore } from "@/features/user/model/useUserStore";
 import { useGlobalStore } from "@/app/store/globalStore";
 import { InstrumentDropdown } from "@/features/instrument/ui/InstrumentDropdown";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@/shared/ui/Icon";
 import { Button } from "@/shared/ui/Button";
+import { useHeaderFooterStore } from "@/app/store/headerFooterStore"; // 새로 추가된 상태 관리
 
 export function EnsembleRoomHeader() {
   const { avatarUrl } = useUserStore();
   const navigate = useNavigate();
-  const isPlaying = useGlobalStore((state) => state.isPlaying); // ✅ 추가
+  const isPlaying = useGlobalStore((state) => state.isPlaying);
+  const { showHeaderFooter } = useHeaderFooterStore();
 
   const handleExit = () => navigate("/");
   const handleEdit = () => alert("악보 수정 기능 준비 중!");
 
-  if (isPlaying) return null; // ✅ 재생 중일 땐 숨기기
+  if (isPlaying && !showHeaderFooter) return null; // 재생 중이면서 showHeaderFooter가 false일 때 숨김
 
   return (
-    <header className="w-full fixed top-0 h-16 z-50 flex items-center justify-between px-4 bg-[#2E3153] text-white shadow-md">
+    <header
+      onClick={(e) => e.stopPropagation()}
+      className="w-full fixed top-0 h-16 z-50 flex items-center justify-between px-4 bg-[#2E3153] text-white shadow-md"
+    >
       <div className="flex items-center gap-3">
-        {/* 유저 정보와 드롭다운 */}
         <div className="flex items-center gap-4">
           <div className="w-7 h-7 rounded-full overflow-hidden bg-[#1E90FF] flex items-center justify-center">
             <img

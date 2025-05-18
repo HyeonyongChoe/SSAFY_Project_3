@@ -39,8 +39,8 @@ export function useMeasureHighlight(
         rect.setAttribute("y", `${bbox.y}`);
         rect.setAttribute("width", `${bbox.width}`);
         rect.setAttribute("height", `${bbox.height}`);
-        rect.setAttribute("fill", "rgba(255, 0, 0, 0.2)");
-        rect.setAttribute("stroke", "red");
+        rect.setAttribute("fill", "rgba(144, 238, 144, 0.3)");
+        rect.setAttribute("stroke", "rgba(34, 139, 34, 0.6)");
         rect.setAttribute("stroke-width", "1");
         rect.setAttribute("class", "measure-highlight");
         rect.setAttribute("pointer-events", "none");
