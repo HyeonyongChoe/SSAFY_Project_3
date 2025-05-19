@@ -51,4 +51,17 @@ public class CategoryService {
         }
         return result;
     }
+
+    @Transactional
+    public CategoryDto updateCategory(Integer categoryId, String name) {
+        Category category = categoryRepository.getReferenceById(categoryId);
+        category.setName(name);
+        category = categoryRepository.save(category);
+        return CategoryDto
+                .builder()
+                .categoryId(category.getCategoryId())
+                .spaceId(category.getSpace().getSpaceId())
+                .name(category.getName())
+                .build();
+    }
 }

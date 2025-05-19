@@ -45,4 +45,20 @@ public class CategoryController {
                 .build();
         return ResponseEntity.ok(result);
     }
+
+    @PatchMapping("/{categoryId}")
+    public ResponseEntity<ResponseDto<Object>> updateCategory(
+            @PathVariable("spaceId") Integer spaceId,
+            @PathVariable("categoryId") Integer categoryId,
+            @RequestHeader("X-USER-ID") Integer userId,
+            @RequestParam("name") String name
+    ) {
+        CategoryDto categoryDto = categoryService.updateCategory(categoryId, name);
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(categoryDto)
+                .build();
+        return ResponseEntity.ok(result);
+    }
 }
