@@ -10,6 +10,7 @@ import { LayoutSwitcher } from "../layouts/LayoutSwitcher";
 import { SpaceLayout } from "@/widgets/SpaceLayout";
 import { LayoutDefault } from "../layouts/LayoutDefault";
 import { TestPlaywithPage, TestSheetPage } from "@/pages/Test";
+import EnsembleRoom from "@/pages/EnsembleRoom/EnsembleRoom";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
   {
     path: import.meta.env.VITE_KAKAO_REDIRECT_URI,
     element: <PageKakaoRedirect />,
+  },
+  {
+    path: "/room",
+    element: <EnsembleRoom />,
   },
   {
     path: "/test/sheet",

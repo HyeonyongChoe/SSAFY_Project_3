@@ -9,6 +9,10 @@ type GlobalState = {
   logout: () => void;
   introShown: boolean;
   setIntroShown: (shown: boolean) => void;
+  isPlaying: boolean;
+  setIsPlaying: (status: boolean) => void;
+  clientId: number;
+  setClientId: (id: number) => void;
 };
 
 export const useGlobalStore = create<GlobalState>((set) => ({
@@ -24,6 +28,10 @@ export const useGlobalStore = create<GlobalState>((set) => ({
       isLoggedIn: false,
       accessToken: null,
     })),
+  isPlaying: false,
+  setIsPlaying: (status) => set({ isPlaying: status }),
   introShown: false,
   setIntroShown: (shown) => set({ introShown: shown }),
+  clientId: Math.floor(Math.random() * 10000), // 숫자형 ID 사용
+  setClientId: (id) => set({ clientId: id }),
 }));

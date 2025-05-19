@@ -19,11 +19,14 @@ body {
 }
 
 html,
-body,
-#root {
-  @apply w-full h-full overflow-hidden;
+body {
+  @apply w-full h-full;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
-
+#root {
+  @apply w-full h-full;
+}
 /*************** 
 ** custom style **
 ****************/
@@ -71,7 +74,15 @@ body,
 .bg-noise.gradient {
   mix-blend-mode: overlay;
 }
-
+html,
+body {
+  overflow-x: hidden;
+}
+.highlight-bg {
+  fill: yellow;
+  fill-opacity: 0.3;
+  pointer-events: none;
+}
 /* tooltip custom */
 .custom-tooltip .dark {
   @apply bg-neutral1000 text-neutral100;
@@ -95,4 +106,10 @@ body,
 
 .custom-tooltip .info {
   @apply bg-brandcolor100 text-neutral100;
+}
+g.system.dimmed {
+  fill: #333333 !important;
+  stroke: #333333 !important;
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
 }
