@@ -3,14 +3,13 @@ package com.a205.beatween.domain.song.controller;
 import com.a205.beatween.common.event.SseEmitters;
 import com.a205.beatween.common.reponse.ResponseDto;
 import com.a205.beatween.common.reponse.Result;
-import com.a205.beatween.domain.song.dto.CopySheetResponseDto;
-import com.a205.beatween.domain.song.dto.CopySongListByCategoryDto;
-import com.a205.beatween.domain.song.dto.UrlRequestDto;
+import com.a205.beatween.domain.song.dto.*;
 import com.a205.beatween.domain.song.service.SongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -95,7 +94,44 @@ public class SongController {
                 .success(true)
                 .data(songList)
                 .build();
-        
+
+        return ResponseEntity.ok().body(result);
+    }
+
+    @PostMapping("/{songId}")
+    public ResponseEntity<ResponseDto<Object>> replicateSong(
+            @PathVariable("spaceId") Integer spaceId,
+            @PathVariable("songId") Integer songId,
+            @RequestHeader("X-USER-ID") Integer userId,
+            @RequestBody ReplicateSongRequestDto replicateSongRequestDto
+            ) {
+        CopySongDto copySongDto = songService.replicateSong(spaceId, songId, replicateSongRequestDto);
+
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(copySongDto)
+                .build();
+
+        return ResponseEntity.ok().body(result);
+    }
+
+    /**
+     * 곡 정보 변경
+     * @param updateSongRequestDto 사용자에게 받아온 정보
+     */
+    @PatchMapping(value = "/{songId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseDto<Object>> updateSong(
+            @PathVariable("songId") Integer songId,
+            @RequestHeader("X-USER-ID") Integer userId,
+            @ModelAttribute UpdateSongRequestDto updateSongRequestDto
+    ) throws IOException {
+        System.out.println(updateSongRequestDto.toString());
+        CopySongDto copySongDto = songService.updateSong(songId, updateSongRequestDto);
+        ResponseDto<Object> result = ResponseDto.builder()
+                .success(true)
+                .data(copySongDto)
+                .build();
         return ResponseEntity.ok().body(result);
     }
 }
