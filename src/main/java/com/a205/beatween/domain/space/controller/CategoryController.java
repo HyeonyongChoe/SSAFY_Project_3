@@ -61,4 +61,19 @@ public class CategoryController {
                 .build();
         return ResponseEntity.ok(result);
     }
+
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<ResponseDto<Object>> deleteCategory(
+            @PathVariable("spaceId") Integer spaceId,
+            @PathVariable("categoryId") Integer categoryId,
+            @RequestHeader("X-USER-ID") Integer userId
+    ) {
+        categoryService.deleteCategory(categoryId);
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data("카테고리 삭제 완료")
+                .build();
+        return ResponseEntity.ok(result);
+    }
 }
