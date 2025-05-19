@@ -72,7 +72,7 @@ public class SongService {
 
     @Async
     @Transactional
-    public String createSheet(UrlRequestDto urlRequestDto, Integer userId, Integer spaceId) {
+    public void createSheet(UrlRequestDto urlRequestDto, Integer userId, Integer spaceId) {
         // 처리 시작 이벤트 전송
         sseEmitters.send(userId, spaceId, "process", "악보 변환을 시작합니다.");
 
@@ -93,47 +93,48 @@ public class SongService {
             }
 
             // 작업 완료 이벤트 전송;
-            sseEmitters.send(userId, spaceId, "complete", copySong);
-            return "악보 생성 중입니다.";
+            sseEmitters.send(userId, spaceId, "complete", "악보 생성 완료");
+            return;
         }
         // FastAPI 호출
         callFastApi(urlRequestDto)
-        .subscribe(
-                response -> {
-                    try {
+                .subscribe(
+                        response -> {
+                            try {
 
-                        System.out.println("FastAPI 응답: " + response);
+                                System.out.println("FastAPI 응답: " + response);
 
-                        parts[0][1] = response.getDrumUrl();
-                        parts[1][1] = response.getGuitarUrl();
-                        parts[2][1] = response.getGuitarUrl();
-                        parts[3][1] = response.getBassUrl();
+                                parts[0][1] = response.getDrumUrl();
+                                parts[1][1] = response.getGuitarUrl();
+                                parts[2][1] = response.getGuitarUrl();
+                                parts[3][1] = response.getBassUrl();
 
-                        OriginalSong originalSong = insertOriginalSong(response);
-                        for(String[] part : parts) {
-                            insertOriginalSheet(originalSong,part[0], part[1]);
+                                OriginalSong originalSong = insertOriginalSong(response);
+                                for(String[] part : parts) {
+                                    insertOriginalSheet(originalSong,part[0], part[1]);
+                                }
+
+                                CopySong copySong = insertCopySong(originalSong, spaceId);
+
+                                // S3에 복사본을 만들어서 올려야함
+                                for(String[] part : parts) {
+                                    insertCopySheet(copySong, part[0], part[1]);
+                                }
+                                Thread.sleep(10000);
+                                // 최종 완료 이벤트와 함께 결과 데이터 전송
+                                sseEmitters.send(userId, spaceId, "complete", response);
+                            } catch (Exception e) {
+                                sseEmitters.send(userId, spaceId, "error", "악보 처리 중 오류 발생: " + e.getMessage());
+                            }
+                        },
+                        error -> {
+                            sseEmitters.send(userId, spaceId, "error", "FastAPI 호출 실패: " + error.getMessage());
+                            System.err.println("FastAPI 호출 실패: " + error.getMessage());
+
                         }
+                );
 
-                        CopySong copySong = insertCopySong(originalSong, spaceId);
-
-                        // S3에 복사본을 만들어서 올려야함
-                        for(String[] part : parts) {
-                            insertCopySheet(copySong, part[0], part[1]);
-                        }
-                        // 최종 완료 이벤트와 함께 결과 데이터 전송
-                        sseEmitters.send(userId, spaceId, "complete", response);
-                    } catch (Exception e) {
-                        sseEmitters.send(userId, spaceId, "error", "악보 처리 중 오류 발생: " + e.getMessage());
-                    }
-                },
-                error -> {
-                    sseEmitters.send(userId, spaceId, "error", "FastAPI 호출 실패: " + error.getMessage());
-                    System.err.println("FastAPI 호출 실패: " + error.getMessage());
-
-                }
-        );
-
-        return "악보 생성 중입니다.";
+        return;
     }
 
     private Mono<CreateSheetResponseDto> callFastApi(UrlRequestDto urlRequestDto) {
