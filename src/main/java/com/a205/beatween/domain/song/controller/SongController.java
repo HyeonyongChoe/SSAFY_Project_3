@@ -4,6 +4,7 @@ import com.a205.beatween.common.event.SseEmitters;
 import com.a205.beatween.common.reponse.ResponseDto;
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.domain.song.dto.CopySheetResponseDto;
+import com.a205.beatween.domain.song.dto.CopySongListByCategoryDto;
 import com.a205.beatween.domain.song.dto.UrlRequestDto;
 import com.a205.beatween.domain.song.service.SongService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/spaces/{spaceId}/songs")
@@ -61,5 +63,39 @@ public class SongController {
         }
 
         return emitter;
+    }
+
+    @DeleteMapping("/{songId}")
+    public ResponseEntity<ResponseDto<Object>> deleteSheet(
+            @PathVariable("spaceId") Integer spaceId,
+            @PathVariable("songId") Integer songId,
+            @RequestHeader("X-USER-ID") Integer userId
+    ) {
+        songService.deleteSheet(spaceId, songId);
+
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data("삭제 완료")
+                .build();
+
+        return ResponseEntity.ok().body(result);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ResponseDto<Object>> getAllSongs(
+            @PathVariable("spaceId") Integer spaceId,
+            @RequestHeader("X-USER-ID") Integer userId
+    ) {
+
+        List<CopySongListByCategoryDto> songList = songService.getAllSongs(spaceId);
+
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(songList)
+                .build();
+        
+        return ResponseEntity.ok().body(result);
     }
 }
