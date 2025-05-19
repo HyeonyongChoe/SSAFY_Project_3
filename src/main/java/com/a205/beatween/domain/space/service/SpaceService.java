@@ -78,8 +78,9 @@ public class SpaceService {
                 .orElseThrow(() -> new IllegalStateException("최대 Space ID를 찾을 수 없습니다."));
         spaceId++;
 
-        String key = "space_images/space_id/"+spaceId+contentType;
+        String key = "space_images/space_id/" + spaceId + contentType;
         return s3Util.upload(fileBytes, contentType, key);
+    }
 
     public List<SpacePreDto> getSpaces(Integer userId) {
         return spaceRepository.findByUserId(userId);
