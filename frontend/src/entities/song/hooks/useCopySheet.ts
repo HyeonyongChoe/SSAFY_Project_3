@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getCopySheet } from "../services/CopySheetService";
 import { CopySheetResponseDto } from "../types/CopySheet.types";
-import { ResponseDto } from "../types/Response.types";
+import { ResponseDto } from "../../../shared/types/Response.types";
 
 export const useCopySheet = (
   spaceId: number,

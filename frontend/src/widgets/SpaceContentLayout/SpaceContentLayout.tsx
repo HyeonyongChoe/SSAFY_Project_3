@@ -2,13 +2,14 @@ import { Button } from "@/shared/ui/Button";
 import { ImageBox } from "./ui/ImageBox";
 import { PlaywithButton } from "./ui/PlaywithButton";
 import { ImageCircle } from "@/shared/ui/ImageCircle";
-import { NoteItem } from "./ui/NoteItem";
-import { CreateSheetButton } from "./ui/CreateSheetButton";
 import { useNavigate } from "react-router-dom";
 import { openConfirm, openModal } from "@/shared/lib/modal";
 import { toast } from "@/shared/lib/toast";
 import { ManageCategoryForm } from "@/features/manageCategory/ui/ManageCategoryForm";
 import { UpdateBandForm } from "@/features/updateBand/ui/UpdateBandForm";
+import { CopySongListByCategoryDto } from "@/entities/song/types/CopySong.types";
+import { NoteList } from "./ui/NoteList";
+import { CreateSheetButton } from "@/features/createSheet/ui/CreateSheetButton";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
@@ -17,6 +18,7 @@ interface SpaceContentLayoutProps {
   title?: String;
   summary?: String;
   teamImageUrl?: String;
+  songList?: CopySongListByCategoryDto[];
 }
 
 export const SpaceContentLayout = ({
@@ -144,7 +146,7 @@ export const SpaceContentLayout = ({
       </div>
       {/* button section */}
       <div className="w-full flex flex-wrap gap-3 px-6">
-        <CreateSheetButton />
+        <CreateSheetButton teamId={teamId} />
         {type === "team" && (
           <PlaywithButton
             onClick={() => {
@@ -154,7 +156,7 @@ export const SpaceContentLayout = ({
         )}
       </div>
       {/* note list */}
-      <div className="px-6 py-10 flex flex-col gap-4">
+      <div className="px-6 py-10 flex flex-col gap-6">
         {/* list title */}
         <div className="flex flex-wrap justify-between">
           <div className="text-2xl font-bold">악보 목록</div>
@@ -181,12 +183,7 @@ export const SpaceContentLayout = ({
             카테고리 관리하기
           </Button>
         </div>
-        {/* category title */}
-        <div className="text-left text-xl font-bold">카테고리 1</div>
-        <div className="flex flex-wrap">
-          <NoteItem />
-          <NoteItem />
-        </div>
+        <NoteList teamId={teamId} />
       </div>
     </div>
   );
