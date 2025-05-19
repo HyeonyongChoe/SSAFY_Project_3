@@ -31,7 +31,7 @@ export const UpdateSongButton = ({ spaceId, song }: UpdateSongButtonProps) => {
       onClick={() =>
         openModal({
           title: "악보 수정하기",
-          children: <UpdateSongForm song={song} />,
+          children: <UpdateSongForm spaceId={spaceId} song={song} />,
           okText: "수정하기",
           onConfirm: () => {
             const formData = new FormData(); // 실제로는 UpdateSongForm에서 받아와야 함
