@@ -91,9 +91,15 @@ public class SongService {
                 OriginalSheet checkSheet = originalSheetRepository.findBySongAndPart(checkSong, part[0]);
                 insertCopySheet(copySong, part[0], checkSheet.getSheetUrl());
             }
+            try {
+                Thread.sleep(10000);
+            } catch (Exception e) {
+                sseEmitters.send(userId, spaceId, "error", "오류 발생");
 
+            }
             // 작업 완료 이벤트 전송;
             sseEmitters.send(userId, spaceId, "complete", "악보 생성 완료");
+            sseEmitters.remove(userId, spaceId);
             return;
         }
         // FastAPI 호출
@@ -120,15 +126,17 @@ public class SongService {
                                 for(String[] part : parts) {
                                     insertCopySheet(copySong, part[0], part[1]);
                                 }
-                                Thread.sleep(10000);
                                 // 최종 완료 이벤트와 함께 결과 데이터 전송
                                 sseEmitters.send(userId, spaceId, "complete", response);
+                                sseEmitters.remove(userId, spaceId);
                             } catch (Exception e) {
                                 sseEmitters.send(userId, spaceId, "error", "악보 처리 중 오류 발생: " + e.getMessage());
+                                sseEmitters.remove(userId, spaceId);
                             }
                         },
                         error -> {
                             sseEmitters.send(userId, spaceId, "error", "FastAPI 호출 실패: " + error.getMessage());
+                            sseEmitters.remove(userId, spaceId);
                             System.err.println("FastAPI 호출 실패: " + error.getMessage());
 
                         }
