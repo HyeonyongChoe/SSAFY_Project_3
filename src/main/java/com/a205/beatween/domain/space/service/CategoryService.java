@@ -9,6 +9,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
@@ -32,5 +35,20 @@ public class CategoryService {
                 .spaceId(category.getSpace().getSpaceId())
                 .name(category.getName())
                 .build();
+    }
+
+    public List<CategoryDto> getCategories(Integer spaceId) {
+        List<Category> categoryList = categoryRepository.findBySpace_SpaceId(spaceId);
+        List<CategoryDto> result = new ArrayList<CategoryDto>();
+        for (Category category : categoryList) {
+            CategoryDto categoryDto = CategoryDto
+                    .builder()
+                    .categoryId(category.getCategoryId())
+                    .spaceId(category.getSpace().getSpaceId())
+                    .name(category.getName())
+                    .build();
+            result.add(categoryDto);
+        }
+        return result;
     }
 }
