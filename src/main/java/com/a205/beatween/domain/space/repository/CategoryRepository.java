@@ -14,4 +14,6 @@ public interface CategoryRepository extends JpaRepository<Category, Integer>  {
     Category getCategoryByName(String name);
 
     Category getCategoryByNameAndSpace(String name, Space space);
+
+    List<Category> findBySpace_SpaceId(Integer spaceId);
 }

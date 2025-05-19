@@ -3,9 +3,8 @@ package com.a205.beatween.domain.song.service;
 import com.a205.beatween.common.event.SseEmitters;
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
-import com.a205.beatween.domain.song.dto.CopySheetResponseDto;
-import com.a205.beatween.domain.song.dto.CreateSheetResponseDto;
-import com.a205.beatween.domain.song.dto.UrlRequestDto;
+import com.a205.beatween.domain.drawing.repository.DrawingRepository;
+import com.a205.beatween.domain.song.dto.*;
 import com.a205.beatween.domain.song.entity.CopySheet;
 import com.a205.beatween.domain.song.entity.CopySong;
 import com.a205.beatween.domain.song.entity.OriginalSheet;
@@ -27,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SongService {
@@ -41,6 +43,7 @@ public class SongService {
     private final OriginalSheetRepository originalSheetRepository;
     private final S3Util s3Util;
     private final SseEmitters sseEmitters;
+    private final DrawingRepository drawingRepository;
 
 
     public Result<CopySheetResponseDto> getCopySheet(Integer userId, Integer spaceId, Integer songId, Integer categoryId, Integer sheetId){
@@ -207,5 +210,43 @@ public class SongService {
                 .build();
 
         return copySheetRepository.save(copySheet);
+    }
+
+    public void deleteSheet(Integer spaceId, Integer songId) {
+        List<CopySheet> copySheetList = copySheetRepository.findByCopySong_CopySongId(songId);
+        for(CopySheet copySheet : copySheetList) {
+            drawingRepository.deleteByCopySheet_CopySheetId(copySheet.getCopySheetId());
+            copySheetRepository.deleteById(copySheet.getCopySheetId());
+        }
+        copySongRepository.deleteById(songId);
+    }
+
+
+    public List<CopySongListByCategoryDto> getAllSongs(Integer spaceId) {
+        List<Category> categoryList = categoryRepository.findBySpace_SpaceId(spaceId);
+        List<CopySongListByCategoryDto> result = new ArrayList<>();
+        for(Category category : categoryList) {
+            List<CopySong> copySongList = copySongRepository.findByCategory(category);
+            List<CopySongDto> copySongDtoList = new ArrayList<>();
+            for(CopySong copySong : copySongList) {
+                CopySongDto copySongDto = CopySongDto
+                        .builder()
+                        .songId(copySong.getCopySongId())
+                        .categoryId(category.getCategoryId())
+                        .title(copySong.getTitle())
+                        .thumbnailUrl(copySong.getThumbnailUrl())
+                        .build();
+                copySongDtoList.add(copySongDto);
+            }
+            CopySongListByCategoryDto copySongListDto = CopySongListByCategoryDto
+                    .builder()
+                    .categoryId(category.getCategoryId())
+                    .categoryName(category.getName())
+                    .copySongList(copySongDtoList)
+                    .build();
+            result.add(copySongListDto);
+        }
+
+        return result;
     }
 }
