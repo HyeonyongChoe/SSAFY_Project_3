@@ -20,7 +20,4 @@ public class DrawingPoint {
                 .build();
     }
 
-    public String getKey() {
-        return relativeX + "," + relativeY;
-    }
 }
