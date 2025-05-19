@@ -1,5 +1,6 @@
 package com.a205.beatween.domain.song.service;
 
+import com.a205.beatween.common.event.SseEmitters;
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
 import com.a205.beatween.domain.song.dto.CopySheetResponseDto;
@@ -39,6 +40,7 @@ public class SongService {
     private final SpaceRepository spaceRepository;
     private final OriginalSheetRepository originalSheetRepository;
     private final S3Util s3Util;
+    private final SseEmitters sseEmitters;
 
 
     public Result<CopySheetResponseDto> getCopySheet(Integer userId, Integer spaceId, Integer songId, Integer categoryId, Integer sheetId){
@@ -71,6 +73,9 @@ public class SongService {
     @Async
     @Transactional
     public String createSheet(UrlRequestDto urlRequestDto, Integer userId, Integer spaceId) {
+        // 처리 시작 이벤트 전송
+        sseEmitters.send(userId, spaceId, "process", "악보 변환을 시작합니다.");
+
         String[][] parts = new String[4][2];
         parts[0][0] = "drum";
         parts[1][0] = "guitar";
@@ -86,32 +91,43 @@ public class SongService {
                 OriginalSheet checkSheet = originalSheetRepository.findBySongAndPart(checkSong, part[0]);
                 insertCopySheet(copySong, part[0], checkSheet.getSheetUrl());
             }
+
+            // 작업 완료 이벤트 전송;
+            sseEmitters.send(userId, spaceId, "complete", copySong);
             return "악보 생성 중입니다.";
         }
         // FastAPI 호출
         callFastApi(urlRequestDto)
         .subscribe(
                 response -> {
-                    System.out.println("FastAPI 응답: " + response);
+                    try {
 
-                    parts[0][1] = response.getDrumUrl();
-                    parts[1][1] = response.getGuitarUrl();
-                    parts[2][1] = response.getGuitarUrl();
-                    parts[3][1] = response.getBassUrl();
+                        System.out.println("FastAPI 응답: " + response);
 
-                    OriginalSong originalSong = insertOriginalSong(response);
-                    for(String[] part : parts) {
-                        insertOriginalSheet(originalSong,part[0], part[1]);
-                    }
+                        parts[0][1] = response.getDrumUrl();
+                        parts[1][1] = response.getGuitarUrl();
+                        parts[2][1] = response.getGuitarUrl();
+                        parts[3][1] = response.getBassUrl();
 
-                    CopySong copySong = insertCopySong(originalSong, spaceId);
+                        OriginalSong originalSong = insertOriginalSong(response);
+                        for(String[] part : parts) {
+                            insertOriginalSheet(originalSong,part[0], part[1]);
+                        }
 
-                    // S3에 복사본을 만들어서 올려야함
-                    for(String[] part : parts) {
-                        insertCopySheet(copySong, part[0], part[1]);
+                        CopySong copySong = insertCopySong(originalSong, spaceId);
+
+                        // S3에 복사본을 만들어서 올려야함
+                        for(String[] part : parts) {
+                            insertCopySheet(copySong, part[0], part[1]);
+                        }
+                        // 최종 완료 이벤트와 함께 결과 데이터 전송
+                        sseEmitters.send(userId, spaceId, "complete", response);
+                    } catch (Exception e) {
+                        sseEmitters.send(userId, spaceId, "error", "악보 처리 중 오류 발생: " + e.getMessage());
                     }
                 },
                 error -> {
+                    sseEmitters.send(userId, spaceId, "error", "FastAPI 호출 실패: " + error.getMessage());
                     System.err.println("FastAPI 호출 실패: " + error.getMessage());
 
                 }
