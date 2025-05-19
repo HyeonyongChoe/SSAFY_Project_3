@@ -39,7 +39,7 @@ public class SpaceService {
             .name(name)
             .description(description)
             .imageUrl(imageUrl)
-            .shareUrl(shareKey)
+            .shareKey(shareKey)
             .spaceType(SpaceType.TEAM)
             .createdAt(LocalDateTime.now())
             .build();
@@ -56,7 +56,7 @@ public class SpaceService {
 
         return CreateTeamDto.builder()
             .name(name)
-            .share_url(shareUrlWithSlug)
+            .shareKey(shareUrlWithSlug)
             .build();
     }
 

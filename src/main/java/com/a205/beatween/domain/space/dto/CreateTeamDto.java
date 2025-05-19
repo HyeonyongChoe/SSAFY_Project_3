@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateTeamDto {
     String name;
-    String share_url;
+    String shareKey;
 }
