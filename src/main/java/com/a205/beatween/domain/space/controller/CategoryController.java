@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/spaces/{spaceId}/categories")
 @RequiredArgsConstructor
@@ -26,6 +28,20 @@ public class CategoryController {
                 .builder()
                 .success(true)
                 .data(category)
+                .build();
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ResponseDto<Object>> getCategories(
+            @PathVariable("spaceId") Integer spaceId,
+            @RequestHeader("X-USER-ID") Integer userId
+    ) {
+        List<CategoryDto> categoryList = categoryService.getCategories(spaceId);
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(categoryList)
                 .build();
         return ResponseEntity.ok(result);
     }
