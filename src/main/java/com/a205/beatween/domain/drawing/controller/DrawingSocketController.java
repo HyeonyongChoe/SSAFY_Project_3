@@ -38,13 +38,5 @@ public class DrawingSocketController {
         return drawingService.getDrawingBySheet(spaceId, copySheetId);
     }
 
-    @MessageMapping("/disconnect")
-    public void manualDisconnect(@Header("spaceId") String spaceId,
-                                 @Header("userId") int userId,
-                                 StompHeaderAccessor accessor) {
-        String sessionId = accessor.getSessionId();
-        drawingService.handleManualDisconnect(spaceId, sessionId, userId);
-    }
-
 
 }

@@ -18,6 +18,4 @@ public interface DrawingService {
 
     Result<Void> savePersonalDrawings(Map<Integer, List<DrawingPoint>> drawingMap);
 
-    void handleManualDisconnect(String spaceId, String sessionId, int userId);
-
 }

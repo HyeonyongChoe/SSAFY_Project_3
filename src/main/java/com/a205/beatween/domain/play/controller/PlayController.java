@@ -1,11 +1,10 @@
 package com.a205.beatween.domain.play.controller;
 
-import com.a205.beatween.domain.play.dto.ManagerCheckResponse;
+import com.a205.beatween.domain.play.dto.ManagerStatusMessage;
 import com.a205.beatween.domain.play.dto.PlayControlMessage;
 import com.a205.beatween.domain.play.service.PlayService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,16 +18,4 @@ public class PlayController {
         PlayControlMessage latest = playService.getLatestState(spaceId);
         return ResponseEntity.ok(latest);
     }
-
-    @GetMapping("/authority/manager/{spaceId}")
-    public ResponseEntity<ManagerCheckResponse> checkIfManager(
-            @PathVariable long spaceId,
-            StompHeaderAccessor accessor
-    ) {
-        String sessionId = accessor.getSessionId();
-        ManagerCheckResponse response = playService.checkManager(spaceId, sessionId);
-        return ResponseEntity.ok(response);
-    }
-
-
 }

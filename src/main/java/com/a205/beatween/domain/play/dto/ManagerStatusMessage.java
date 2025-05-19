@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ManagerCheckResponse {
+public class ManagerStatusMessage {
     private boolean isManager;
 }
