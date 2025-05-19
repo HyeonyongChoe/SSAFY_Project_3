@@ -48,7 +48,7 @@ const router = createBrowserRouter([
     element: <PageKakaoRedirect />,
   },
   {
-    path: "/room",
+    path: "/room/:roomId",
     element: <EnsembleRoom />,
   },
   {

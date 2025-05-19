@@ -60,20 +60,6 @@ export function useVerovioLoader(
         if (verovioTarget) {
           verovioTarget.innerHTML = svgAllPages;
 
-          const allElements = verovioTarget.querySelectorAll("svg *");
-          console.log(`🎯 SVG 요소 개수: ${allElements.length}`);
-          allElements.forEach((el) => {
-            const tag = el.tagName;
-            const fill = el.getAttribute("fill") || "none";
-            const stroke = el.getAttribute("stroke") || "none";
-            const styleFill = (el as SVGElement).style.fill || "none";
-            const styleStroke = (el as SVGElement).style.stroke || "none";
-
-            console.log(
-              `[${tag}] fill=${fill}, stroke=${stroke}, style.fill=${styleFill}, style.stroke=${styleStroke}`
-            );
-          });
-
           const systemElements = verovioTarget.querySelectorAll("g.system");
 
           systemElements.forEach((systemEl) => {
@@ -84,7 +70,7 @@ export function useVerovioLoader(
           const systemList: { el: Element; measureIds: number[] }[] = [];
           let globalMeasureIndex = 0;
 
-          systemElements.forEach((systemEl, index) => {
+          systemElements.forEach((systemEl) => {
             const measures = Array.from(systemEl.querySelectorAll("g.measure"));
             const measureIds = measures.map(() => globalMeasureIndex++);
 
@@ -100,24 +86,13 @@ export function useVerovioLoader(
             });
 
             const bbox = (systemEl as SVGGElement).getBBox();
-            console.log(
-              `📐 System ${index}: height=${bbox.height.toFixed(
-                2
-              )}, y=${bbox.y.toFixed(2)}`
-            );
             totalHeight += bbox.height;
 
             systemList.push({
               el: systemEl,
               measureIds,
             });
-
-            console.log(`📋 [System ${index}] 추출된 measureIds:`, measureIds);
           });
-
-          const avgHeight = totalHeight / systemElements.length;
-          console.log(`📊 평균 시스템 높이: ${avgHeight.toFixed(2)}px`);
-
           const measureElements = verovioTarget.querySelectorAll("g.measure");
           store.setMeasureCount(measureElements.length);
           store.setSystems(systemList);
