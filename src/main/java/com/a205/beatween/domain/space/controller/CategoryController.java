@@ -1,15 +1,32 @@
 package com.a205.beatween.domain.space.controller;
 
+import com.a205.beatween.common.reponse.ResponseDto;
+import com.a205.beatween.domain.space.dto.CategoryDto;
+import com.a205.beatween.domain.space.entity.Category;
+import com.a205.beatween.domain.space.service.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/spaces/{spaceId}/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 
-//    @PostMapping("/")
+    private final CategoryService categoryService;
 
+    @PostMapping("/")
+    public ResponseEntity<ResponseDto<Object>> createCategory(
+            @PathVariable("spaceId") Integer spaceId,
+            @RequestHeader("X-USER-ID") Integer userId,
+            @RequestParam("name") String name
+    ) {
+        CategoryDto category = categoryService.createCategory(spaceId,name);
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(category)
+                .build();
+        return ResponseEntity.ok(result);
+    }
 }
