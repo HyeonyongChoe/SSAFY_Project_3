@@ -23,9 +23,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -246,7 +248,58 @@ public class SongService {
                     .build();
             result.add(copySongListDto);
         }
-
         return result;
+    }
+
+    public CopySongDto replicateSong(Integer spaceId, Integer songId, ReplicateSongRequestDto replicateSongRequestDto) {
+        CopySong copySong = copySongRepository.getReferenceById(songId);
+        Category destCategory = categoryRepository.getReferenceById(replicateSongRequestDto.getCategoryId());
+        CopySong replicateSong = CopySong
+                .builder()
+                .originalSong(copySong.getOriginalSong())
+                .category(destCategory)
+                .title(copySong.getTitle())
+                .thumbnailUrl(copySong.getThumbnailUrl())
+                .build();
+
+        CopySong newCopySong = copySongRepository.save(replicateSong);
+
+        List<CopySheet> copySheetList = copySheetRepository.findByCopySong_CopySongId(copySong.getCopySongId());
+        for(CopySheet copySheet : copySheetList) {
+            CopySheet replicateSheet = CopySheet
+                    .builder()
+                    .copySong(newCopySong)
+                    .part(copySheet.getPart())
+                    .sheetUrl(copySheet.getSheetUrl())
+                    .build();
+            copySheetRepository.save(replicateSheet);
+        }
+
+        return CopySongDto
+                .builder()
+                .songId(newCopySong.getCopySongId())
+                .categoryId(newCopySong.getCategory().getCategoryId())
+                .title(newCopySong.getTitle())
+                .thumbnailUrl(newCopySong.getThumbnailUrl())
+                .build();
+    }
+
+    public CopySongDto updateSong(Integer songId, UpdateSongRequestDto updateSongRequestDto) throws IOException {
+        CopySong copySong = copySongRepository.getReferenceById(songId);
+
+        String key = "copy_thumbnails/i".concat(String.valueOf(songId)).concat(".png");
+        String url = s3Util.upload(updateSongRequestDto.getThumbnail().getBytes(),"image/png", key);
+        copySong.setTitle(updateSongRequestDto.getSongName());
+        copySong.setThumbnailUrl(url);
+        copySong.setCategory(categoryRepository.getReferenceById(updateSongRequestDto.getCategoryId()));
+        copySongRepository.save(copySong);
+
+        return CopySongDto
+                .builder()
+                .songId(copySong.getCopySongId())
+                .categoryId(copySong.getCategory().getCategoryId())
+                .title(copySong.getTitle())
+                .thumbnailUrl(copySong.getThumbnailUrl())
+                .build();
     }
 }
