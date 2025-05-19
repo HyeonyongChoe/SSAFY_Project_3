@@ -38,7 +38,6 @@ export default {
         cafe24: ["Cafe24ClassicType-Regular", "sans-serif"],
         pretendard: ["Pretendard Variable", "sans-serif"],
       },
-      
     },
   },
   plugins: [],
