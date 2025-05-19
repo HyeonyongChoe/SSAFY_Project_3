@@ -2,6 +2,7 @@ package com.a205.beatween.domain.space.repository;
 
 import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.entity.Space;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,5 +21,5 @@ public interface SpaceRepository extends JpaRepository<Space, Integer> {
             "FROM Space as s " +
             "JOIN UserSpace us ON s.spaceId = us.space.spaceId " +
             "WHERE us.user.userId =:userId")
-    List<SpacePreDto> findByUserId(Integer userId);
+    List<SpacePreDto> findByUserId(@Param("userId") Integer userId);
 }
