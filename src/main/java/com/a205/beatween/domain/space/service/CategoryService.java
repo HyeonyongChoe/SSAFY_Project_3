@@ -64,4 +64,8 @@ public class CategoryService {
                 .name(category.getName())
                 .build();
     }
+
+    public void deleteCategory(Integer categoryId) {
+        categoryRepository.deleteById(categoryId);
+    }
 }
