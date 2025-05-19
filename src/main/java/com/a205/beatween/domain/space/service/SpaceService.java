@@ -4,6 +4,7 @@ import com.a205.beatween.common.util.S3Util;
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
 import com.a205.beatween.domain.space.entity.Space;
 import com.a205.beatween.domain.space.enums.SpaceType;
+import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -77,5 +80,8 @@ public class SpaceService {
 
         String key = "space_images/space_id/"+spaceId+contentType;
         return s3Util.upload(fileBytes, contentType, key);
+
+    public List<SpacePreDto> getSpaces(Integer userId) {
+        return spaceRepository.findByUserId(userId);
     }
 }

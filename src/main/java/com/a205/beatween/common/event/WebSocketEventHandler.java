@@ -55,10 +55,9 @@ public class WebSocketEventHandler {
     public void handleSessionDisconnect(SessionDisconnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         String spaceId = accessor.getFirstNativeHeader("spaceId");
-        List<String> copySheetIdHeaders = accessor.getNativeHeader("copySheetIds");
         String sessionId = accessor.getSessionId();
 
-        if (spaceId != null && copySheetIdHeaders != null && sessionId != null) {
+        if (spaceId != null && sessionId != null) {
             String sessionCountKey = "ws:space:" + spaceId + ":sessionCount";
             String userKey = "ws:space:" + spaceId + ":session:" + sessionId;
             String memberKey = "ws:space:" + spaceId + ":members";
@@ -86,11 +85,17 @@ public class WebSocketEventHandler {
             }
 
             if (count != null && count <= 0) {
-                List<Integer> copySheetIds = copySheetIdHeaders.stream()
-                        .map(Integer::parseInt)
+                String pattern = "drawings:" + spaceId + ":*";
+                Set<String> drawingKeys = redisTemplate.keys(pattern);
+
+                List<Integer> copySheetIds = drawingKeys.stream()
+                        .map(key -> {
+                            String[] parts = key.split(":");
+                            return Integer.parseInt(parts[2]);
+                        })
                         .toList();
 
-                drawingService.saveAllDrawings(copySheetIds);
+                drawingService.saveAllDrawingsBySpaceId(spaceId);
 
                 Set<Object> allSessionIds = redisTemplate.opsForZSet().range(memberKey, 0, -1);
                 if (allSessionIds != null) {

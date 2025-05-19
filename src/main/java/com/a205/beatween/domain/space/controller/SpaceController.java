@@ -1,18 +1,22 @@
 package com.a205.beatween.domain.space.controller;
 
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
-import com.a205.beatween.domain.space.service.SpaceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import com.a205.beatween.common.reponse.ResponseDto;
+import com.a205.beatween.domain.space.dto.SpacePreDto;
+import com.a205.beatween.domain.space.service.SpaceService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/space")
+@RequestMapping("/api/v1/spaces")
 @RequiredArgsConstructor
 public class SpaceController {
 
@@ -30,4 +34,16 @@ public class SpaceController {
     }
 
 
+    @GetMapping("/")
+    public ResponseEntity<ResponseDto<Object>> getSpaces(
+            @RequestHeader("X-USER-ID") Integer userId
+    ) {
+        List<SpacePreDto> spacePreList = spaceService.getSpaces(userId);
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(spacePreList)
+                .build();
+        return ResponseEntity.ok(result);
+    }
 }

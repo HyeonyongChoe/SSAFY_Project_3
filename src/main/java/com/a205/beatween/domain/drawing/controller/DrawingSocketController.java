@@ -29,12 +29,11 @@ public class DrawingSocketController {
         messagingTemplate.convertAndSend("/topic/draw/" + message.getCopySheetId(), message);
     }
 
-    @MessageMapping("/getDrawing/{copySheetId}")
+    @MessageMapping("/getDrawing/{spaceId}/{copySheetId}")
     @SendTo("/topic/draw/init/{copySheetId}")
-    public List<DrawingPoint> getDrawing(@DestinationVariable int copySheetId) {
-        return drawingService.getDrawingBySheet(copySheetId);
+    public List<DrawingPoint> getDrawing(@DestinationVariable int spaceId,
+                                         @DestinationVariable int copySheetId) {
+        return drawingService.getDrawingBySheet(spaceId, copySheetId);
     }
-
-
 
 }

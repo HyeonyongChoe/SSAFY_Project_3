@@ -1,22 +1,41 @@
 package com.a205.beatween.domain.drawing.controller;
 
+import com.a205.beatween.common.reponse.ResponseDto;
+import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.domain.drawing.dto.DrawingPoint;
 import com.a205.beatween.domain.drawing.service.DrawingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/drawings")
 @Slf4j
 public class DrawingController {
+
+    private final DrawingService drawingService;
+
+    @GetMapping("/{copySheetId}")
+    public ResponseEntity<ResponseDto<List<DrawingPoint>>> getDrawing(
+            @PathVariable("copySheetId") Integer copySheetId) {
+
+        Result<List<DrawingPoint>> result = drawingService.getPersonalDrawing(copySheetId);
+        return ResponseEntity.ok(ResponseDto.from(result));
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<ResponseDto<Void>> saveDrawing(
+            @RequestBody Map<Integer, List<DrawingPoint>> drawingMap) {
+
+        Result<Void> result = drawingService.savePersonalDrawings(drawingMap);
+        return ResponseEntity.ok(ResponseDto.from(result));
+    }
+
 
 
 }
