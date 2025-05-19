@@ -13,7 +13,6 @@ export function EnsembleRoomHeader() {
   const { avatarUrl } = useUserStore();
   const navigate = useNavigate();
   const { roomId } = useParams();
-  console.log("📦 [ROUTER] roomId from URL params:", roomId);
 
   const isPlaying = useGlobalStore((state) => state.isPlaying);
   const { showHeaderFooter } = useHeaderFooterStore();
