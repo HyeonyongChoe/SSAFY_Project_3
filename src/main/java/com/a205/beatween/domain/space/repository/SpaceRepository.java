@@ -6,10 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.List;
 
 @Repository
 public interface SpaceRepository extends JpaRepository<Space, Integer> {
+
+    @Query("SELECT MAX(s.spaceId) FROM Space s")
+    Optional<Integer> findMaxSpaceId();
 
     @Query("SELECT new com.a205.beatween.domain.space.dto.SpacePreDto(" +
             "s.spaceId, s.name, s.imageUrl, s.spaceType) " +

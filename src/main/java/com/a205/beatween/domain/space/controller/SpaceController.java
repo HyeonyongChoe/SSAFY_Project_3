@@ -1,14 +1,17 @@
 package com.a205.beatween.domain.space.controller;
 
+import com.a205.beatween.domain.space.dto.CreateTeamDto;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import com.a205.beatween.common.reponse.ResponseDto;
 import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.service.SpaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -18,6 +21,18 @@ import java.util.List;
 public class SpaceController {
 
     private final SpaceService spaceService;
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public CreateTeamDto createTeamSpace(
+            @RequestParam("name") @NotBlank String name,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        // ResponseEntity 없이 리턴 타입을 DTO로 바로 선언
+        return spaceService.createTeamSpace(name, description, image);
+    }
+
 
     @GetMapping("/")
     public ResponseEntity<ResponseDto<Object>> getSpaces(

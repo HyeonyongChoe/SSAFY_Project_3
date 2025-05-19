@@ -32,8 +32,8 @@ public class Space {
     @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    @Column(name = "share_url", length = 255)
-    private String shareUrl;
+    @Column(name = "share_key", length = 255)
+    private String shareKey;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
