@@ -17,6 +17,9 @@ interface ConfirmModalProps extends DefaultModalProps {
 
 interface ActionModalProps extends DefaultModalProps {
   children: ReactNode;
+  buttonType?: "default" | "icon";
+  icon?: string;
+  fill?: boolean;
 }
 
 export const openAlert = (props: AlertModalProps) => {

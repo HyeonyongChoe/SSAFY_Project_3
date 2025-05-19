@@ -39,7 +39,7 @@ export const ModalSimpleFrame = ({
       </div>
       <div className="flex flex-col gap-4 items-center text-center">
         <p className="text-2xl font-bold">{title}</p>
-        <p className="text-base">{info}</p>
+        <p className="text-base whitespace-pre-line">{info}</p>
       </div>
       <div className="flex flex-wrap gap-2">
         {type === "confirm" && (

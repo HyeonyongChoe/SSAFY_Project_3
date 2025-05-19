@@ -6,11 +6,22 @@ import { Button } from "../Button";
 
 export const ModalAction = () => {
   const { props, closeModal } = useModalStore();
-  const { title, info, children, okText, onConfirm } = props;
+  const {
+    title,
+    info,
+    children,
+    okText,
+    onConfirm,
+    buttonType = "default",
+    icon,
+    fill,
+  } = props;
 
   const handleConfirm = () => {
     if (onConfirm) onConfirm();
-    closeModal();
+    if (buttonType === "default") {
+      closeModal();
+    }
   };
 
   return (
@@ -32,9 +43,24 @@ export const ModalAction = () => {
         </div>
         {/* bottom button */}
         <div className="flex flex-wrap gap-2 px-2">
-          <Button size="medium" color="blue" onClick={handleConfirm}>
-            {okText ? okText : "닫기"}
-          </Button>
+          {buttonType === "icon" && icon ? (
+            <IconButton
+              size={30}
+              tone="light"
+              icon={icon}
+              fill={fill}
+              onClick={handleConfirm}
+            />
+          ) : (
+            <Button
+              size="medium"
+              color="blue"
+              onClick={handleConfirm}
+              icon={icon}
+            >
+              {okText ? okText : "닫기"}
+            </Button>
+          )}
         </div>
       </PanelModal>
     </ModalBackground>
