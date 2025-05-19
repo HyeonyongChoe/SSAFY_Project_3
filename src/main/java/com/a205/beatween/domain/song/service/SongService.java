@@ -214,6 +214,7 @@ public class SongService {
         return copySheetRepository.save(copySheet);
     }
 
+    @Transactional
     public void deleteSheet(Integer spaceId, Integer songId) {
         List<CopySheet> copySheetList = copySheetRepository.findByCopySong_CopySongId(songId);
         for(CopySheet copySheet : copySheetList) {
@@ -222,7 +223,6 @@ public class SongService {
         }
         copySongRepository.deleteById(songId);
     }
-
 
     public List<CopySongListByCategoryDto> getAllSongs(Integer spaceId) {
         List<Category> categoryList = categoryRepository.findBySpace_SpaceId(spaceId);
@@ -251,6 +251,7 @@ public class SongService {
         return result;
     }
 
+    @Transactional
     public CopySongDto replicateSong(Integer spaceId, Integer songId, ReplicateSongRequestDto replicateSongRequestDto) {
         CopySong copySong = copySongRepository.getReferenceById(songId);
         Category destCategory = categoryRepository.getReferenceById(replicateSongRequestDto.getCategoryId());
@@ -284,14 +285,21 @@ public class SongService {
                 .build();
     }
 
+    @Transactional
     public CopySongDto updateSong(Integer songId, UpdateSongRequestDto updateSongRequestDto) throws IOException {
         CopySong copySong = copySongRepository.getReferenceById(songId);
+        if(updateSongRequestDto.getThumbnail() != null) {
 
-        String key = "copy_thumbnails/i".concat(String.valueOf(songId)).concat(".png");
-        String url = s3Util.upload(updateSongRequestDto.getThumbnail().getBytes(),"image/png", key);
-        copySong.setTitle(updateSongRequestDto.getSongName());
-        copySong.setThumbnailUrl(url);
-        copySong.setCategory(categoryRepository.getReferenceById(updateSongRequestDto.getCategoryId()));
+            String key = "copy_thumbnails/i".concat(String.valueOf(songId)).concat(".png");
+            String url = s3Util.upload(updateSongRequestDto.getThumbnail().getBytes(),"image/png", key);
+            copySong.setThumbnailUrl(url);
+        }
+        if(updateSongRequestDto.getSongName() != null) {
+            copySong.setTitle(updateSongRequestDto.getSongName());
+        }
+        if(updateSongRequestDto.getCategoryId() != null) {
+            copySong.setCategory(categoryRepository.getReferenceById(updateSongRequestDto.getCategoryId()));
+        }
         copySongRepository.save(copySong);
 
         return CopySongDto
