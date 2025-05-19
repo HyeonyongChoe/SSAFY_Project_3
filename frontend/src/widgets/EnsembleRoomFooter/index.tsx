@@ -14,10 +14,15 @@ export default function EnsembleRoomFooter({
   containerRef,
 }: EnsembleRoomFooterProps) {
   const isPlaying = useGlobalStore((state) => state.isPlaying);
-  const showHeaderFooter = useHeaderFooterStore((state) => state.showHeaderFooter);
-  const setShowHeaderFooter = useHeaderFooterStore((state) => state.setShowHeaderFooter);
+  const showHeaderFooter = useHeaderFooterStore(
+    (state) => state.showHeaderFooter
+  );
+  const setShowHeaderFooter = useHeaderFooterStore(
+    (state) => state.setShowHeaderFooter
+  );
 
-  const { thumbnails, handleThumbnailClick } = usePreviewThumbnails(containerRef);
+  const { thumbnails, handleThumbnailClick } =
+    usePreviewThumbnails(containerRef);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -30,10 +35,10 @@ export default function EnsembleRoomFooter({
   return (
     <footer
       onClick={(e) => e.stopPropagation()}
-      className="w-full fixed bottom-0 bg-[#2E3153] text-white text-sm z-50"
+      className="w-full fixed bottom-0 z-50 bg-[#2E3153]/70 backdrop-blur-md text-white text-sm"
     >
       {/* 항상 미리보기 썸네일 표시 */}
-      <div className="w-full px-4 py-2 bg-[#2E3153] border-t border-white/10 flex gap-2 overflow-x-auto">
+      <div className="w-full px-4 py-2 bg-[#2E3153]/70 border-t border-white/10 flex gap-2 overflow-x-auto backdrop-blur-md">
         {thumbnails.map((thumb, index) => (
           <div
             key={index}

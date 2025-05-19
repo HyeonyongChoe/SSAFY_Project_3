@@ -42,20 +42,22 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
     const currentSystemIndex = systems.findIndex((sys) =>
       sys.measureIds.includes(currentMeasure)
     );
-    
+
     if (currentSystemIndex === -1) return;
 
     const currentSystem = systems[currentSystemIndex].el as SVGGraphicsElement;
-    
+
     // 재생 시작 시 즉시 스크롤
     currentSystem.scrollIntoView({
       behavior: "smooth",
       block: "start",
       inline: "nearest",
     });
-    
+
     lastSystemIndexRef.current = currentSystemIndex;
-    console.log(`🎯 재생 시작 스크롤: 시스템 ${currentSystemIndex}, 마디 ${currentMeasure}`);
+    console.log(
+      `🎯 재생 시작 스크롤: 시스템 ${currentSystemIndex}, 마디 ${currentMeasure}`
+    );
   }, [isPlaying]); // isPlaying만 의존성으로 설정
 
   useEffect(() => {
@@ -67,7 +69,6 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
     // dimmed 효과 설정
     if (isPlaying) {
       systemElements.forEach((el) => el.classList.add("dimmed"));
-      
     } else {
       systemElements.forEach((el) => el.classList.remove("dimmed"));
     }
@@ -82,14 +83,20 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
     if (isPlaying) currentSystem.classList.remove("dimmed");
 
     // ✅ 재생 중일 때 마디 변경으로 인한 스크롤
-    if (isPlaying && lastSystemIndexRef.current !== currentSystemIndex && lastSystemIndexRef.current !== null) {
+    if (
+      isPlaying &&
+      lastSystemIndexRef.current !== currentSystemIndex &&
+      lastSystemIndexRef.current !== null
+    ) {
       currentSystem.scrollIntoView({
         behavior: "smooth",
         block: "start",
         inline: "nearest",
       });
       lastSystemIndexRef.current = currentSystemIndex;
-      console.log(`🎯 마디 변경 스크롤: 시스템 ${currentSystemIndex}, 마디 ${currentMeasure}`);
+      console.log(
+        `🎯 마디 변경 스크롤: 시스템 ${currentSystemIndex}, 마디 ${currentMeasure}`
+      );
     }
 
     // ✅ 재생 정지 시 lastSystemIndexRef 초기화
@@ -110,12 +117,19 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
       className={`relative w-full flex-1 overflow-hidden ${
         isFullscreen ? "bg-black" : "bg-white"
       }`}
-      onClick={handleTouch} // 터치 이벤트 추가
+      onClick={handleTouch}
     >
       <div
         ref={containerRef}
         className="w-full h-full overflow-y-auto scroll-smooth"
-      />
+      >
+        <div className="relative">
+          {/* ✅ Verovio가 삽입될 영역 */}
+          <div className="h-[20px]" /> ← 여백
+          <div id="verovio-container" />
+        </div>
+      </div>
+
       <div className="absolute bottom-4 left-4">
         <PlayControl />
       </div>

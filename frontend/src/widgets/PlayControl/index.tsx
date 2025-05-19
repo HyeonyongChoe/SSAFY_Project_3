@@ -6,40 +6,57 @@ import { useGlobalStore } from "@/app/store/globalStore";
 import { useHeaderFooterStore } from "@/app/store/headerFooterStore";
 import { useSocketStore } from "@/app/store/socketStore";
 
+let audioCtx: AudioContext | null = null;
+
 export function PlayControl() {
   const { isPlaying, togglePlay, currentMeasure } = usePlayerStore();
   const { measureCount, bpm } = useScoreStore();
   const setGlobalPlaying = useGlobalStore((state) => state.setIsPlaying);
-  const setShowHeaderFooter = useHeaderFooterStore((state) => state.setShowHeaderFooter);
+  const setShowHeaderFooter = useHeaderFooterStore(
+    (state) => state.setShowHeaderFooter
+  );
   const stompClient = useSocketStore((state) => state.stompClient);
 
   const [countdown, setCountdown] = useState<number | null>(null);
 
   const playMetronomeBeep = () => {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext ||
+          (window as any).webkitAudioContext)();
+      }
 
-    osc.type = "sine"; // 더 부드러운 파형
-    osc.frequency.setValueAtTime(800, ctx.currentTime); // 낮은 톤
-    gain.gain.setValueAtTime(0.2, ctx.currentTime); // 낮은 볼륨
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
 
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
 
-    osc.start();
-    osc.stop(ctx.currentTime + 0.05); // 짧은 소리
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    } catch (err) {
+      console.warn("🔇 오디오 재생 실패:", err);
+    }
   };
 
   useEffect(() => {
     if (countdown === null) return;
 
+    const beatDuration = 60000 / bpm;
+
     if (countdown === 0) {
       const isCurrentlyPlaying = usePlayerStore.getState().isPlaying;
       togglePlay();
       setGlobalPlaying(!isCurrentlyPlaying);
-      
-      // ✅ 재생 시작 시 상하단바 숨김
+
       if (!isCurrentlyPlaying) {
         setShowHeaderFooter(false);
       }
@@ -63,19 +80,29 @@ export function PlayControl() {
 
       setCountdown(null);
     } else {
-      playMetronomeBeep(); // 소리만 재생
-      const timer = setTimeout(() => setCountdown((prev) => (prev ?? 1) - 1), 1000);
+      playMetronomeBeep();
+      const timer = setTimeout(
+        () => setCountdown((prev) => (prev ?? 1) - 1),
+        beatDuration
+      );
       return () => clearTimeout(timer);
     }
-  }, [countdown, togglePlay, setGlobalPlaying, setShowHeaderFooter, stompClient, bpm, currentMeasure]);
+  }, [
+    countdown,
+    togglePlay,
+    setGlobalPlaying,
+    setShowHeaderFooter,
+    stompClient,
+    bpm,
+    currentMeasure,
+  ]);
 
   const handlePlayToggle = () => {
     if (!isPlaying && countdown === null) {
-      setCountdown(3); // 카운트다운 시작
+      setCountdown(4);
     } else if (isPlaying) {
       togglePlay();
       setGlobalPlaying(false);
-      // ✅ 재생 정지 시 상하단바 보임
       setShowHeaderFooter(true);
 
       if (stompClient?.connected) {
@@ -101,7 +128,6 @@ export function PlayControl() {
     useScoreStore.getState().setIsPlaying(false);
     useScoreStore.getState().setCurrentMeasure(0);
     setGlobalPlaying(false);
-    // ✅ 정지 시 상하단바 보임
     setShowHeaderFooter(true);
 
     if (stompClient?.connected) {

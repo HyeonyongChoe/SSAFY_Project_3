@@ -49,17 +49,18 @@ export function useVerovioLoader(
         for (let i = 1; i <= pageCount; i++) {
           const svg = toolkit.renderToSVG(i);
           thumbs.push(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
-          svgAllPages += `<div class="page-wrapper py-16 scroll-mt-10" data-page="${i}">${svg}</div>`;
+          svgAllPages += `<div class="page-wrapper py-16 scroll-mt-10" data-page="${i}" style="padding-top: 64px;">${svg}</div>`;
         }
 
         store.setThumbnails(thumbs);
 
         const container = containerRef.current;
-        if (container) {
-          container.innerHTML = svgAllPages;
+        const verovioTarget = container?.querySelector("#verovio-container");
 
-          // ✅ 색상 정보 디버깅
-          const allElements = container.querySelectorAll("svg *");
+        if (verovioTarget) {
+          verovioTarget.innerHTML = svgAllPages;
+
+          const allElements = verovioTarget.querySelectorAll("svg *");
           console.log(`🎯 SVG 요소 개수: ${allElements.length}`);
           allElements.forEach((el) => {
             const tag = el.tagName;
@@ -73,8 +74,12 @@ export function useVerovioLoader(
             );
           });
 
-          // 시스템 정보 계산 및 마디 클릭 이벤트 설정
-          const systemElements = container.querySelectorAll("g.system");
+          const systemElements = verovioTarget.querySelectorAll("g.system");
+
+          systemElements.forEach((systemEl) => {
+            // Tailwind scroll margin top 클래스 추가
+            (systemEl as HTMLElement).classList.add("scroll-mt-[64px]");
+          });
           let totalHeight = 0;
           const systemList: { el: Element; measureIds: number[] }[] = [];
           let globalMeasureIndex = 0;
@@ -95,7 +100,11 @@ export function useVerovioLoader(
             });
 
             const bbox = (systemEl as SVGGElement).getBBox();
-            console.log(`📐 System ${index}: height=${bbox.height.toFixed(2)}, y=${bbox.y.toFixed(2)}`);
+            console.log(
+              `📐 System ${index}: height=${bbox.height.toFixed(
+                2
+              )}, y=${bbox.y.toFixed(2)}`
+            );
             totalHeight += bbox.height;
 
             systemList.push({
@@ -109,13 +118,15 @@ export function useVerovioLoader(
           const avgHeight = totalHeight / systemElements.length;
           console.log(`📊 평균 시스템 높이: ${avgHeight.toFixed(2)}px`);
 
-          const measureElements = container.querySelectorAll("g.measure");
+          const measureElements = verovioTarget.querySelectorAll("g.measure");
           store.setMeasureCount(measureElements.length);
           store.setSystems(systemList);
+        } else {
+          console.warn("❗ #verovio-container not found in containerRef");
         }
 
         cleanup = () => {
-          if (container) container.innerHTML = "";
+          if (verovioTarget) verovioTarget.innerHTML = "";
         };
 
         try {
