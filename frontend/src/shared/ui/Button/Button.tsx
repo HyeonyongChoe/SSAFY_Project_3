@@ -7,7 +7,6 @@ type Color = "green" | "blue" | "caution" | "light" | "dark";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: string;
-  fill?: boolean;
   size?: Size;
   color?: Color;
   children: ReactNode;
@@ -36,7 +35,6 @@ const colorClass = {
 
 export const Button = ({
   icon,
-  fill,
   size = "small",
   color = "light",
   children,
@@ -56,7 +54,7 @@ export const Button = ({
       disabled={disabled}
       {...props}
     >
-      {icon && <Icon icon={icon} size={iconSize[size]} fill={fill} />}
+      {icon && <Icon icon={icon} size={iconSize[size]} />}
       <div className="flex-grow">{children}</div>
     </button>
   );

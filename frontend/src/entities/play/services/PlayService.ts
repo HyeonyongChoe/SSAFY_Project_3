@@ -1,9 +1,9 @@
 import { fetchPlayState } from "../api/PlayApi";
-import { PlayControlMessage } from "../types/Play.types";
+import { PlayStateResponseDto } from "../types/Play.types";
 
 export const getPlayState = async (
   spaceId: string
-): Promise<PlayControlMessage> => {
+): Promise<PlayStateResponseDto> => {
   try {
     return await fetchPlayState(spaceId);
   } catch (error) {

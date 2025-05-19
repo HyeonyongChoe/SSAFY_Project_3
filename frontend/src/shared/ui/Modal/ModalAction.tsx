@@ -32,9 +32,11 @@ export const ModalAction = () => {
         </div>
         {/* bottom button */}
         <div className="flex flex-wrap gap-2 px-2">
-          <Button size="medium" color="blue" onClick={handleConfirm}>
-            {okText ? okText : "닫기"}
-          </Button>
+          {okText != null && (
+            <Button size="medium" color="blue" onClick={handleConfirm}>
+              {okText}
+            </Button>
+          )}
         </div>
       </PanelModal>
     </ModalBackground>
