@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { LandingPage } from "@/pages/Landing/index";
 import { SignPage } from "@/pages/Sign";
 import { PersonalSpacePage } from "@/pages/PersonalSpace";
-// import { TeamSpacePage } from "@/pages/TeamSpace";
+import { TeamSpacePage } from "@/pages/TeamSpace";
 // import { ScorePage } from '@/pages/Score';
 import { LayoutShrink } from "../layouts/LayoutShrink";
 import PageKakaoRedirect from "@/features/auth/kakao/ui/PageKakaoRedirect";
@@ -26,7 +26,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/team/:teamId",
-            // element: <TeamSpacePage />,
+            element: <TeamSpacePage />,
           },
         ],
       },

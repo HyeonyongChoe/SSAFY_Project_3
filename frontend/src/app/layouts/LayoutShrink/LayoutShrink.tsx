@@ -42,6 +42,7 @@ export const LayoutShrink = ({
       <HeaderDefault
         onLogoClick={handleExpand}
         onShrink={handleShrink}
+        isSignPage={isShrunk}
         className="fixed"
       />
       <div

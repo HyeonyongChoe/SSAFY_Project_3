@@ -4,9 +4,16 @@ import { PanelModal } from "../Panel";
 interface PopoverProps {
   trigger: ReactNode;
   children: ReactNode;
+  directionY?: "top" | "bottom";
+  className?: String;
 }
 
-export const Popover = ({ trigger, children }: PopoverProps) => {
+export const Popover = ({
+  trigger,
+  children,
+  directionY = "top",
+  className,
+}: PopoverProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLDivElement | null>(null);
@@ -44,7 +51,11 @@ export const Popover = ({ trigger, children }: PopoverProps) => {
         <div ref={popoverRef}>
           <PanelModal
             tone="white"
-            className="absolute min-w-[16rem] z-10 top-0 -translate-y-[calc(100%+.5rem)] left-0 p-2 text-neutral1000"
+            className={`absolute min-w-[16rem] z-10 p-2 text-neutral1000 ${
+              directionY === "top"
+                ? "top-0 left-0 -translate-y-[calc(100%+.5rem)]"
+                : "bottom-0 right-0 translate-y-[calc(100%+.5rem)]"
+            } ${className}`}
           >
             {children}
           </PanelModal>

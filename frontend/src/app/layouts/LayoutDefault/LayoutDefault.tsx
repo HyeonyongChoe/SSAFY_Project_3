@@ -27,6 +27,7 @@ export const LayoutDefault = ({
         onLogoClick={() => {
           navigate("/");
         }}
+        className="relative"
       />
       <main className="w-full h-[calc(100%-3.525rem)]">{children}</main>
     </div>
