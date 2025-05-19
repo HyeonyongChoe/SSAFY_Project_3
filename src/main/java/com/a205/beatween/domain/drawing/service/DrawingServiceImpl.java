@@ -58,7 +58,7 @@ public class DrawingServiceImpl implements DrawingService {
      * DB + Redis 통합 드로잉 조회
      */
     @Override
-    public List<DrawingPoint> getDrawingBySheet(int spaceId, int copySheetId) {
+    public List<DrawingPoint> getDrawingBySheet(String spaceId, int copySheetId) {
         CopySheet copySheet = copySheetRepository.findById(copySheetId).orElse(null);
         if (copySheet == null) return Collections.emptyList();
 
@@ -209,6 +209,53 @@ public class DrawingServiceImpl implements DrawingService {
 
         return Result.success(null);
     }
+
+    @Override
+    public void handleManualDisconnect(String spaceId, String sessionId, int userId) {
+        String sessionCountKey = "ws:space:" + spaceId + ":sessionCount";
+        String userKey = "ws:space:" + spaceId + ":session:" + sessionId;
+        String memberKey = "ws:space:" + spaceId + ":members";
+        String managerKey = "ws:space:" + spaceId + ":manager";
+
+        Long count = redisTemplate.opsForValue().decrement(sessionCountKey);
+        log.info("수동 연결 해제 - spaceId: {}, sessionId: {}, 남은 접속자 수: {}", spaceId, sessionId, count);
+
+        redisTemplate.opsForZSet().remove(memberKey, sessionId);
+        redisTemplate.delete(userKey);
+
+        // 리더 재지정
+        String currentLeader = (String) redisTemplate.opsForValue().get(managerKey);
+        if (Objects.equals(currentLeader, sessionId)) {
+            String newLeader = redisTemplate.opsForZSet()
+                    .range(memberKey, 0, 0)
+                    .stream()
+                    .map(String.class::cast)
+                    .findFirst()
+                    .orElse(null);
+
+            if (newLeader != null) {
+                redisTemplate.opsForValue().set(managerKey, newLeader);
+                log.info("리더 변경 - newLeader: {}", newLeader);
+            }
+        }
+
+        // 마지막 사용자 → 드로잉 저장
+        if (count != null && count <= 0) {
+
+            Set<String> keys = redisTemplate.keys("drawings:" + spaceId + ":*");
+            List<Integer> copySheetIds = keys.stream()
+                    .map(k -> Integer.parseInt(k.split(":")[2]))
+                    .toList();
+            log.info("마지막 사용자 → 드로잉 저장 대상 copySheetIds: {}", copySheetIds);
+
+            saveAllDrawingsBySpaceId(spaceId);
+            redisTemplate.delete(sessionCountKey);
+            redisTemplate.delete(memberKey);
+            redisTemplate.delete(managerKey);
+            log.info("마지막 사용자 → 캐시 정리 완료: {}", spaceId);
+        }
+    }
+
 
 
     private void putAllToMap(Map<String, DrawingPoint> target, List<DrawingPoint> source) {

@@ -1,5 +1,6 @@
 package com.a205.beatween.domain.play.service;
 
+import com.a205.beatween.domain.play.dto.ManagerCheckResponse;
 import com.a205.beatween.domain.play.dto.PlayControlMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,5 +30,14 @@ public class PlayServiceImpl implements PlayService {
 
         return null;
     }
+
+    @Override
+    public ManagerCheckResponse checkManager(long spaceId, String sessionId) {
+        String managerKey = "ws:space:" + spaceId + ":manager";
+        Object stored = redisTemplate.opsForValue().get(managerKey);
+        boolean isManager = sessionId.equals(stored);
+        return new ManagerCheckResponse(isManager);
+    }
+
 
 }

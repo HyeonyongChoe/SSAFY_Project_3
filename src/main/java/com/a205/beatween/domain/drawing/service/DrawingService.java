@@ -10,7 +10,7 @@ public interface DrawingService {
 
     void updateDrawing(DrawingUpdateMessage message);
 
-    List<DrawingPoint> getDrawingBySheet(int spaceId, int copySheetId);
+    List<DrawingPoint> getDrawingBySheet(String spaceId, int copySheetId);
 
     void saveAllDrawingsBySpaceId(String spaceId);
 
@@ -18,6 +18,6 @@ public interface DrawingService {
 
     Result<Void> savePersonalDrawings(Map<Integer, List<DrawingPoint>> drawingMap);
 
-
+    void handleManualDisconnect(String spaceId, String sessionId, int userId);
 
 }

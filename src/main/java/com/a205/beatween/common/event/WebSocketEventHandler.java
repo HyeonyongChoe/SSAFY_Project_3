@@ -57,61 +57,13 @@ public class WebSocketEventHandler {
         String spaceId = accessor.getFirstNativeHeader("spaceId");
         String sessionId = accessor.getSessionId();
 
-        if (spaceId != null && sessionId != null) {
-            String sessionCountKey = "ws:space:" + spaceId + ":sessionCount";
-            String userKey = "ws:space:" + spaceId + ":session:" + sessionId;
-            String memberKey = "ws:space:" + spaceId + ":members";
-            String managerKey = "ws:space:" + spaceId + ":manager";
-
-            Long count = redisTemplate.opsForValue().decrement(sessionCountKey);
-            log.info("WebSocket 종료 - spaceId: {}, sessionId: {}, 남은 접속자 수: {}", spaceId, sessionId, count);
-
-            redisTemplate.opsForZSet().remove(memberKey, sessionId);
-            redisTemplate.delete(userKey);
-
-            String currentLeaderSessionId = (String) redisTemplate.opsForValue().get(managerKey);
-            if (Objects.equals(sessionId, currentLeaderSessionId)) {
-                String newLeaderSessionId = redisTemplate.opsForZSet()
-                        .range(memberKey, 0, 0)
-                        .stream()
-                        .map(String.class::cast)
-                        .findFirst()
-                        .orElse(null);
-
-                if (newLeaderSessionId != null) {
-                    redisTemplate.opsForValue().set(managerKey, newLeaderSessionId);
-                    log.info("리더 변경 - newLeaderSessionId: {}", newLeaderSessionId);
-                }
-            }
-
-            if (count != null && count <= 0) {
-                String pattern = "drawings:" + spaceId + ":*";
-                Set<String> drawingKeys = redisTemplate.keys(pattern);
-
-                List<Integer> copySheetIds = drawingKeys.stream()
-                        .map(key -> {
-                            String[] parts = key.split(":");
-                            return Integer.parseInt(parts[2]);
-                        })
-                        .toList();
-
-                drawingService.saveAllDrawingsBySpaceId(spaceId);
-
-                Set<Object> allSessionIds = redisTemplate.opsForZSet().range(memberKey, 0, -1);
-                if (allSessionIds != null) {
-                    for (Object sid : allSessionIds) {
-                        String key = "ws:space:" + spaceId + ":session:" + sid;
-                        redisTemplate.delete(key);
-                    }
-                }
-                redisTemplate.delete(sessionCountKey);
-                redisTemplate.delete(memberKey);
-                redisTemplate.delete(managerKey);
-                log.info("마지막 사용자 퇴장 - 드로잉 저장 및 캐시 정리 완료: {}", copySheetIds);
-            }
-
-        } else {
-            log.warn("WebSocket 종료 시 필요한 헤더 누락 (spaceId, sessionId, copySheetIds)");
+        // spaceId 없이 disconnect 된 경우는 로그만 출력 (예: 브라우저 강제 종료)
+        if (spaceId == null || sessionId == null) {
+            log.warn("WebSocket 종료 시 필요한 헤더 누락 (spaceId or sessionId)");
+            return;
         }
+
+        log.info("WebSocket 종료 감지됨 (spaceId: {}, sessionId: {})", spaceId, sessionId);
     }
+
 }
