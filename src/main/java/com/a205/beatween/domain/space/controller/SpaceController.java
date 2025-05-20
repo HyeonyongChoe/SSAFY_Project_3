@@ -5,6 +5,8 @@ import com.a205.beatween.domain.space.dto.InvitationDto;
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
 import com.a205.beatween.domain.space.service.SpaceService;
 import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
+import com.a205.beatween.exception.ErrorCode;
+import com.a205.beatween.exception.ErrorResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.coyote.Response;
@@ -115,6 +117,40 @@ public class SpaceController {
                 .success(true)
                 .data(spaceDetail)
                 .build();
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/teams/{spaceId}")
+    public ResponseEntity<ResponseDto<Object>> deleteTeamSpace(
+            @PathVariable("spaceId") Integer spaceId,
+            @RequestHeader("X-USER-ID") Integer userId
+    ) {
+        Integer state = spaceService.deleteTeamSpace(spaceId,userId);
+        List<SpacePreDto> spacePreList = spaceService.getSpaces(userId);
+        ResponseDto<Object> result = null;
+        if (state == 0) {
+            result = ResponseDto
+                    .builder()
+                    .success(true)
+                    .data(spacePreList)
+                    .build();
+        }
+        if (state == 1) {
+            result = ResponseDto
+                    .builder()
+                    .success(false)
+                    .error(ErrorResponse.of(ErrorCode.INVALID_REQUEST,"없는 스페이스입니다."))
+                    .data(spacePreList)
+                    .build();
+        }
+        if (state == 2) {
+            result = ResponseDto
+                    .builder()
+                    .success(false)
+                    .error(ErrorResponse.of(ErrorCode.INVALID_REQUEST,"팀원이 남았습니다."))
+                    .data(spacePreList)
+                    .build();
+        }
         return ResponseEntity.ok(result);
     }
 }

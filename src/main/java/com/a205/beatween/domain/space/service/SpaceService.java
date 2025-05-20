@@ -4,11 +4,17 @@ import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
 import com.a205.beatween.domain.song.dto.CopySongListByCategoryDto;
 import com.a205.beatween.domain.song.service.SongService;
-import com.a205.beatween.domain.space.dto.*;
+import com.a205.beatween.domain.space.dto.InvitationDto;
+import com.a205.beatween.domain.space.dto.CreateTeamDto;
+import com.a205.beatween.domain.space.dto.SpaceDetailDto;
+import com.a205.beatween.domain.space.dto.SpaceSummaryDto;
+import com.a205.beatween.domain.space.dto.MemberDto;
+import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
 import com.a205.beatween.domain.space.entity.Space;
 import com.a205.beatween.domain.space.entity.UserSpace;
 import com.a205.beatween.domain.space.enums.RoleType;
 import com.a205.beatween.domain.space.enums.SpaceType;
+import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import com.a205.beatween.domain.user.entity.User;
@@ -23,8 +29,10 @@ import java.io.UncheckedIOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -50,13 +58,13 @@ public class SpaceService {
         String shareKey = UUID.randomUUID().toString();
 
         Space newTeamSpace = Space.builder()
-            .name(name)
-            .description(description)
-            .imageUrl(imageUrl)
-            .shareKey(shareKey)
-            .spaceType(SpaceType.TEAM)
-            .createdAt(LocalDateTime.now())
-            .build();
+                .name(name)
+                .description(description)
+                .imageUrl(imageUrl)
+                .shareKey(shareKey)
+                .spaceType(SpaceType.TEAM)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         Space savedSpace = spaceRepository.save(newTeamSpace);
         System.out.println("savedSpaceId = " + savedSpace.getSpaceId());
@@ -65,10 +73,10 @@ public class SpaceService {
 
         Integer savedSpaceId = savedSpace.getSpaceId();
         UserSpace newUserSpace = UserSpace.builder()
-            .user(user)
-            .space(savedSpace)
-            .roleType(RoleType.OWNER)
-            .build();
+                .user(user)
+                .space(savedSpace)
+                .roleType(RoleType.OWNER)
+                .build();
 
         // 스페이스 이름 기반 슬러그 생성
         String slug = getSlug(name);
@@ -76,9 +84,9 @@ public class SpaceService {
         String shareUrlWithSlug = "/share/" + slug + "/" + shareKey;
 
         return CreateTeamDto.builder()
-            .name(name)
-            .shareKey(shareUrlWithSlug)
-            .build();
+                .name(name)
+                .shareKey(shareUrlWithSlug)
+                .build();
     }
 
 
@@ -239,5 +247,18 @@ public class SpaceService {
         space = spaceRepository.save(space);
 
         return getSpaceDetail(spaceId,userId);
+    }
+
+    public Integer deleteTeamSpace(Integer spaceId, Integer userId) {
+        UserSpace userSpace = userSpaceRepository.findBySpace_SpaceIdAndUser_UserId(spaceId,userId);
+        if(userSpace == null) {
+            return 1; //"없는 팀 스페이스입니다.";
+        }
+        if(userSpace.getRoleType().equals(RoleType.OWNER)) {
+            List<UserSpace> userSpaceList = userSpaceRepository.findBySpace_SpaceId(spaceId);
+            if(userSpaceList.size() > 1) return 2; //"팀원이 남았습니다.";
+        }
+        userSpaceRepository.delete(userSpace);
+        return 0; //"팀 스페이스 삭제 완료";
     }
 }
