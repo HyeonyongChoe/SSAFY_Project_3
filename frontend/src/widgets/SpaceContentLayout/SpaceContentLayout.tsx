@@ -7,6 +7,10 @@ import { openConfirm, openModal } from "@/shared/lib/modal";
 import { toast } from "@/shared/lib/toast";
 import { ManageCategoryForm } from "@/features/manageCategory/ui/ManageCategoryForm";
 import { UpdateBandForm } from "@/features/updateBand/ui/UpdateBandForm";
+import { Client } from "@stomp/stompjs";
+import { useGlobalStore } from "@/app/store/globalStore";
+import { useSocketStore } from "@/app/store/socketStore";
+import SockJS from "sockjs-client";
 import { NoteList } from "./ui/NoteList";
 import { CreateSheetButton } from "@/features/createSheet/ui/CreateSheetButton";
 import { useSpaceDetail } from "@/entities/band/hooks/useSpace";
@@ -25,6 +29,43 @@ export const SpaceContentLayout = ({
   }
 
   const navigate = useNavigate();
+  const setStompClient = useSocketStore((state) => state.setStompClient);
+
+  const handlePlayWithClick = () => {
+    const clientId = useGlobalStore.getState().clientId;
+    const spaceId = String(teamId ?? 1);
+
+    const headers = {
+      spaceId,
+      userId: String(clientId),
+    };
+
+    console.log("📡 WebSocket connectHeaders:", headers);
+
+    const client = new Client({
+      webSocketFactory: () =>
+        new SockJS(
+          `${
+            import.meta.env.VITE_BROKER_URL
+          }?spaceId=${spaceId}&userId=${clientId}`
+        ),
+      reconnectDelay: 5000,
+      connectHeaders: headers,
+      debug: (msg) => console.log("🔹 STOMP DEBUG:", msg),
+    });
+
+    client.onConnect = () => {
+      console.log("✅ WebSocket connected");
+      setStompClient(client);
+      navigate(`/room/${spaceId}`);
+    };
+
+    client.onStompError = (frame) => {
+      console.error("💥 STOMP error:", frame);
+    };
+
+    client.activate();
+  };
 
   const { data, error, isLoading } = useSpaceDetail(teamId);
 
@@ -44,9 +85,7 @@ export const SpaceContentLayout = ({
   const bandData = data?.data;
 
   return (
-    // background
     <div>
-      {/* content-header */}
       <div
         className="flex flex-wrap gap-6 w-full bg-cover bg-center px-6 py-7 min-w-fit"
         style={{
@@ -57,7 +96,7 @@ export const SpaceContentLayout = ({
         }}
       >
         <ImageBox
-          className={"shrink-0"}
+          className="shrink-0"
           onClick={() =>
             openModal({
               title: "밴드 수정하기",
@@ -128,7 +167,7 @@ export const SpaceContentLayout = ({
                     onClick={() =>
                       openConfirm({
                         title: "정말 밴드를 삭제하시겠습니까?",
-                        info: "한 번 지운 밴드는 다시 되돌릴 수 없습니다",
+                        info: "한 번 지우는 밴드는 다시 되돌릴 수 없습니다",
                         cancelText: "아니오",
                         okText: "나가기",
                         onConfirm: () => console.log("삭제 구현 예정"),
@@ -161,7 +200,7 @@ export const SpaceContentLayout = ({
           </div>
         </div>
       </div>
-      {/* button section */}
+
       <div className="w-full flex flex-wrap gap-3 px-6">
         <CreateSheetButton teamId={teamId} />
         {type === "team" && (

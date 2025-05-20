@@ -35,10 +35,10 @@ export default function EnsembleRoomFooter({
   return (
     <footer
       onClick={(e) => e.stopPropagation()}
-      className="w-full fixed bottom-0 z-50 bg-[#2E3153]/70 backdrop-blur-md text-white text-sm"
+      className="w-full fixed bottom-0 z-50 bg-[#2E3153]/70 backdrop-blur-md text-white text-sm flex flex-col"
     >
-      {/* 항상 미리보기 썸네일 표시 */}
-      <div className="w-full px-4 py-2 bg-[#2E3153]/70 border-t border-white/10 flex gap-2 overflow-x-auto backdrop-blur-md">
+      {/* 미리보기 + 컨트롤 통합 바디 */}
+      <div className="w-full px-4 pt-2 pb-1 border-t border-white/10 flex gap-2 overflow-x-auto">
         {thumbnails.map((thumb, index) => (
           <div
             key={index}
@@ -54,7 +54,7 @@ export default function EnsembleRoomFooter({
         ))}
       </div>
 
-      <div className="flex items-center justify-between px-6 py-2 order-2">
+      <div className="flex items-center justify-between px-6 py-2 border-t border-white/10">
         <div className="flex items-center gap-4">
           <PlayControl />
         </div>
