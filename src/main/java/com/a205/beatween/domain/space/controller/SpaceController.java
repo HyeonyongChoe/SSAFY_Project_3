@@ -1,6 +1,7 @@
 package com.a205.beatween.domain.space.controller;
 
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
+import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,20 @@ public class SpaceController {
                 .builder()
                 .success(true)
                 .data(spacePreList)
+                .build();
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{spaceId}")
+    public ResponseEntity<ResponseDto<Object>> getSpaceDetail(
+            @PathVariable("spaceId") Integer spaceId,
+            @RequestHeader("X-USER-ID") Integer userId
+    ) {
+        SpaceDetailResponseDto spaceDetail = spaceService.getSpaceDetail(spaceId, userId);
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(spaceDetail)
                 .build();
         return ResponseEntity.ok(result);
     }
