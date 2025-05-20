@@ -8,18 +8,18 @@ import services.separate_wav as spw
 import services.transcribe_to_midi as tcm
 import services.upload_to_s3 as us3
 from services.transcribe_to_musicxml import midi_to_musicxml
-
+from services.lyric_gpt import update_lyrics_vtt
 
 from schemas.request import YoutubeRequest
 from schemas.response import CreateSheetResponse
+
+app = FastAPI()
 
 api_router = APIRouter(prefix="/ai")
 
 BASE_DIR = Path(__file__).parent.resolve()
 STORAGE_PATH = BASE_DIR / ".." / "storage"
 STORAGE_PATH.mkdir(parents=True, exist_ok=True)
-
-app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,19 +29,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @api_router.post("/transcription")
 async def process_youtube(req: YoutubeRequest):
     try:
         # 1. 유튜브 오디오 다운로드
         wav_info = dlw.download_youtube_audio(req.youtube_url, str(STORAGE_PATH))
-        wav_path = wav_info["auido_file"]
+        wav_path = wav_info["audio_file"]
         thumbnail_path = wav_info["thumbnail"]
         song_title = wav_info["title"]
         duration_sec = wav_info["duration_sec"]
-        subtitle_paths = wav_path["subtitles"]
+        subtitle_paths = wav_info["subtitles"]
 
         # 가사 생성
-
+        vtt_path = update_lyrics_vtt(subtitle_paths, song_title, duration_sec)
 
         uniq_name = dlw.extract_youtube_id(req.youtube_url)
         # bpm 추출
@@ -71,12 +72,13 @@ async def process_youtube(req: YoutubeRequest):
         midi_results["vocal"] = tcm.vocal_audio_to_midi(path_list["vocals"], path_list["vocals"].replace(".wav", ".mid"))
 
         # 4. midi -> musicxml
-        musicxml_paths: dict[str, str] = midi_to_musicxml(
+        musicxml_paths, measure_count = midi_to_musicxml(
             bass_midi=midi_results["bass"],
             drum_midi=midi_results["drum"],
             guitar_midi=midi_results["guitar"],
             vocal_midi=midi_results["vocal"],
-            lyric_vtt=subtitle_paths[0] if subtitle_paths else "",
+            lyric_vtt=vtt_path,
+            save_path=str(STORAGE_PATH),
             bpm=bpm,
         )
 
@@ -102,7 +104,7 @@ async def process_youtube(req: YoutubeRequest):
             youtube_url=req.youtube_url,
             thumbnail_url=thumbnail_url,
             bpm=bpm,
-            total_measures=88, # 임시
+            total_measures=measure_count,
             vocal_url=s3_urls.get("vocal"),
             guitar_url=s3_urls.get("guitar"),
             bass_url=s3_urls.get("bass"),
