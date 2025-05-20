@@ -1,4 +1,4 @@
-import os, re, json, glob
+import os, re, json, glob, requests, mimetypes
 from pathlib import Path
 import yt_dlp
 
