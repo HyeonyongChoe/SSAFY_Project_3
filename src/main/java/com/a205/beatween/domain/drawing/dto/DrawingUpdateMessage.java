@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class DrawingUpdateMessage {
-    private int spaceId;
+    private String spaceId;
     private int copySheetId;
     private double relativeX;
     private double relativeY;
