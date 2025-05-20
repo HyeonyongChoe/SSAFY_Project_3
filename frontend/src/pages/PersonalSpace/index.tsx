@@ -1,8 +1,14 @@
+import { usePersonalSpaceStore } from "@/entities/band/model/store";
 import { SpaceContentLayout } from "@/widgets/SpaceContentLayout";
 
 export const PersonalSpacePage = () => {
+  const personalSpaceId = usePersonalSpaceStore(
+    (state) => state.personalSpaceId
+  );
+
   return (
     <SpaceContentLayout
+      teamId={Number(personalSpaceId)}
       type="personal"
       teamImageUrl={
         "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
