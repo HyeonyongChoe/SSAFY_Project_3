@@ -68,7 +68,7 @@ def _prompt_with_vtt(song_title: str, duration_sec: int, vtt_content: str) -> Li
                 When given:
                 
                 1. An incomplete WEBVTT file (may contain partial timestamps and fragments)
-                2. The full official lyrics of the song : {song_title}
+                2. The song title : {song_title}
                 3. The total duration of the song : {duration_sec}
                 
                 Your task:
