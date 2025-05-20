@@ -1,5 +1,6 @@
 package com.a205.beatween.domain.space.service;
 
+import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
 import com.a205.beatween.domain.space.dto.MemberDto;
@@ -13,6 +14,7 @@ import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import com.a205.beatween.domain.user.entity.User;
 import com.a205.beatween.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,7 +61,7 @@ public class SpaceService {
         // 스페이스 이름 기반 슬러그 생성
         String slug = name
                 .toLowerCase()
-                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("[^a-z0-9가-힣]+", "-")
                 .replaceAll("(^-|-$)", "");
 
         String shareUrlWithSlug = "/share/" + slug + "/" + shareKey;
@@ -68,6 +70,28 @@ public class SpaceService {
             .name(name)
             .shareKey(shareUrlWithSlug)
             .build();
+    }
+
+    public Result<String> getTeamSpaceInvitationLink(Integer spaceId) {
+        Space space = spaceRepository.findById(spaceId).orElse(null);
+        if(space == null) {
+            return Result.error(HttpStatus.NOT_FOUND.value(), "해당 spaceId에 해당하는 스페이스를 찾을 수 없습니다.");
+        }
+
+        System.out.println("스페이스 이름 : " + space.getName());
+
+
+        String slug = space.getName()
+                .toLowerCase()
+                .replaceAll("[^a-z0-9가-힣]+", "-")
+                .replaceAll("(^-|-$)", "");
+
+        String shareUrlWithSlug = "/share/" + slug + "/" + space.getShareKey();
+
+        return Result.<String>builder()
+                .success(true)
+                .data(shareUrlWithSlug)
+                .build();
     }
 
     public String saveTeamSpaceImageToS3WhenTeamCreation(MultipartFile image) {
