@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,8 +38,15 @@ public class DrawingServiceImpl implements DrawingService {
      */
     @Override
     public void updateDrawing(DrawingUpdateMessage message) {
+        log.info("🟡 [updateDrawing] 받은 값 → spaceId={}, copySheetId={}, x={}, y={}, erase={}, color={}",
+                message.getSpaceId(), message.getCopySheetId(),
+                message.getRelativeX(), message.getRelativeY(),
+                message.isErase(), message.getColor());
+
         String key = "drawings:" + message.getSpaceId() + ":" + message.getCopySheetId();
         String fieldKey = formatKey(message.getRelativeX(), message.getRelativeY());
+
+        log.info("🟢 Redis 저장 시도 → key={}, fieldKey={}", key, fieldKey);
 
         if (message.isErase()) {
             redisTemplate.opsForHash().delete(key, fieldKey);
@@ -89,6 +97,7 @@ public class DrawingServiceImpl implements DrawingService {
      * [합주모드]
      * 드로잉 캐시 → 병합 후 DB 저장
      */
+    @Transactional
     @Override
     public void saveAllDrawingsBySpaceId(String spaceId) {
         String pattern = "drawings:" + spaceId + ":*";
