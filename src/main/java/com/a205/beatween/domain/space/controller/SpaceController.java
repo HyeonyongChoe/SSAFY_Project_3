@@ -1,9 +1,11 @@
 package com.a205.beatween.domain.space.controller;
 
+import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
 import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -62,5 +64,13 @@ public class SpaceController {
                 .data(spaceDetail)
                 .build();
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/teams/{spaceId}")
+    public ResponseEntity<Result<?>> getTeamSpaceInviationLink(
+            @PathVariable("spaceId") Integer spaceId
+    ) {
+        Result<String> invitationLink = spaceService.getTeamSpaceInvitationLink(spaceId);
+        return ResponseEntity.ok(invitationLink);
     }
 }
