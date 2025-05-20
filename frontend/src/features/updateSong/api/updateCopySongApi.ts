@@ -9,12 +9,7 @@ export const updateSongApi = async (
 ): Promise<ResponseDto<UpdateSongRequestDto>> => {
   const res = await axiosInstance.patch<ResponseDto<UpdateSongRequestDto>>(
     `/api/v1/spaces/${spaceId}/songs/${songId}`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+    formData
   );
   return res.data;
 };

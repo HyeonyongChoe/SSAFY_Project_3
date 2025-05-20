@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateSong } from "../services/updateCopySongService";
 import { toast } from "@/shared/lib/toast";
+import { useSongVersionStore } from "@/entities/song/store/songVersionStore";
 
 interface UseUpdateSongParams {
   spaceId: number;
@@ -10,17 +11,19 @@ interface UseUpdateSongParams {
 
 export const useUpdateSong = () => {
   const queryClient = useQueryClient();
+  const updateVersion = useSongVersionStore((s) => s.updateVersion);
 
   return useMutation({
     mutationFn: ({ spaceId, songId, formData }: UseUpdateSongParams) =>
       updateSong(spaceId, songId, formData),
 
-    onSuccess: (_, { spaceId }) => {
+    onSuccess: (_, { spaceId, songId }) => {
       queryClient.invalidateQueries({ queryKey: ["copySong", spaceId] });
       toast.success({
         title: "곡 수정 성공",
         message: "곡이 성공적으로 수정되었습니다.",
       });
+      updateVersion(songId);
     },
 
     onError: () => {

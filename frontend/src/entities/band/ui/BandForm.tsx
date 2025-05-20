@@ -2,16 +2,31 @@ import { ImageUploadCircle } from "@/shared/ui/ImageCircle";
 import { Input } from "@/shared/ui/Input";
 import { ItemField } from "@/shared/ui/ItemField";
 import { TextArea } from "@/shared/ui/Textarea";
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
-export const BandForm = () => {
+export interface BandFormHandle {
+  getFormData: () => FormData;
+}
+
+export const BandForm = forwardRef<BandFormHandle>((_, ref) => {
   const [bandName, setBandName] = useState("");
   const [bandDetail, setBandDetail] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    getFormData() {
+      const formData = new FormData();
+      formData.append("bandName", bandName);
+      formData.append("bandDetail", bandDetail);
+      if (imageFile) formData.append("bandImage", imageFile);
+      return formData;
+    },
+  }));
 
   return (
     <div className="flex flex-col gap-3">
       <div className="self-center mb-2">
-        <ImageUploadCircle />
+        <ImageUploadCircle onChange={setImageFile} />
       </div>
       <ItemField icon="diversity_3" title="밴드 이름" required>
         <Input
@@ -31,4 +46,4 @@ export const BandForm = () => {
       </ItemField>
     </div>
   );
-};
+});
