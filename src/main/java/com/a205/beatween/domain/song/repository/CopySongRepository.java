@@ -12,4 +12,6 @@ public interface CopySongRepository extends JpaRepository<CopySong, Integer> {
     boolean existsByCopySongIdAndCategory_CategoryId(Integer songId, Integer categoryId);
 
     List<CopySong> findByCategory(Category category);
+
+    List<CopySong> findByCategory_CategoryId(Integer categoryCategoryId);
 }
