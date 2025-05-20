@@ -14,4 +14,8 @@ public interface UserSpaceRepository extends JpaRepository<UserSpace, Integer> {
     List<UserSpace> findBySpace(Space space);
 
     UserSpace findBySpaceAndUser_UserId(Space space, Integer userId);
+
+    UserSpace findBySpace_SpaceIdAndUser_UserId(Integer spaceSpaceId, Integer userUserId);
+
+    List<UserSpace> findBySpace_SpaceId(Integer spaceSpaceId);
 }
