@@ -10,14 +10,12 @@ public interface DrawingService {
 
     void updateDrawing(DrawingUpdateMessage message);
 
-    List<DrawingPoint> getDrawingBySheet(int spaceId, int copySheetId);
+    List<DrawingPoint> getDrawingBySheet(String spaceId, int copySheetId);
 
     void saveAllDrawingsBySpaceId(String spaceId);
 
     Result<List<DrawingPoint>> getPersonalDrawing(int copySheetId);
 
     Result<Void> savePersonalDrawings(Map<Integer, List<DrawingPoint>> drawingMap);
-
-
 
 }

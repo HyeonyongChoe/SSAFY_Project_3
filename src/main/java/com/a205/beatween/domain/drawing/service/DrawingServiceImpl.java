@@ -58,7 +58,7 @@ public class DrawingServiceImpl implements DrawingService {
      * DB + Redis 통합 드로잉 조회
      */
     @Override
-    public List<DrawingPoint> getDrawingBySheet(int spaceId, int copySheetId) {
+    public List<DrawingPoint> getDrawingBySheet(String spaceId, int copySheetId) {
         CopySheet copySheet = copySheetRepository.findById(copySheetId).orElse(null);
         if (copySheet == null) return Collections.emptyList();
 
