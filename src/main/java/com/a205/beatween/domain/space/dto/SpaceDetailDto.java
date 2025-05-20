@@ -6,5 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class SpaceDetailDto {
-    String spaceName;
+    SpaceDetailResponseDto spaceDetailResponseDto;
+    List<CopySongListByCategoryDto> songList;
+
 }

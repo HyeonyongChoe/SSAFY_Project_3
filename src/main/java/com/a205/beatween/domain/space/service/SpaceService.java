@@ -103,7 +103,7 @@ public class SpaceService {
         Integer spaceId = space.getSpaceId();
         boolean isMember = userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
 
-        // 만약 유저가 팀에 속해있지 않다면, 초대 링크에 필요한 최소한의 정보만 반환
+        // 만약 유저가 팀에 속해있지 않다면, 초대 모달에 필요한 최소한의 정보만 반환
         if(!isMember) {
             SpaceSummaryDto spaceSummaryDto = SpaceSummaryDto.builder()
                     .spaceName(space.getName())
@@ -113,8 +113,15 @@ public class SpaceService {
         }
 
         // 만약 유저가 이미 팀에 속해 있다면, 해당 팀 스페이스의 모든 정보 반환
-        // TODO: SpaceDetailDto를 실제로 구현해야 함
         SpaceDetailDto spaceDetailDto = null;
+        SpaceDetailResponseDto spaceDetailResponseDto = SpaceService.getSpaceDetail(Integer spaceId, Integer userId);
+        List<CopySongListByCategoryDto> songList = songService.getAllSongs(spaceId);
+        spaceDetailDto = SpaceDetailDto.builder()
+                .spaceDetailResponseDto(spaceDetailResponseDto)
+                .songList(songList)
+                .build();
+
+
         return Result.success(InvitationDto.ofInviteMember(spaceDetailDto));
 
 

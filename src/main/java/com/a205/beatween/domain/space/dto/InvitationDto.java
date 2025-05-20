@@ -12,13 +12,13 @@ public class InvitationDto {
     private SpaceSummaryDto summary;  // 모달용 최소 정보
     private SpaceDetailDto detail;  // 상세 정보
 
-    // 비회원용
+    // 아직 팀의 멤버가 아닌 경우
     public static InvitationDto ofInviteNonMember(SpaceSummaryDto spaceSummaryDto) {
         return new InvitationDto(false, spaceSummaryDto, null);
     }
 
-    // 회원용
-    public static InvitationDto ofInviteMember(SpaceDetailDto detail) {
-        return new InvitationDto(true, null, detail);
+    // 팀의 멤버인 경우
+    public static InvitationDto ofInviteMember(SpaceDetailDto detailDto) {
+        return new InvitationDto(true, null, detailDto);
     }
 }
