@@ -48,7 +48,7 @@ public class SongController {
     @GetMapping(value = "/sheets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(
             @PathVariable("spaceId") Integer spaceId,
-            @RequestHeader("X-USER-ID") Integer userId) {
+            @RequestParam("X-USER-ID") Integer userId) {
 
         SseEmitter emitter = sseEmitters.add(userId, spaceId);
 

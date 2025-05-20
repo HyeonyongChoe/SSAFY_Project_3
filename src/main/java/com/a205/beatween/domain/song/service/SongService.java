@@ -29,7 +29,9 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +81,9 @@ public class SongService {
     @Transactional
     public void createSheet(UrlRequestDto urlRequestDto, Integer userId, Integer spaceId) {
         // 처리 시작 이벤트 전송
-        sseEmitters.send(userId, spaceId, "process", "악보 변환을 시작합니다.");
+        Map<String, Object> eventData = new HashMap<>();
+        eventData.put("message", "악보 생성을 시작합니다.");
+        sseEmitters.send(userId, spaceId, "process", eventData);
 
         String[][] parts = new String[4][2];
         parts[0][0] = "drum";
@@ -99,11 +103,13 @@ public class SongService {
             try {
                 Thread.sleep(10000);
             } catch (Exception e) {
-                sseEmitters.send(userId, spaceId, "error", "오류 발생");
+                eventData.put("message", "악보 생성 중 오류 발생.");
+                sseEmitters.send(userId, spaceId, "error", eventData);
 
             }
             // 작업 완료 이벤트 전송;
-            sseEmitters.send(userId, spaceId, "complete", "악보 생성 완료");
+            eventData.put("message", "악보 생성 완료");
+            sseEmitters.send(userId, spaceId, "complete", eventData);
             sseEmitters.remove(userId, spaceId);
             return;
         }
@@ -132,22 +138,23 @@ public class SongService {
                                     insertCopySheet(copySong, part[0], part[1]);
                                 }
                                 // 최종 완료 이벤트와 함께 결과 데이터 전송
-                                sseEmitters.send(userId, spaceId, "complete", response);
+                                eventData.put("message", "악보 생성 완료");
+                                sseEmitters.send(userId, spaceId, "complete", eventData);
                                 sseEmitters.remove(userId, spaceId);
                             } catch (Exception e) {
-                                sseEmitters.send(userId, spaceId, "error", "악보 처리 중 오류 발생: " + e.getMessage());
+                                eventData.put("message", "악보 처리 중 오류 발생");
+                                sseEmitters.send(userId, spaceId, "error", eventData);
                                 sseEmitters.remove(userId, spaceId);
                             }
                         },
                         error -> {
-                            sseEmitters.send(userId, spaceId, "error", "FastAPI 호출 실패: " + error.getMessage());
+                            eventData.put("message", "악보 생성 중 오류 발생");
+                            sseEmitters.send(userId, spaceId, "error", eventData);
                             sseEmitters.remove(userId, spaceId);
                             System.err.println("FastAPI 호출 실패: " + error.getMessage());
 
                         }
                 );
-
-        return;
     }
 
     private Mono<CreateSheetResponseDto> callFastApi(UrlRequestDto urlRequestDto) {
