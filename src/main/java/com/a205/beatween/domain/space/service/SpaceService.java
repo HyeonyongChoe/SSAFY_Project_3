@@ -61,7 +61,7 @@ public class SpaceService {
         // 스페이스 이름 기반 슬러그 생성
         String slug = name
                 .toLowerCase()
-                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("[^a-z0-9가-힣]+", "-")
                 .replaceAll("(^-|-$)", "");
 
         String shareUrlWithSlug = "/share/" + slug + "/" + shareKey;
