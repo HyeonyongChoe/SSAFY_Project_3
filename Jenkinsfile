@@ -2,6 +2,11 @@ pipeline {
   agent any
   environment {
     DEPLOY_DIR = '/home/ubuntu/deployment'
+    VITE_KAKAO_CLIENT_ID    = credentials('kakao-client-id')
+    VITE_KAKAO_REDIRECT_URI = credentials('kakao-redirect-uri')
+    VITE_APP_BASE_URL       = credentials('app-base-url')
+    VITE_API_BASE_URL       = credentials('api-base-url')
+    VITE_BROKER_URL         = credentials('broker-url')
   }
   stages {
     stage('Checkout') {
@@ -13,6 +18,16 @@ pipeline {
     stage('Build Static') {
         steps {
             dir('frontend') {
+
+                // 프론트엔드 프로젝트 루트에 .env 파일 생성
+                writeFile file: '.env', text: """\
+                    VITE_KAKAO_CLIENT_ID=${env.VITE_KAKAO_CLIENT_ID}
+                    VITE_KAKAO_REDIRECT_URI=${env.VITE_KAKAO_REDIRECT_URI}
+                    VITE_APP_BASE_URL=${env.VITE_APP_BASE_URL}
+                    VITE_API_BASE_URL=${env.VITE_API_BASE_URL}
+                    VITE_BROKER_URL=${env.VITE_BROKER_URL}
+                """
+
                 script {
                     // node:20 이미지를 받아 임시 컨테이너 안에서 실행
                     docker.image('node:20').inside('-u 0:0') {
