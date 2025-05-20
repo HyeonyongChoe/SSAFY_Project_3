@@ -2,17 +2,13 @@ package com.a205.beatween.domain.space.service;
 
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
-import com.a205.beatween.domain.space.dto.InvitationDto;
-import com.a205.beatween.domain.space.dto.CreateTeamDto;
-import com.a205.beatween.domain.space.dto.SpaceDetailDto;
-import com.a205.beatween.domain.space.dto.SpaceSummaryDto;
-import com.a205.beatween.domain.space.dto.MemberDto;
-import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
+import com.a205.beatween.domain.song.dto.CopySongListByCategoryDto;
+import com.a205.beatween.domain.song.service.SongService;
+import com.a205.beatween.domain.space.dto.*;
 import com.a205.beatween.domain.space.entity.Space;
 import com.a205.beatween.domain.space.entity.UserSpace;
 import com.a205.beatween.domain.space.enums.RoleType;
 import com.a205.beatween.domain.space.enums.SpaceType;
-import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import com.a205.beatween.domain.user.entity.User;
@@ -27,10 +23,8 @@ import java.io.UncheckedIOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.UUID;
-
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +33,7 @@ public class SpaceService {
     private final SpaceRepository spaceRepository;
     private final UserRepository userRepository;
     private final S3Util s3Util;
-    private final UserRepository userRepository;
+    private final SongService songService;
 
     public boolean checkUserIsMemberOfSpace(Integer userId, Integer spaceId){
         return userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
@@ -123,16 +117,13 @@ public class SpaceService {
 
         // 만약 유저가 이미 팀에 속해 있다면, 해당 팀 스페이스의 모든 정보 반환
         SpaceDetailDto spaceDetailDto = null;
-        SpaceDetailResponseDto spaceDetailResponseDto = SpaceService.getSpaceDetail(Integer spaceId, Integer userId);
+        SpaceDetailResponseDto spaceDetailResponseDto = getSpaceDetail(spaceId, userId);
         List<CopySongListByCategoryDto> songList = songService.getAllSongs(spaceId);
         spaceDetailDto = SpaceDetailDto.builder()
                 .spaceDetailResponseDto(spaceDetailResponseDto)
                 .songList(songList)
                 .build();
-
-
         return Result.success(InvitationDto.ofInviteMember(spaceDetailDto));
-
 
 
         // 이후 로직 : isMember가 true라면 프론트에서 space 정보 바로 보여줌, 만약 아니라면 가입하시겠습니까 모달 띄움,
@@ -191,6 +182,7 @@ public class SpaceService {
                 .toLowerCase()
                 .replaceAll("[^a-z0-9가-힣]+", "-")
                 .replaceAll("(^-|-$)", "");
+    }
 
     public List<SpacePreDto> getSpaces(Integer userId) {
         return spaceRepository.findByUserId(userId);

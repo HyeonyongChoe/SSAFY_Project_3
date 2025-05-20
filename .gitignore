@@ -45,3 +45,4 @@ out/
 
 # Environment Files #
 .env.properties
+.env
