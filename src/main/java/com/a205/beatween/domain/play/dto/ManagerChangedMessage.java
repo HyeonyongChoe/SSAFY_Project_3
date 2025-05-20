@@ -7,4 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ManagerChangedMessage {
     private String sessionId;
+    private String userId;
 }

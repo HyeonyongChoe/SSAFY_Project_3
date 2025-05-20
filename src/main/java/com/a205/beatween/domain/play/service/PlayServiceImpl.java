@@ -40,6 +40,14 @@ public class PlayServiceImpl implements PlayService {
         return null;
     }
 
+    @Override
+    public boolean isManager(String spaceId, String sessionId) {
+        String managerKey = "ws:space:" + spaceId + ":manager";
+        String currentManager = (String) redisTemplate.opsForValue().get(managerKey);
+        return sessionId.equals(currentManager);
+    }
+
+    @Override
     public void sendInitialManagerStatus(String userId, String spaceId, boolean isManager) {
         messagingTemplate.convertAndSendToUser(
                 userId,
@@ -48,15 +56,20 @@ public class PlayServiceImpl implements PlayService {
         );
     }
 
+    @Override
     public void broadcastManagerChange(String spaceId, String newManagerSessionId) {
+        String userToSessionKey = "ws:space:" + spaceId + ":session:" + newManagerSessionId;
+        String newManagerUserId = (String) redisTemplate.opsForValue().get(userToSessionKey);
+
         messagingTemplate.convertAndSend(
                 "/topic/play/manager/" + spaceId,
-                new ManagerChangedMessage(newManagerSessionId)
+                new ManagerChangedMessage(newManagerSessionId, newManagerUserId)
         );
     }
 
+
     @Override
-    public void handleManualDisconnect(String spaceId, String sessionId, int userId) {
+    public void handleManualDisconnect(String spaceId, String sessionId, String userId) {
         String sessionCountKey = "ws:space:" + spaceId + ":sessionCount";
         String sessionToUserKey = "ws:space:" + spaceId + ":session:" + sessionId;
         String userToSessionKey = "ws:space:" + spaceId + ":user:" + userId;

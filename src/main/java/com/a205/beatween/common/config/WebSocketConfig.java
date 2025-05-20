@@ -1,5 +1,7 @@
 package com.a205.beatween.common.config;
 
+import com.a205.beatween.common.event.CustomHandshakeHandler;
+import com.a205.beatween.common.event.UserHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.extern.slf4j.XSlf4j;
@@ -23,14 +25,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");
+        config.enableSimpleBroker("/topic", "/queue");
         config.setApplicationDestinationPrefixes("/app");
+        config.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("*")
-                .addInterceptors();
+                .setAllowedOriginPatterns("*")
+                .setHandshakeHandler(new CustomHandshakeHandler())
+                .addInterceptors(new UserHandshakeInterceptor())
+                .withSockJS();
     }
+
+
 }

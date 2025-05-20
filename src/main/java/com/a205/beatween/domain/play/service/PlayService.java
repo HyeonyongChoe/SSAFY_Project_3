@@ -8,9 +8,11 @@ public interface PlayService {
 
     PlayControlMessage getLatestState(Integer spaceId);
 
+    boolean isManager(String spaceId, String sessionId);
+
     void sendInitialManagerStatus(String userId, String spaceId, boolean isManager);
 
     void broadcastManagerChange(String spaceId, String newManagerSessionId);
 
-    void handleManualDisconnect(String spaceId, String sessionId, int userId);
+    void handleManualDisconnect(String spaceId, String sessionId, String userId);
 }
