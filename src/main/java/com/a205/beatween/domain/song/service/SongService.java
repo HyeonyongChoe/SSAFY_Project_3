@@ -17,13 +17,12 @@ import com.a205.beatween.domain.space.entity.Category;
 import com.a205.beatween.domain.space.entity.Space;
 import com.a205.beatween.domain.space.repository.CategoryRepository;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
-import com.a205.beatween.domain.space.service.SpaceService;
+import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -40,7 +39,6 @@ public class SongService {
     private final CategoryRepository categoryRepository;
     private final CopySongRepository copySongRepository;
 
-    private final SpaceService spaceService;
     private final WebClient webClient = WebClient.create();
     private final OriginalSongRepository originalSongRepository;
     private final SpaceRepository spaceRepository;
@@ -48,10 +46,11 @@ public class SongService {
     private final S3Util s3Util;
     private final SseEmitters sseEmitters;
     private final DrawingRepository drawingRepository;
+    private final UserSpaceRepository userSpaceRepository;
 
 
     public Result<CopySheetResponseDto> getCopySheet(Integer userId, Integer spaceId, Integer songId, Integer categoryId, Integer sheetId){
-        boolean isMember = spaceService.checkUserIsMemberOfSpace(userId, spaceId);
+        boolean isMember = userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
         if(!isMember) {
             return Result.error(HttpStatus.FORBIDDEN.value(), "요청한 사용자가 해당 밴드의 멤버가 아닙니다.");
         }
