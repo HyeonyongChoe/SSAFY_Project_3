@@ -3,8 +3,8 @@ import { SpaceButtonPanel } from "@/widgets/SpaceContentLayout/ui/SpaceButtonPan
 import { toast } from "@/shared/lib/toast";
 import { Icon } from "@/shared/ui/Icon";
 import { useRef } from "react";
-import { useCreateSheet } from "../hooks/useCreateSheet";
 import { CreateSheetForm, CreateSheetFormHandle } from "./CreateSheetForm";
+import { useCreateSheetWithNotification } from "../hooks/useCreateSheetWithNotification";
 
 interface CreateSheetButtonProps {
   teamId: number | undefined;
@@ -19,8 +19,8 @@ export const CreateSheetButton = ({ teamId }: CreateSheetButtonProps) => {
     return;
   }
 
-  const { mutate: createSheet } = useCreateSheet({ spaceId: teamId });
-
+  // const { mutate: createSheet } = useCreateSheet({ spaceId: teamId });
+  const { startCreateSheet } = useCreateSheetWithNotification(teamId);
   const formRef = useRef<CreateSheetFormHandle>(null);
 
   return (
@@ -42,7 +42,8 @@ export const CreateSheetButton = ({ teamId }: CreateSheetButtonProps) => {
               return false; // 모달 닫지 않음
             }
 
-            createSheet({ youtube_url: youtubeUrl });
+            // createSheet({ youtube_url: youtubeUrl });
+            startCreateSheet(youtubeUrl);
             return true; // 모달 닫음
           },
         })

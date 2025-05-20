@@ -1,12 +1,13 @@
 import { useGlobalStore } from "@/app/store/globalStore";
-import { IconButton } from "@/shared/ui/Icon";
+import { Icon, IconButton } from "@/shared/ui/Icon";
 import { Button } from "@/shared/ui/Button";
 import { Logo } from "@/shared/ui/Logo";
 import classNames from "classnames";
 import { HtmlHTMLAttributes } from "react";
 import { motion } from "framer-motion";
 import { Popover } from "@/shared/ui/Popover";
-import { NotificationItem } from "@/shared/ui/Notification/NotificationItem";
+import { useSheetStore } from "@/features/createSheet/store/useSheetStore";
+import { NotificationList } from "@/features/notification/ui/NotificationList";
 
 interface HeaderDefaultProps extends HtmlHTMLAttributes<HTMLDivElement> {
   text?: String;
@@ -26,6 +27,7 @@ export const HeaderDefault = ({
   ...props
 }: HeaderDefaultProps) => {
   const isLoggedIn = useGlobalStore((state) => state.isLoggedIn);
+  const isCreating = useSheetStore((state) => state.isCreating);
 
   return (
     <header
@@ -39,29 +41,26 @@ export const HeaderDefault = ({
         <Logo onClick={onLogoClick} />
       </div>
       {text && <div>{text}</div>}
+      {isCreating && (
+        <div className="text-brandcolor200 flex flex-wrap gap-2 items-center">
+          악보를 생성중입니다...
+          <div className="flex animate-spin">
+            <Icon icon="progress_activity" />
+          </div>
+        </div>
+      )}
       <div>
         {isLoggedIn ? (
           <Popover
             directionY="bottom"
             className={`translate-x-[.5rem] h-[16rem] flex flex-col pb-0 px-0`}
-            trigger={
-              <IconButton
-                icon="notifications"
-                fill
-                onClick={() => {
-                  console.log("click test for dev");
-                }}
-                className="-mr-2"
-              />
-            }
+            trigger={<IconButton icon="notifications" fill className="-mr-2" />}
           >
             <div className="px-4 pb-3 pt-1 text-lg font-bold text-left border-b">
               알림
             </div>
             <div className="p-3 flex flex-col gap-2 overflow-y-auto scroll-custom">
-              {Array.from({ length: 10 }).map((_, index) => (
-                <NotificationItem key={index} />
-              ))}
+              <NotificationList />
             </div>
           </Popover>
         ) : !isSignPage ? (

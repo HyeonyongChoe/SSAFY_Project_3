@@ -7,30 +7,41 @@ import { openConfirm, openModal } from "@/shared/lib/modal";
 import { toast } from "@/shared/lib/toast";
 import { ManageCategoryForm } from "@/features/manageCategory/ui/ManageCategoryForm";
 import { UpdateBandForm } from "@/features/updateBand/ui/UpdateBandForm";
-import { CopySongListByCategoryDto } from "@/entities/song/types/CopySong.types";
 import { NoteList } from "./ui/NoteList";
 import { CreateSheetButton } from "@/features/createSheet/ui/CreateSheetButton";
+import { useSpaceDetail } from "@/entities/band/hooks/useSpace";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
   teamId?: number;
-  subtitle?: String;
-  title?: String;
-  summary?: String;
-  teamImageUrl?: String;
-  songList?: CopySongListByCategoryDto[];
 }
 
 export const SpaceContentLayout = ({
   type = "team",
   teamId,
-  subtitle,
-  title,
-  summary,
-  teamImageUrl,
 }: SpaceContentLayoutProps) => {
-  const isOwner = true;
+  if (!teamId) {
+    return <div>잘못된 밴드 정보입니다.</div>;
+  }
+
   const navigate = useNavigate();
+
+  const { data, error, isLoading } = useSpaceDetail(teamId);
+
+  if (isLoading) {
+    return <div>로딩중...</div>;
+  }
+  if (error) return <div>에러: {error.message}</div>;
+
+  if (data && !data.success)
+    return (
+      <div className="py-6 text-warning font-bold">
+        상정 가능한 범위의 오류 발생: {data.error?.message}
+      </div>
+    );
+
+  const isOwner = data?.data.roleType === "OWNER";
+  const bandData = data?.data;
 
   return (
     // background
@@ -41,7 +52,7 @@ export const SpaceContentLayout = ({
         style={{
           backgroundImage: `
       linear-gradient(to top, rgba(27, 32, 53, 1), rgba(27, 32, 53, 0)),
-      url(${teamImageUrl})
+      url(${bandData?.imageUrl})
     `,
         }}
       >
@@ -62,19 +73,25 @@ export const SpaceContentLayout = ({
         />
         <div className="py-2 flex flex-col gap-3 flex-grow text-left max-w-[70rem] self-center">
           <div>
-            {subtitle && (
-              <div className="text-neutral100/70 text-sm">{subtitle}</div>
+            {bandData?.createAt && (
+              <div className="text-neutral100/70 text-sm">
+                {bandData.createAt}
+              </div>
             )}
-            {title && <div className="text-2xl font-bold">{title}</div>}
+            {bandData?.spaceName && (
+              <div className="text-2xl font-bold">{bandData.spaceName}</div>
+            )}
           </div>
-          {summary && <div>{summary}</div>}
+          {bandData?.description && <div>{bandData.description}</div>}
           {type === "team" && (
             <div className="flex flew-wrap gap-2">
-              <ImageCircle />
-              <ImageCircle />
-              <ImageCircle />
-              <ImageCircle />
-              <ImageCircle />
+              {bandData?.members?.map((member, idx) => (
+                <ImageCircle
+                  key={idx}
+                  imageUrl={member.profileImageUrl}
+                  alt={member.nickName}
+                />
+              ))}
             </div>
           )}
           <div className="flex flex-wrap gap-2">
@@ -114,7 +131,7 @@ export const SpaceContentLayout = ({
                         info: "한 번 지운 밴드는 다시 되돌릴 수 없습니다",
                         cancelText: "아니오",
                         okText: "나가기",
-                        onConfirm: () => console.log("탈퇴 구현 예정"),
+                        onConfirm: () => console.log("삭제 구현 예정"),
                         onCancel: () => console.log("취소됨"),
                       })
                     }
@@ -131,7 +148,7 @@ export const SpaceContentLayout = ({
                         info: "다시 밴드에 들어가기 위해서는 밴드 관리자의 초대가 필요합니다",
                         cancelText: "아니오",
                         okText: "나가기",
-                        onConfirm: () => console.log("탈퇴 구현 예정"),
+                        onConfirm: () => console.log("나가기 구현 예정"),
                         onCancel: () => console.log("취소됨"),
                       })
                     }

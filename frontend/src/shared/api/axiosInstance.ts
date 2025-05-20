@@ -14,7 +14,6 @@ const axiosInstance = axios.create({
 // 요청시 Bearer 헤더 추가
 const requestHandler = (config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem("accessToken");
-  console.log("token", token);
   const isHeaderSettable =
     config.headers && typeof config.headers.set === "function";
 
