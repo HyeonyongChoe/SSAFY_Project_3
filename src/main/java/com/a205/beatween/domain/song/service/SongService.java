@@ -94,13 +94,12 @@ public class SongService {
         OriginalSong checkSong = originalSongRepository.findByYoutubeUrl(urlRequestDto.getYoutubeUrl());
         if(checkSong != null) {
             CopySong copySong = insertCopySong(checkSong, spaceId);
-
-            // S3에 복사본을 만들어서 올려야함
-            for(String[] part : parts) {
-                OriginalSheet checkSheet = originalSheetRepository.findBySongAndPart(checkSong, part[0]);
-                insertCopySheet(copySong, part[0], checkSheet.getSheetUrl());
-            }
             try {
+                // S3에 복사본을 만들어서 올려야함
+                for(String[] part : parts) {
+                    OriginalSheet checkSheet = originalSheetRepository.findBySongAndPart(checkSong, part[0]);
+                    insertCopySheet(copySong, part[0], checkSheet.getSheetUrl());
+                }
                 Thread.sleep(10000);
             } catch (Exception e) {
                 eventData.put("message", "악보 생성 중 오류 발생.");

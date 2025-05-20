@@ -1,5 +1,9 @@
 package com.a205.beatween.domain.space.service;
 
+import com.a205.beatween.domain.song.entity.CopySheet;
+import com.a205.beatween.domain.song.entity.CopySong;
+import com.a205.beatween.domain.song.repository.CopySheetRepository;
+import com.a205.beatween.domain.song.repository.CopySongRepository;
 import com.a205.beatween.domain.space.dto.CategoryDto;
 import com.a205.beatween.domain.space.entity.Category;
 import com.a205.beatween.domain.space.entity.Space;
@@ -19,6 +23,8 @@ public class CategoryService {
 
     private final SpaceRepository spaceRepository;
     private final CategoryRepository categoryRepository;
+    private final CopySongRepository copySongRepository;
+    private final CopySheetRepository copySheetRepository;
 
     @Transactional
     public CategoryDto createCategory(Integer spaceId, String name) {
@@ -65,7 +71,14 @@ public class CategoryService {
                 .build();
     }
 
+    @Transactional
     public void deleteCategory(Integer categoryId) {
+        List<CopySong> copySongList = copySongRepository.findByCategory_CategoryId(categoryId);
+        for (CopySong copySong : copySongList) {
+            List<CopySheet> copySheetList = copySheetRepository.findByCopySong_CopySongId(copySong.getCopySongId());
+            copySheetRepository.deleteAll(copySheetList);
+            copySongRepository.delete(copySong);
+        }
         categoryRepository.deleteById(categoryId);
     }
 }

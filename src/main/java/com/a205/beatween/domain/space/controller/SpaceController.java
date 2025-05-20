@@ -17,6 +17,7 @@ import com.a205.beatween.domain.space.service.SpaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -72,5 +73,31 @@ public class SpaceController {
     ) {
         Result<String> invitationLink = spaceService.getTeamSpaceInvitationLink(spaceId);
         return ResponseEntity.ok(invitationLink);
+    }
+
+
+    @PatchMapping("/{spaceId}")
+    public ResponseEntity<ResponseDto<Object>> updateSpace(
+            @PathVariable("spaceId") Integer spaceId,
+            @RequestHeader("X-USER-ID") Integer userId,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        SpaceDetailResponseDto spaceDetail = spaceService.updateSpace(spaceId, userId, name, description, image);
+        if (spaceDetail == null) {
+            ResponseDto<Object> result = ResponseDto
+                    .builder()
+                    .success(true)
+                    .data("올바르지 않은 요청입니다.")
+                    .build();
+            return ResponseEntity.ok(result);
+        }
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(spaceDetail)
+                .build();
+        return ResponseEntity.ok(result);
     }
 }

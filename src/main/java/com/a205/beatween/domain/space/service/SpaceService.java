@@ -7,6 +7,7 @@ import com.a205.beatween.domain.space.dto.MemberDto;
 import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
 import com.a205.beatween.domain.space.entity.Space;
 import com.a205.beatween.domain.space.entity.UserSpace;
+import com.a205.beatween.domain.space.enums.RoleType;
 import com.a205.beatween.domain.space.enums.SpaceType;
 import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 
 import java.util.List;
@@ -145,5 +147,27 @@ public class SpaceService {
                 .build();
 
 
+    }
+
+    public SpaceDetailResponseDto updateSpace(Integer spaceId, Integer userId, String name, String description, MultipartFile image) throws IOException {
+        Space space = spaceRepository.findById(spaceId).orElse(null);
+        UserSpace userSpace = userSpaceRepository.findBySpaceAndUser_UserId(space,userId);
+        if(space == null || userSpace == null) {
+            return null;
+        }
+        if(name != null) {
+            space.setName(name);
+        }
+        if(description != null) {
+            space.setDescription(description);
+        }
+        if(image != null) {
+            String key = "space_images/si".concat(String.valueOf(spaceId)).concat(".png");
+            String url = s3Util.upload(image.getBytes(),"image/png", key);
+            space.setImageUrl(url);
+        }
+        space = spaceRepository.save(space);
+
+        return getSpaceDetail(spaceId,userId);
     }
 }
