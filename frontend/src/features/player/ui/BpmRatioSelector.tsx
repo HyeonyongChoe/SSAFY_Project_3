@@ -42,7 +42,7 @@ const BpmRatioSelector = ({ onClose }: BpmRatioSelectorProps) => {
       {/* 상단 BPM 표시 */}
       <div className="flex justify-center items-center gap-2 text-xl font-bold">
         <button onClick={() => setIsEditing(true)}>
-          <Icon icon="edit" size={18} />
+          <Icon icon="edit" tone="white" size={18} />
         </button>
         {isEditing ? (
           <input

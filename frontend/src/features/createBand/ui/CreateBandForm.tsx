@@ -1,5 +1,6 @@
-import { BandForm } from "@/entities/band/ui/BandForm";
+import { BandForm, BandFormHandle } from "@/entities/band/ui/BandForm";
+import { forwardRef } from "react";
 
-export const CreateBandForm = () => {
-  return <BandForm />;
-};
+export const CreateBandForm = forwardRef<BandFormHandle>((_, ref) => {
+  return <BandForm ref={ref} />;
+});

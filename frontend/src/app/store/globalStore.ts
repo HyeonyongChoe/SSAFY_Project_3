@@ -16,7 +16,7 @@ type GlobalState = {
 };
 
 export const useGlobalStore = create<GlobalState>((set) => ({
-  isLoggedIn: false,
+  isLoggedIn: true,
   accessToken: null,
   login: (status) =>
     set(() => ({

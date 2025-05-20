@@ -60,7 +60,9 @@ export function EnsembleRoomHeader() {
           <span className="text-sm font-medium text-white ml-1">
             SSAFY toGether
           </span>
-          <Icon icon="chevron_right" tone="white" size={18} />
+          <div className="flex mx-1">
+            <Icon icon="chevron_right" tone="white" size={18} />
+          </div>
           <div className="bg-white rounded px-1 flex items-center h-6">
             <InstrumentDropdown className="text-black font-medium text-xs border-none outline-none h-full leading-none py-0 my-0" />
           </div>

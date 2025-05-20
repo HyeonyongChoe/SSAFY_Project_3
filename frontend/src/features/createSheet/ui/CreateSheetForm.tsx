@@ -1,9 +1,17 @@
 import { Input } from "@/shared/ui/Input";
 import { ItemField } from "@/shared/ui/ItemField";
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
-export const CreateSheetForm = () => {
-  const [bandName, setBandName] = useState("");
+export interface CreateSheetFormHandle {
+  getYoutubeUrl: () => string;
+}
+
+export const CreateSheetForm = forwardRef<CreateSheetFormHandle>((_, ref) => {
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+
+  useImperativeHandle(ref, () => ({
+    getYoutubeUrl: () => youtubeUrl,
+  }));
 
   return (
     <div className="flex flex-col gap-3">
@@ -14,13 +22,13 @@ export const CreateSheetForm = () => {
         required
       >
         <Input
-          value={bandName}
-          onChange={setBandName}
+          value={youtubeUrl}
+          onChange={(val) => setYoutubeUrl(val)}
           placeholder="youtube 주소 (ex. https://www.youtube.com/watch?v=id)"
           maxLength={255}
-          showCount={false}
+          showCount={true}
         />
       </ItemField>
     </div>
   );
-};
+});
