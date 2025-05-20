@@ -16,10 +16,13 @@ public interface SpaceRepository extends JpaRepository<Space, Integer> {
     @Query("SELECT MAX(s.spaceId) FROM Space s")
     Optional<Integer> findMaxSpaceId();
 
+    Optional<Space> findByShareKey(String shareKey);
+
     @Query("SELECT new com.a205.beatween.domain.space.dto.SpacePreDto(" +
             "s.spaceId, s.name, s.imageUrl, s.spaceType) " +
             "FROM Space as s " +
             "JOIN UserSpace us ON s.spaceId = us.space.spaceId " +
             "WHERE us.user.userId =:userId")
     List<SpacePreDto> findByUserId(@Param("userId") Integer userId);
+
 }
