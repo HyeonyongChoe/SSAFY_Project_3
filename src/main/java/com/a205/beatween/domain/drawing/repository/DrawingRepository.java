@@ -13,6 +13,8 @@ public interface DrawingRepository extends JpaRepository<Drawing, Integer> {
 
     List<Drawing> findByCopySheet(CopySheet copySheet);
 
-    void deleteByCopySheet_CopySheetId(Integer copySheetId);
+    int deleteByCopySheet_CopySheetId(Integer copySheetId);
+
+    List<Drawing> findByCopySheet_CopySheetId(Integer copySheetId);
 
 }

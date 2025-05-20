@@ -2,10 +2,7 @@ package com.a205.beatween.domain.space.entity;
 
 import com.a205.beatween.domain.space.enums.SpaceType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -13,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -32,8 +30,8 @@ public class Space {
     @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    @Column(name = "share_url", length = 255)
-    private String shareUrl;
+    @Column(name = "share_key", length = 255)
+    private String shareKey;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)

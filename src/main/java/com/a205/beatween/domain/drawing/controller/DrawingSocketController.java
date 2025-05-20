@@ -6,9 +6,11 @@ import com.a205.beatween.domain.drawing.service.DrawingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,12 +31,12 @@ public class DrawingSocketController {
         messagingTemplate.convertAndSend("/topic/draw/" + message.getCopySheetId(), message);
     }
 
-    @MessageMapping("/getDrawing/{copySheetId}")
+    @MessageMapping("/getDrawing/{spaceId}/{copySheetId}")
     @SendTo("/topic/draw/init/{copySheetId}")
-    public List<DrawingPoint> getDrawing(@DestinationVariable int copySheetId) {
-        return drawingService.getDrawingBySheet(copySheetId);
+    public List<DrawingPoint> getDrawing(@DestinationVariable String spaceId,
+                                         @DestinationVariable int copySheetId) {
+        return drawingService.getDrawingBySheet(spaceId, copySheetId);
     }
-
 
 
 }

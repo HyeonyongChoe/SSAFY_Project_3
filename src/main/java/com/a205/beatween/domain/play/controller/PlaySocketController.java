@@ -7,9 +7,13 @@ import com.a205.beatween.domain.play.service.PlayService;
 import com.a205.beatween.domain.space.service.SpaceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
+
+import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
@@ -63,4 +67,18 @@ public class PlaySocketController {
 
         messagingTemplate.convertAndSend("/topic/errors/" + userId, response);
     }
+
+    @MessageMapping("/disconnect")
+    public void manualDisconnect(StompHeaderAccessor accessor, Principal principal) {
+        String sessionId = accessor.getSessionId();
+        String userId = principal.getName();
+        String spaceId = (String) accessor.getSessionAttributes().get("spaceId");
+
+        if (spaceId == null || userId == null || sessionId == null) {
+            log.warn("disconnect 정보 부족 - spaceId={}, userId={}, sessionId={}", spaceId, userId, sessionId);
+            return;
+        }
+        playService.handleManualDisconnect(spaceId, sessionId, userId);
+    }
+
 }
