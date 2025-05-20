@@ -7,9 +7,13 @@ import com.a205.beatween.domain.space.dto.CreateTeamDto;
 import com.a205.beatween.domain.space.dto.SpaceDetailDto;
 import com.a205.beatween.domain.space.dto.SpaceSummaryDto;
 import com.a205.beatween.domain.space.entity.Space;
+import com.a205.beatween.domain.space.entity.UserSpace;
+import com.a205.beatween.domain.space.enums.RoleType;
 import com.a205.beatween.domain.space.enums.SpaceType;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
+import com.a205.beatween.domain.user.entity.User;
+import com.a205.beatween.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,13 +30,15 @@ import java.util.UUID;
 public class SpaceService {
     private final UserSpaceRepository userSpaceRepository;
     private final SpaceRepository spaceRepository;
+    private final UserRepository userRepository;
     private final S3Util s3Util;
 
     public boolean checkUserIsMemberOfSpace(Integer userId, Integer spaceId){
         return userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
     }
 
-    public CreateTeamDto createTeamSpace(String name, String description, MultipartFile image) {
+    public CreateTeamDto createTeamSpace(Integer userId, String name, String description, MultipartFile image) {
+        // TODO: 로그인 구현 후 userId 추출 로직 추가
 
         String imageUrl = null;
         if(image != null) {
@@ -41,7 +47,7 @@ public class SpaceService {
 
         String shareKey = UUID.randomUUID().toString();
 
-        Space teamspace = Space.builder()
+        Space newTeamSpace = Space.builder()
             .name(name)
             .description(description)
             .imageUrl(imageUrl)
@@ -50,7 +56,17 @@ public class SpaceService {
             .createdAt(LocalDateTime.now())
             .build();
 
-        spaceRepository.save(teamspace);
+        Space savedSpace = spaceRepository.save(newTeamSpace);
+        System.out.println("savedSpaceId = " + savedSpace.getSpaceId());
+
+        User user = userRepository.findById(userId).orElse(null);
+
+        Integer savedSpaceId = savedSpace.getSpaceId();
+        UserSpace newUserSpace = UserSpace.builder()
+            .user(user)
+            .space(savedSpace)
+            .roleType(RoleType.OWNER)
+            .build();
 
         // 스페이스 이름 기반 슬러그 생성
         String slug = getSlug(name);
@@ -133,7 +149,7 @@ public class SpaceService {
     public String getSlug(String teamName) {
         return teamName
                 .toLowerCase()
-                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("[^a-z0-9가-힣]+", "-")
                 .replaceAll("(^-|-$)", "");
     }
 }

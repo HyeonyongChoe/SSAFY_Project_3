@@ -24,12 +24,13 @@ public class SpaceController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public CreateTeamDto createTeamSpace(
+            @RequestHeader("X-USER-ID") Integer userId, // 임시 헤더
             @RequestParam("name") @NotBlank String name,
             @RequestParam(value = "description", required = false) String description,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         // ResponseEntity 없이 리턴 타입을 DTO로 바로 선언
-        return spaceService.createTeamSpace(name, description, image);
+        return spaceService.createTeamSpace(userId, name, description, image);
     }
 
     @GetMapping("/share/{teamSlug}/{shareKey}")
