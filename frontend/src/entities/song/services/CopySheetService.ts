@@ -1,6 +1,6 @@
 import { fetchCopySheet } from "../api/CopySheetApi";
 import { CopySheetResponseDto } from "../types/CopySheet.types";
-import { ResponseDto } from "../types/Response.types";
+import { ResponseDto } from "../../../shared/types/Response.types";
 
 export const getCopySheet = async (
   spaceId: number,
