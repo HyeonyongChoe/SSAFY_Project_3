@@ -2,11 +2,16 @@ package com.a205.beatween.domain.space.service;
 
 import com.a205.beatween.common.util.S3Util;
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
+import com.a205.beatween.domain.space.dto.MemberDto;
+import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
 import com.a205.beatween.domain.space.entity.Space;
+import com.a205.beatween.domain.space.entity.UserSpace;
 import com.a205.beatween.domain.space.enums.SpaceType;
 import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
+import com.a205.beatween.domain.user.entity.User;
+import com.a205.beatween.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import java.util.List;
@@ -24,6 +30,7 @@ public class SpaceService {
     private final UserSpaceRepository userSpaceRepository;
     private final SpaceRepository spaceRepository;
     private final S3Util s3Util;
+    private final UserRepository userRepository;
 
     public boolean checkUserIsMemberOfSpace(Integer userId, Integer spaceId){
         return userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
@@ -84,5 +91,35 @@ public class SpaceService {
 
     public List<SpacePreDto> getSpaces(Integer userId) {
         return spaceRepository.findByUserId(userId);
+    }
+
+    public SpaceDetailResponseDto getSpaceDetail(Integer spaceId, Integer userId) {
+        Space space = spaceRepository.getReferenceById(spaceId);
+        UserSpace userSpace = userSpaceRepository.findBySpaceAndUser_UserId(space,userId);
+        List<UserSpace> userSpaceList = userSpaceRepository.findBySpace(space);
+        List<MemberDto> members = new ArrayList<>();
+        for (UserSpace member : userSpaceList) {
+            User user = userRepository.getReferenceById(member.getUser().getUserId());
+            MemberDto memberDto = MemberDto
+                    .builder()
+                    .nickName(user.getNickname())
+                    .profileImageUrl(user.getProfileImageUrl())
+                    .build();
+            members.add(memberDto);
+        }
+        return SpaceDetailResponseDto
+                .builder()
+                .spaceId(spaceId)
+                .spaceName(space.getName())
+                .spaceType(space.getSpaceType())
+                .roleType(userSpace.getRoleType())
+                .description(space.getDescription())
+                .spaceType(space.getSpaceType())
+                .createAt(space.getCreatedAt())
+                .updateAt(space.getUpdatedAt())
+                .members(members)
+                .build();
+
+
     }
 }
