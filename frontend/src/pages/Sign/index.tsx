@@ -1,8 +1,6 @@
 import Buttonkakao from "@/features/auth/kakao/ui/ButtonKakao";
 
 export const SignPage = () => {
-  console.log("여기에서 환경변수를 로그로 출력");
-  console.log(import.meta.env); // 로그로 환경변수 잘 들어갔는지 확인
   const REDIRECT_URI =
     import.meta.env.VITE_APP_BASE_URL + import.meta.env.VITE_KAKAO_REDIRECT_URI;
 
