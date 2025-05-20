@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useScoreStore } from "@/features/score/model/useScoreStore";
 import { isValidBpm } from "@/features/player/lib/bpmUtils";
-// import { Icon } from "@/shared/ui/Icon";
+import { Icon } from "@/shared/ui/Icon";
 
 interface BpmRatioSelectorProps {
   onClose: () => void;

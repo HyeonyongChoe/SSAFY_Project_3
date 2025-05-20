@@ -203,13 +203,7 @@ export const SpaceContentLayout = ({
 
       <div className="w-full flex flex-wrap gap-3 px-6">
         <CreateSheetButton teamId={teamId} />
-        {type === "team" && (
-          <PlaywithButton
-            onClick={() => {
-              navigate(`/room/${teamId}`);
-            }}
-          />
-        )}
+        {type === "team" && <PlaywithButton onClick={handlePlayWithClick} />}
       </div>
       {/* note list */}
       <div className="px-6 py-10 flex flex-col gap-6">
