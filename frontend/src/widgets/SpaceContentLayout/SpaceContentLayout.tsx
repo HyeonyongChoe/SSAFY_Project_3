@@ -12,6 +12,7 @@ import { UpdateBandForm } from "@/features/updateBand/ui/UpdateBandForm";
 import { Client } from "@stomp/stompjs";
 import { useGlobalStore } from "@/app/store/globalStore";
 import { useSocketStore } from "@/app/store/socketStore";
+import SockJS from "sockjs-client";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
@@ -46,7 +47,12 @@ export const SpaceContentLayout = ({
     console.log("📡 WebSocket connectHeaders:", headers);
 
     const client = new Client({
-      brokerURL: import.meta.env.VITE_BROKER_URL,
+      webSocketFactory: () =>
+        new SockJS(
+          `${
+            import.meta.env.VITE_BROKER_URL
+          }?spaceId=${spaceId}&userId=${clientId}`
+        ),
       reconnectDelay: 5000,
       connectHeaders: headers,
       debug: (msg) => console.log("🔹 STOMP DEBUG:", msg),

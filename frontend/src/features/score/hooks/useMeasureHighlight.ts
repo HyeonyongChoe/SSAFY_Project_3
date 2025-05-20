@@ -1,20 +1,12 @@
-// src/features/score/hooks/useMeasureHighlight.ts
 import { useEffect, useRef } from "react";
 import { useScoreStore } from "@/features/score/model/useScoreStore";
 
 export function useMeasureHighlight(
   containerRef: React.RefObject<HTMLDivElement | null>
 ) {
-  const {
-    currentMeasure,
-    measureCount,
-    bpm,
-    setCurrentMeasure,
-    isPlaying,
-    setIsPlaying,
-  } = useScoreStore();
+  const { currentMeasure, isPlaying } = useScoreStore();
 
-  const playTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const didInitialRenderRef = useRef(false);
 
   const updateHighlight = () => {
     const container = containerRef.current;
@@ -26,10 +18,7 @@ export function useMeasureHighlight(
       const old = m.querySelector("rect.measure-highlight");
       if (old) m.removeChild(old);
 
-      // 순차적 인덱스를 마디 번호로 간주
-      const id = i;
-
-      if (id === currentMeasure) {
+      if (i === currentMeasure) {
         const bbox = (m as SVGGElement).getBBox();
         const rect = document.createElementNS(
           "http://www.w3.org/2000/svg",
@@ -49,33 +38,25 @@ export function useMeasureHighlight(
     });
   };
 
+  // ✅ 마디가 변경될 때마다 하이라이팅
   useEffect(() => {
-    updateHighlight(); // always keep highlight in sync
+    requestAnimationFrame(() => {
+      updateHighlight();
+    });
   }, [currentMeasure]);
 
+  // ✅ 재생 시작 시 첫 마디 강제 하이라이팅 (currentMeasure 변경 없어도)
   useEffect(() => {
-    if (!isPlaying) return;
+    if (isPlaying && !didInitialRenderRef.current) {
+      requestAnimationFrame(() => {
+        updateHighlight();
+        didInitialRenderRef.current = true;
+      });
+    }
 
-    const interval = (60000 / bpm) * 4;
-    updateHighlight();
-
-    const step = () => {
-      const prev = useScoreStore.getState().currentMeasure;
-      const next = prev + 1;
-
-      if (next >= measureCount) {
-        setIsPlaying(false);
-        setCurrentMeasure(0);
-      } else {
-        setCurrentMeasure(next);
-        playTimerRef.current = setTimeout(step, interval);
-      }
-    };
-
-    playTimerRef.current = setTimeout(step, interval);
-
-    return () => {
-      if (playTimerRef.current) clearTimeout(playTimerRef.current);
-    };
-  }, [isPlaying, bpm]);
+    // 재생이 끝나거나 멈췄을 때 초기화
+    if (!isPlaying) {
+      didInitialRenderRef.current = false;
+    }
+  }, [isPlaying]);
 }

@@ -1,11 +1,9 @@
-// src/app/store/globalStore.ts
 import { create } from "zustand";
 
 type GlobalState = {
   isLoggedIn: boolean;
   accessToken: string | null;
   login: (status: boolean) => void;
-  // login: (token: string) => void;
   logout: () => void;
   introShown: boolean;
   setIntroShown: (shown: boolean) => void;
@@ -13,6 +11,8 @@ type GlobalState = {
   setIsPlaying: (status: boolean) => void;
   clientId: number;
   setClientId: (id: number) => void;
+  isManager: boolean;
+  setIsManager: (isManager: boolean) => void;
 };
 
 export const useGlobalStore = create<GlobalState>((set) => ({
@@ -32,6 +32,8 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   setIsPlaying: (status) => set({ isPlaying: status }),
   introShown: false,
   setIntroShown: (shown) => set({ introShown: shown }),
-  clientId: Math.floor(Math.random() * 10000), // 숫자형 ID 사용
+  clientId: Math.floor(Math.random() * 10000),
   setClientId: (id) => set({ clientId: id }),
+  isManager: false,
+  setIsManager: (isManager) => set({ isManager }),
 }));
