@@ -8,11 +8,10 @@ import com.a205.beatween.domain.user.dto.UserInfoDto;
 import com.a205.beatween.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -28,5 +27,21 @@ public class UserController {
     ) {
         Result<UserInfoDto> userInfoDtoResult = userService.getUserInfo(userId);
         return ResponseEntity.ok(userInfoDtoResult);
+    }
+
+    @PatchMapping("/")
+    public ResponseEntity<ResponseDto<Object>> updateUserInfo(
+            @RequestHeader("X-USER-ID") Integer userId,
+            @RequestParam(value = "nickName", required = false) String nickName,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) throws IOException {
+        userService.updateUserInfo(userId,nickName,image);
+        UserInfoDto userInfoDto = userService.getUserInfo(userId).getData();
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(userInfoDto)
+                .build();
+        return ResponseEntity.ok(result);
     }
 }
