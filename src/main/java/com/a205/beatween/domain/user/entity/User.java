@@ -38,6 +38,9 @@ public class User {
             columnDefinition = "ENUM('ACTIVE','DELETED') default 'ACTIVE'")
     private UserStatus userStatus = UserStatus.ACTIVE;
 
+    @Column(name = "social_login_id", nullable = true, length = 100)
+    private String socialLoginId;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
