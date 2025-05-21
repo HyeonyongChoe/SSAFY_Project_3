@@ -19,6 +19,7 @@ import { useRef } from "react";
 import { BandFormHandle } from "@/entities/band/ui/BandForm";
 import { useUpdateBand } from "@/features/updateBand/hooks/useUpdateBand";
 import { useSpaceVersionStore } from "@/entities/band/store/spaceVersionStore";
+import { formatDate } from "@/shared/lib/formatDate";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
@@ -144,7 +145,8 @@ export const SpaceContentLayout = ({
           <div>
             {bandData?.createAt && (
               <div className="text-neutral100/70 text-sm">
-                {bandData.createAt}
+                {type === "team" ? "생성일 " : "가입일 "}
+                {formatDate(bandData.createAt)}
               </div>
             )}
             {bandData?.spaceName && (

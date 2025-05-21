@@ -1,5 +1,6 @@
 import { useSpaceDetail } from "@/entities/band/hooks/useSpace";
 import { BandForm, BandFormHandle } from "@/entities/band/ui/BandForm";
+import { formatDate } from "@/shared/lib/formatDate";
 import { ImageCircle } from "@/shared/ui/ImageCircle";
 import { ItemField } from "@/shared/ui/ItemField";
 import { forwardRef } from "react";
@@ -33,15 +34,16 @@ export const UpdateBandForm = forwardRef<BandFormHandle, UpdateBandFormProps>(
         <div className="flex flex-col gap-3 pt-3">
           <ItemField icon="group" fill title="참여 인원">
             <div className="flex flew-wrap gap-2">
-              <ImageCircle />
-              <ImageCircle />
-              <ImageCircle />
-              <ImageCircle />
-              <ImageCircle />
+              {spaceDetail?.members?.map((member) => (
+                <ImageCircle
+                  key={crypto.randomUUID()}
+                  imageUrl={member.profileImageUrl}
+                />
+              ))}
             </div>
           </ItemField>
           <ItemField variant="row" icon="event" fill title="결성일">
-            2025.05.19
+            {formatDate(spaceDetail?.createAt)}
           </ItemField>
         </div>
       </>
