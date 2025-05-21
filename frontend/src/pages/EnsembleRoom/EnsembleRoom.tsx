@@ -6,25 +6,44 @@ import EnsembleRoomFooter from "@/widgets/EnsembleRoomFooter";
 import { usePlaySync } from "@/shared/hooks/usePlaySync";
 import { useManagerCheck } from "@/shared/hooks/useManagerCheck";
 import ScoreSelectModal from "@/widgets/ScoreSelectModal/ScoreSelectModal";
+import CanvasOverlay from "@/features/draw/ui/CanvasOverlay";
+import { useGlobalStore } from "@/app/store/globalStore";
 
 export default function EnsembleRoom() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { roomId } = useParams();
 
-  // ✅ 훅은 항상 최상단에서 호출되어야 함 (조건문 ❌)
   usePlaySync(roomId ?? "");
   useManagerCheck(roomId ?? "");
 
+  const isDrawing = useGlobalStore((state) => state.isDrawing);
+
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-screen bg-white relative">
       <ScoreSelectModal spaceId={roomId!} />
-      <>
-        <EnsembleRoomHeader />
-        <div className="flex-1 overflow-y-auto scroll-custom">
-          <ScoreSheetViewer containerRef={containerRef} />
-        </div>
-        <EnsembleRoomFooter containerRef={containerRef} />
-      </>
+      <EnsembleRoomHeader />
+
+      {/* 🎯 악보 + 드로잉을 함께 감싸는 container (relative 기준점) */}
+      <div
+        className="flex-1 overflow-y-auto scroll-custom relative"
+        id="score-container"
+      >
+        <ScoreSheetViewer containerRef={containerRef} />
+
+        {/* ✅ 악보 위에 드로잉 오버레이 */}
+        <CanvasOverlay
+          sheetId={123} // 실제 값으로 대체
+          spaceId={roomId ?? ""}
+          userId={"user-id"} // 실제 사용자 ID로 대체
+          selectedColor={"#000000"} // Zustand 등에서 상태 연동 가능
+          onColorChange={() => {}}
+          isSocketConnected={true}
+          stompClient={null}
+          isDrawing={isDrawing}
+        />
+      </div>
+
+      <EnsembleRoomFooter containerRef={containerRef} />
     </div>
   );
 }

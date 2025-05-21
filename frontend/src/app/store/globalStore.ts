@@ -15,6 +15,8 @@ type GlobalState = {
   setIsManager: (isManager: boolean) => void;
   isDrawing: boolean;
   setIsDrawing: (value: boolean) => void;
+  isEraser: boolean;
+  setIsEraser: (value: boolean) => void;
   hasSelectedSong: boolean;
   setHasSelectedSong: (value: boolean) => void;
 };
@@ -42,6 +44,8 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   setIsManager: (flag) => set({ isManager: flag }),
   isDrawing: false,
   setIsDrawing: (value) => set({ isDrawing: value }),
+  isEraser: false,
+  setIsEraser: (value) => set({ isEraser: value }),
   hasSelectedSong: false,
   setHasSelectedSong: (value) => set({ hasSelectedSong: value }),
 }));
