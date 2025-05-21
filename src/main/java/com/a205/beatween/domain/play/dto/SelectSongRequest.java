@@ -9,6 +9,4 @@ import lombok.*;
 @Builder
 public class SelectSongRequest {
     private Integer copySongId;
-    private Integer userId;
 }
-

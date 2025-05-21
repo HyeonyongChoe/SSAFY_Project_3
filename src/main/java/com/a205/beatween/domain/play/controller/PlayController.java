@@ -39,20 +39,28 @@ public class PlayController {
     @PostMapping("/spaces/{spaceId}/selected-song")
     public ResponseEntity<ResponseDto<Void>> selectSong(
             @PathVariable Integer spaceId,
-            @RequestBody SelectSongRequest request
+            @RequestBody SelectSongRequest request,
+            @RequestHeader("Authorization") String token
     ) {
-        Result<Void> result = playService.selectSong(
-                spaceId,
-                request.getCopySongId(),
-                request.getUserId()
-        );
+        try {
+            if (token.startsWith("Bearer ")) token = token.substring(7);
+//            Integer userId = JwtUtil.extractUserId(token);
+            Integer userId = 2;
 
-        int status = result.isSuccess() ? 200 : result.getError().getCode();
+            Result<Void> result = playService.selectSong(
+                    spaceId,
+                    request.getCopySongId(),
+                    userId
+            );
 
-        return ResponseEntity
-                .status(status)
-                .body(ResponseDto.from(result));
+            int status = result.isSuccess() ? 200 : result.getError().getCode();
+            return ResponseEntity.status(status).body(ResponseDto.from(result));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(ResponseDto.from(Result.error(401, "유효하지 않은 토큰입니다.")));
+        }
     }
+
 
     @GetMapping("/spaces/{spaceId}/selected-song")
     public ResponseEntity<ResponseDto<SelectedSongResponse>> getSelectedSong(@PathVariable Integer spaceId) {
