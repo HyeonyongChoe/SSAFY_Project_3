@@ -121,7 +121,7 @@ public class PlayServiceImpl implements PlayService {
     }
 
     @Override
-    public List<CategoryWithSongsResponse> getAllSheets(Integer spaceId) {
+    public Result<List<CategoryWithSongsResponse>> getAllSheets(Integer spaceId) {
         List<Category> categories = categoryRepository.findBySpace_SpaceId(spaceId);
         List<CategoryWithSongsResponse> result = new ArrayList<>();
 
@@ -139,22 +139,31 @@ public class PlayServiceImpl implements PlayService {
                                 .build()
                 ).toList();
 
-                songResponses.add(SongWithSheetsResponse.builder()
-                        .copySongId(copySong.getCopySongId())
-                        .title(copySong.getTitle())
-                        .sheets(sheetInfos)
-                        .build());
+                if (!sheetInfos.isEmpty()) {
+                    songResponses.add(SongWithSheetsResponse.builder()
+                            .copySongId(copySong.getCopySongId())
+                            .title(copySong.getTitle())
+                            .sheets(sheetInfos)
+                            .build());
+                }
             }
 
-            result.add(CategoryWithSongsResponse.builder()
-                    .categoryId(category.getCategoryId())
-                    .categoryName(category.getName())
-                    .songs(songResponses)
-                    .build());
+            if (!songResponses.isEmpty()) {
+                result.add(CategoryWithSongsResponse.builder()
+                        .categoryId(category.getCategoryId())
+                        .categoryName(category.getName())
+                        .songs(songResponses)
+                        .build());
+            }
         }
 
-        return result;
+        if (result.isEmpty()) {
+            return Result.error(404, "해당 스페이스에 등록된 악보 정보가 없습니다.");
+        }
+
+        return Result.success(result);
     }
+
 
     @Override
     public Result<SheetSelectResponse> selectSheet(SheetSelectRequest req) {

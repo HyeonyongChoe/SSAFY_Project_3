@@ -24,11 +24,17 @@ public class PlayController {
 
     @GetMapping("/sheets/all/{spaceId}")
     public ResponseEntity<ResponseDto<List<CategoryWithSongsResponse>>> getAllSheets(@PathVariable("spaceId") Integer spaceId) {
-        List<CategoryWithSongsResponse> data = playService.getAllSheets(spaceId);
-        Result<List<CategoryWithSongsResponse>> result = Result.success(data);
-        return ResponseEntity.ok(ResponseDto.from(result));
+        Result<List<CategoryWithSongsResponse>> result = playService.getAllSheets(spaceId);
 
+        if (!result.isSuccess()) {
+            return ResponseEntity
+                    .status(result.getError().getCode())
+                    .body(ResponseDto.from(result));
+        }
+
+        return ResponseEntity.ok(ResponseDto.from(result));
     }
+
 
     @PostMapping("/sheets/select")
     public ResponseEntity<ResponseDto<SheetSelectResponse>> selectSheet(@RequestBody SheetSelectRequest request) {
