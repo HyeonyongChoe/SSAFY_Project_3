@@ -15,6 +15,7 @@ public class WebConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
+                                "https://k12a205.p.ssafy.io",
                                 "http://localhost:3000",
                                 "http://localhost:5173",
                                 "http://localhost:5174",
