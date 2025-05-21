@@ -91,12 +91,10 @@ public class PlayServiceImpl implements PlayService {
 
         String currentLeader = (String) redisTemplate.opsForValue().get(managerKey);
         if (Objects.equals(currentLeader, sessionId)) {
-            String newLeader = redisTemplate.opsForZSet()
-                    .range(memberKey, 0, 0)
-                    .stream()
-                    .map(String.class::cast)
-                    .findFirst()
-                    .orElse(null);
+            Set<Object> members = redisTemplate.opsForZSet().range(memberKey, 0, 0);
+            String newLeader = (members != null && !members.isEmpty())
+                    ? members.stream().map(String.class::cast).findFirst().orElse(null)
+                    : null;
 
             if (newLeader != null) {
                 redisTemplate.opsForValue().set(managerKey, newLeader);
@@ -104,6 +102,7 @@ public class PlayServiceImpl implements PlayService {
                 broadcastManagerChange(spaceId, newLeader);
             }
         }
+
 
         if (count != null && count <= 0) {
             Set<String> keys = redisTemplate.keys("drawings:" + spaceId + ":*");
