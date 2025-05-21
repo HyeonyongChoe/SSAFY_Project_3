@@ -1,5 +1,6 @@
 package com.a205.beatween.domain.space.service;
 
+import com.a205.beatween.common.util.S3Util;
 import com.a205.beatween.domain.drawing.entity.Drawing;
 import com.a205.beatween.domain.drawing.repository.DrawingRepository;
 import com.a205.beatween.domain.song.entity.CopySheet;
@@ -28,6 +29,7 @@ public class CategoryService {
     private final CopySongRepository copySongRepository;
     private final CopySheetRepository copySheetRepository;
     private final DrawingRepository drawingRepository;
+    private final S3Util s3Util;
 
     @Transactional
     public CategoryDto createCategory(Integer spaceId, String name) {
@@ -82,8 +84,10 @@ public class CategoryService {
             for (CopySheet copySheet : copySheetList) {
                 List<Drawing> drawings = drawingRepository.findByCopySheet_CopySheetId(copySheet.getCopySheetId());
                 drawingRepository.deleteAll(drawings);
+                s3Util.delete(copySheet.getSheetUrl());
                 copySheetRepository.delete(copySheet);
             }
+            s3Util.delete(copySong.getThumbnailUrl());
             copySongRepository.delete(copySong);
         }
         categoryRepository.deleteById(categoryId);
