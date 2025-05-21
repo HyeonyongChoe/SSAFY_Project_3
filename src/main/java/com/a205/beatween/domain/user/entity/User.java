@@ -20,13 +20,13 @@ public class User {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @Column(name = "social_login_id", nullable = false, unique = true, length = 100)
-    private String socialLoginId;
+    @Column(name = "email", nullable = false, unique = true, length = 100)
+    private String email;
 
-    @Column(name = "nickname", nullable = false, length = 20)
-    private String nickname;
+    @Column(name = "password", nullable = false, length = 20)
+    private String password;
 
-    @Column(name = "profile_image_url", nullable = false, length = 255)
+    @Column(name = "profile_image_url", nullable = true, length = 255)
     private String profileImageUrl;
 
     @Builder.Default
