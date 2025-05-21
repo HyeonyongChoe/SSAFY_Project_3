@@ -38,6 +38,17 @@ pipeline {
       }
     }
 
+// docker-compose.yml의 fastapi 서비스에 .env 파일이 있으므로
+// docker compose가 그 .env 파일을 못 찾는 오류를 해결하기 위해 fastapi/.env 파일을 jenkins 내부로 복사
+    stage('Prepare FastAPI .env') {
+        steps {
+          sh '''
+            mkdir -p ${WORKSPACE}/fastapi
+            cp /home/ubuntu/deployment/fastapi/.env ${WORKSPACE}/fastapi/.env
+          '''
+        }
+      }
+
     stage('Build Docker Image') {
       steps {
         sh """
