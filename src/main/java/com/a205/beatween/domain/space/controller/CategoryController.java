@@ -20,7 +20,6 @@ public class CategoryController {
     @PostMapping("/")
     public ResponseEntity<ResponseDto<Object>> createCategory(
             @PathVariable("spaceId") Integer spaceId,
-            @RequestHeader("X-USER-ID") Integer userId,
             @RequestParam("name") String name
     ) {
         CategoryDto category = categoryService.createCategory(spaceId,name);
@@ -42,8 +41,7 @@ public class CategoryController {
 
     @GetMapping("/")
     public ResponseEntity<ResponseDto<Object>> getCategories(
-            @PathVariable("spaceId") Integer spaceId,
-            @RequestHeader("X-USER-ID") Integer userId
+            @PathVariable("spaceId") Integer spaceId
     ) {
         List<CategoryDto> categoryList = categoryService.getCategories(spaceId);
         ResponseDto<Object> result = ResponseDto
@@ -56,9 +54,7 @@ public class CategoryController {
 
     @PatchMapping("/{categoryId}")
     public ResponseEntity<ResponseDto<Object>> updateCategory(
-            @PathVariable("spaceId") Integer spaceId,
             @PathVariable("categoryId") Integer categoryId,
-            @RequestHeader("X-USER-ID") Integer userId,
             @RequestParam("name") String name
     ) {
         CategoryDto categoryDto = categoryService.updateCategory(categoryId, name);
@@ -80,9 +76,7 @@ public class CategoryController {
 
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<ResponseDto<Object>> deleteCategory(
-            @PathVariable("spaceId") Integer spaceId,
-            @PathVariable("categoryId") Integer categoryId,
-            @RequestHeader("X-USER-ID") Integer userId
+            @PathVariable("categoryId") Integer categoryId
     ) {
         categoryService.deleteCategory(categoryId);
         ResponseDto<Object> result = ResponseDto

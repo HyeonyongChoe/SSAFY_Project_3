@@ -67,8 +67,7 @@ public class SongController {
     @DeleteMapping("/{songId}")
     public ResponseEntity<ResponseDto<Object>> deleteSheet(
             @PathVariable("spaceId") Integer spaceId,
-            @PathVariable("songId") Integer songId,
-            @RequestHeader("X-USER-ID") Integer userId
+            @PathVariable("songId") Integer songId
     ) {
         songService.deleteSheet(spaceId, songId);
 
@@ -83,8 +82,7 @@ public class SongController {
 
     @GetMapping("/")
     public ResponseEntity<ResponseDto<Object>> getAllSongs(
-            @PathVariable("spaceId") Integer spaceId,
-            @RequestHeader("X-USER-ID") Integer userId
+            @PathVariable("spaceId") Integer spaceId
     ) {
 
         List<CopySongListByCategoryDto> songList = songService.getAllSongs(spaceId);
@@ -102,7 +100,6 @@ public class SongController {
     public ResponseEntity<ResponseDto<Object>> replicateSong(
             @PathVariable("spaceId") Integer spaceId,
             @PathVariable("songId") Integer songId,
-            @RequestHeader("X-USER-ID") Integer userId,
             @RequestBody ReplicateSongRequestDto replicateSongRequestDto
             ) {
         CopySongDto copySongDto = songService.replicateSong(spaceId, songId, replicateSongRequestDto);
@@ -123,7 +120,6 @@ public class SongController {
     @PatchMapping(value = "/{songId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDto<Object>> updateSong(
             @PathVariable("songId") Integer songId,
-            @RequestHeader("X-USER-ID") Integer userId,
             @ModelAttribute UpdateSongRequestDto updateSongRequestDto
     ) throws IOException {
         System.out.println(updateSongRequestDto.toString());
