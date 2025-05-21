@@ -1,6 +1,7 @@
 package com.a205.beatween.domain.user.service;
 
 import com.a205.beatween.common.reponse.Result;
+import com.a205.beatween.common.util.S3Util;
 import com.a205.beatween.domain.song.dto.CopySongDto;
 import com.a205.beatween.domain.song.entity.CopySong;
 import com.a205.beatween.domain.song.repository.CopySongRepository;
@@ -17,7 +18,9 @@ import com.a205.beatween.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +31,7 @@ public class UserService {
     final SpaceService spaceService;
     final CategoryRepository categoryRepository;
     final CopySongRepository copySongRepository;
+    private final S3Util s3Util;
 
     public Result<UserInfoDto> getUserInfo(Integer userId) {
         UserInfoDto userInfoDto = null;
@@ -91,5 +95,23 @@ public class UserService {
                 .build();
 
         return Result.success(userInfoDto);
+    }
+
+    public void updateUserInfo(Integer userId, String nickName, MultipartFile image) throws IOException {
+        User user = userRepository.findById(userId).orElse(null);
+        if(user == null) {
+            return;
+        }
+
+        if(image != null) {
+            String key = "user_images/user".concat(String.valueOf(userId)).concat(".png");
+            String url = s3Util.upload(image.getBytes(),"image/png", key);
+            user.setProfileImageUrl(url);
+        }
+        if (nickName != null) {
+            user.setNickname(nickName);
+        }
+        userRepository.save(user);
+
     }
 }
