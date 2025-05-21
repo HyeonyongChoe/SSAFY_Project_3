@@ -69,7 +69,7 @@ public class PlayController {
         }
     }
 
-
+    @CrossOrigin(origins = "https://k12a205.p.ssafy.io")
     @GetMapping("/spaces/{spaceId}/selected-song")
     public ResponseEntity<ResponseDto<SelectedSongResponse>> getSelectedSong(@PathVariable Integer spaceId) {
         Result<SelectedSongResponse> result = playService.getSelectedSong(spaceId);
