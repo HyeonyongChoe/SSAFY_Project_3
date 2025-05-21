@@ -3,9 +3,8 @@ import { ImageBox } from "./ui/ImageBox";
 import { PlaywithButton } from "./ui/PlaywithButton";
 import { ImageCircle } from "@/shared/ui/ImageCircle";
 import { useNavigate } from "react-router-dom";
-import { openConfirm, openModal } from "@/shared/lib/modal";
+import { openModal } from "@/shared/lib/modal";
 import { toast } from "@/shared/lib/toast";
-import { ManageCategoryForm } from "@/features/manageCategory/ui/ManageCategoryForm";
 import { UpdateBandForm } from "@/features/updateBand/ui/UpdateBandForm";
 import { Client } from "@stomp/stompjs";
 import { useGlobalStore } from "@/app/store/globalStore";
@@ -14,6 +13,15 @@ import SockJS from "sockjs-client";
 import { NoteList } from "./ui/NoteList";
 import { CreateSheetButton } from "@/features/createSheet/ui/CreateSheetButton";
 import { useSpaceDetail } from "@/entities/band/hooks/useSpace";
+import { ManageCategoryButton } from "@/features/manageCategory/ui/ManageCategoryButton";
+import { useUserImageVersionStore } from "@/entities/user/store/userVersionStore";
+import { useRef } from "react";
+import { BandFormHandle } from "@/entities/band/ui/BandForm";
+import { useUpdateBand } from "@/features/updateBand/hooks/useUpdateBand";
+import { useSpaceVersionStore } from "@/entities/band/store/spaceVersionStore";
+import { formatDate } from "@/shared/lib/formatDate";
+import { DeleteBandButton } from "@/features/deleteBand/ui/DeleteBandButton";
+import { ExitBandButton } from "@/features/deleteBand/ui/ExitBandButton";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
@@ -28,8 +36,30 @@ export const SpaceContentLayout = ({
     return <div>잘못된 밴드 정보입니다.</div>;
   }
 
+  const updateFormRef = useRef<BandFormHandle>(null);
+  const { mutate: updateBandMutate } = useUpdateBand(Number(teamId));
+
+  const handleConfirm = () => {
+    const formData = updateFormRef.current?.getFormData();
+    if (!formData) {
+      toast.warning({
+        title: "폼 데이터 없음",
+        message: "폼이 제대로 입력되지 않았습니다.",
+      });
+      return;
+    }
+
+    updateBandMutate(formData);
+  };
+
   const navigate = useNavigate();
   const setStompClient = useSocketStore((state) => state.setStompClient);
+
+  const versionUser = useUserImageVersionStore((state) => state.version);
+
+  const versionSpace = useSpaceVersionStore((state) =>
+    state.getVersion(teamId)
+  );
 
   const handlePlayWithClick = () => {
     const clientId = useGlobalStore.getState().clientId;
@@ -84,29 +114,32 @@ export const SpaceContentLayout = ({
   const isOwner = data?.data.roleType === "OWNER";
   const bandData = data?.data;
 
+  const versionedSpaceImageUrl = bandData?.imageUrl
+    ? `${bandData.imageUrl}?t=${versionSpace}`
+    : undefined;
+
   return (
     <div>
-      <div
-        className="flex flex-wrap gap-6 w-full bg-cover bg-center px-6 py-7 min-w-fit"
-        style={{
-          backgroundImage: `
-      linear-gradient(to top, rgba(27, 32, 53, 1), rgba(27, 32, 53, 0)),
-      url(${bandData?.imageUrl})
-    `,
-        }}
-      >
+      <div className="relative flex flex-wrap gap-6 w-full px-6 py-7 min-w-fit z-[0]">
+        {/* background */}
+        <div
+          className="absolute inset-0 bg-cover bg-center filter blur-[6px] z-[-1]"
+          style={{
+            backgroundImage: `
+        linear-gradient(to top, rgba(27, 32, 53, 1), rgba(27, 32, 53, 0)),
+        url(${versionedSpaceImageUrl})
+      `,
+          }}
+        />
         <ImageBox
           className="shrink-0"
+          imageUrl={versionedSpaceImageUrl}
           onClick={() =>
             openModal({
               title: "밴드 수정하기",
-              children: <UpdateBandForm />,
+              children: <UpdateBandForm ref={updateFormRef} spaceId={teamId} />,
               okText: "수정하기",
-              onConfirm: () =>
-                toast.warning({
-                  title: "API 없음",
-                  message: "아직 API가 연결되지 않았습니다. 연결해주세요.",
-                }),
+              onConfirm: handleConfirm,
             })
           }
         />
@@ -114,12 +147,16 @@ export const SpaceContentLayout = ({
           <div>
             {bandData?.createAt && (
               <div className="text-neutral100/70 text-sm">
-                {bandData.createAt}
+                {type === "team" ? "생성일 " : "가입일 "}
+                {formatDate(bandData.createAt)}
               </div>
             )}
-            {bandData?.spaceName && (
-              <div className="text-2xl font-bold">{bandData.spaceName}</div>
-            )}
+
+            <div className="text-2xl font-bold">
+              {type === "personal"
+                ? "MY MUSIC"
+                : bandData?.spaceName && bandData.spaceName}
+            </div>
           </div>
           {bandData?.description && <div>{bandData.description}</div>}
           {type === "team" && (
@@ -127,7 +164,11 @@ export const SpaceContentLayout = ({
               {bandData?.members?.map((member, idx) => (
                 <ImageCircle
                   key={idx}
-                  imageUrl={member.profileImageUrl}
+                  imageUrl={
+                    member.profileImageUrl
+                      ? `${member.profileImageUrl}?v=${versionUser}`
+                      : undefined
+                  }
                   alt={member.nickName}
                 />
               ))}
@@ -160,40 +201,9 @@ export const SpaceContentLayout = ({
                   초대 링크 복사
                 </Button>
                 {isOwner ? (
-                  <Button
-                    icon="delete"
-                    fill
-                    color="caution"
-                    onClick={() =>
-                      openConfirm({
-                        title: "정말 밴드를 삭제하시겠습니까?",
-                        info: "한 번 지우는 밴드는 다시 되돌릴 수 없습니다",
-                        cancelText: "아니오",
-                        okText: "나가기",
-                        onConfirm: () => console.log("삭제 구현 예정"),
-                        onCancel: () => console.log("취소됨"),
-                      })
-                    }
-                  >
-                    밴드 삭제하기
-                  </Button>
+                  <DeleteBandButton spaceId={teamId} />
                 ) : (
-                  <Button
-                    icon="logout"
-                    color="caution"
-                    onClick={() =>
-                      openConfirm({
-                        title: "정말 밴드를 나가시겠습니까?",
-                        info: "다시 밴드에 들어가기 위해서는 밴드 관리자의 초대가 필요합니다",
-                        cancelText: "아니오",
-                        okText: "나가기",
-                        onConfirm: () => console.log("나가기 구현 예정"),
-                        onCancel: () => console.log("취소됨"),
-                      })
-                    }
-                  >
-                    밴드 나가기
-                  </Button>
+                  <ExitBandButton spaceId={teamId} />
                 )}
               </>
             )}
@@ -210,28 +220,7 @@ export const SpaceContentLayout = ({
         {/* list title */}
         <div className="flex flex-wrap justify-between">
           <div className="text-2xl font-bold">악보 목록</div>
-          <Button
-            icon="settings"
-            fill
-            size="small"
-            onClick={() =>
-              openModal({
-                title: "카테고리 관리하기",
-                children: <ManageCategoryForm />,
-                okText: "만들기",
-                onConfirm: () =>
-                  toast.warning({
-                    title: "API 없음",
-                    message: "아직 API가 연결되지 않았습니다. 연결해주세요.",
-                  }),
-                buttonType: "icon",
-                icon: "add_circle",
-                fill: true,
-              })
-            }
-          >
-            카테고리 관리하기
-          </Button>
+          <ManageCategoryButton spaceId={teamId} />
         </div>
         <NoteList teamId={teamId} />
       </div>
