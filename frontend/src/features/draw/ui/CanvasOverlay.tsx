@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Stage, Layer, Line } from "react-konva";
 import ColorPicker from "@/features/draw/ui/ColorPicker";
-import { Icon } from "@/shared/ui/Icon";
 
 interface CanvasOverlayProps {
   sheetId: number;
@@ -11,7 +10,7 @@ interface CanvasOverlayProps {
   onColorChange: (color: string) => void;
   isSocketConnected: boolean;
   stompClient: any;
-  isDrawing: boolean; // ✅ 추가
+  isDrawing: boolean;
 }
 
 type KonvaCompositeOperation = "source-over" | "destination-out";
@@ -29,10 +28,7 @@ export default function CanvasOverlay({
 }: CanvasOverlayProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showPalette, setShowPalette] = useState(false);
-  const [palettePos, setPalettePos] = useState({ x: 16, y: 16 });
-  const paletteRef = useRef<HTMLDivElement>(null);
-  const draggingRef = useRef(false);
-  const offsetRef = useRef({ x: 0, y: 0 });
+  const [palettePos] = useState({ x: 16, y: 16 });
   const [lines, setLines] = useState<LineData[]>([]);
   const [isEraser, setIsEraser] = useState(false);
   const drawingLine = useRef<LineData | null>(null);
@@ -50,9 +46,7 @@ export default function CanvasOverlay({
     const updateHeight = () => {
       const content =
         document.getElementById("score-container") || document.body;
-      const height = content.scrollHeight;
-      console.log("📐 캔버스 높이 측정 (scrollHeight):", height);
-      setCanvasHeight(height);
+      setCanvasHeight(content.scrollHeight);
     };
     updateHeight();
     window.addEventListener("resize", updateHeight);
@@ -63,15 +57,20 @@ export default function CanvasOverlay({
     };
   }, []);
 
+  useEffect(() => {
+    if (!isDrawing) {
+      setShowPalette(false); // 드로잉 종료 시 팔레트 숨김
+    }
+  }, [isDrawing]);
+
   const getTouchPos = (e: any) => {
     const touch = e.evt.touches?.[0];
     if (!touch || !containerRef.current) return null;
     const rect = containerRef.current.getBoundingClientRect();
-    const pos = {
+    return {
       x: touch.clientX - rect.left,
       y: touch.clientY + window.scrollY - rect.top,
     };
-    return pos;
   };
 
   const handleStart = (e: any) => {
@@ -86,8 +85,8 @@ export default function CanvasOverlay({
 
     const newLine: LineData = {
       points: [pos.x, pos.y],
-      color: selectedColor,
-      mode: isEraser ? "destination-out" : "source-over", // ✅ 적용
+      color: isEraser ? "#ffffff" : selectedColor,
+      mode: isEraser ? "destination-out" : "source-over",
     };
     drawingLine.current = newLine;
     setLines((prev) => [...prev, newLine]);
@@ -100,11 +99,7 @@ export default function CanvasOverlay({
     const point = getTouchPos(e) || stage.getPointerPosition();
     if (!point) return;
 
-    drawingLine.current.points = [
-      ...drawingLine.current.points,
-      point.x,
-      point.y,
-    ];
+    drawingLine.current.points.push(point.x, point.y);
     setLines((prev) => [...prev.slice(0, -1), { ...drawingLine.current! }]);
   };
 
@@ -114,53 +109,10 @@ export default function CanvasOverlay({
     document.body.style.overflow = "auto";
     document.body.style.touchAction = "auto";
 
-    if (drawingLine.current && drawingLine.current.points.length > 0) {
+    if (drawingLine.current?.points.length) {
       setLines((prev) => [...prev, { ...drawingLine.current! }]);
     }
     drawingLine.current = null;
-  };
-
-  const handleDragStart = (
-    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
-  ) => {
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-    draggingRef.current = true;
-    offsetRef.current = {
-      x: clientX - palettePos.x,
-      y: clientY - palettePos.y,
-    };
-
-    const handleMove = (moveEvent: MouseEvent | TouchEvent) => {
-      const moveX =
-        "touches" in moveEvent
-          ? moveEvent.touches[0].clientX
-          : (moveEvent as MouseEvent).clientX;
-      const moveY =
-        "touches" in moveEvent
-          ? moveEvent.touches[0].clientY
-          : (moveEvent as MouseEvent).clientY;
-      if (!draggingRef.current) return;
-      setPalettePos({
-        x: moveX - offsetRef.current.x,
-        y: moveY - offsetRef.current.y,
-      });
-    };
-
-    const handleEnd = () => {
-      draggingRef.current = false;
-      document.removeEventListener("mousemove", handleMove as any);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleMove as any);
-      document.removeEventListener("touchend", handleEnd);
-    };
-
-    document.addEventListener("mousemove", handleMove as any);
-    document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchmove", handleMove as any, {
-      passive: false,
-    });
-    document.addEventListener("touchend", handleEnd);
   };
 
   return (
@@ -173,37 +125,28 @@ export default function CanvasOverlay({
         left: 0,
         width: "100%",
         height: canvasHeight,
-        pointerEvents: isDrawing ? "auto" : "none", // ✅ 드로잉 외에는 패스스루
+        pointerEvents: isDrawing ? "auto" : "none",
       }}
     >
       {showPalette && (
         <div
-          ref={paletteRef}
           className="fixed z-[100] bg-white rounded-2xl shadow-xl border p-4"
-          style={{ top: palettePos.y, left: palettePos.x, touchAction: "none" }}
+          style={{ top: palettePos.y, left: palettePos.x }}
         >
-          <div
-            className="cursor-move bg-gray-100 px-3 py-1 rounded-t font-medium text-sm select-none mb-2"
-            onMouseDown={handleDragStart}
-            onTouchStart={handleDragStart}
-          >
-            🎨 팔레트 이동
-          </div>
-          <div className="flex items-center gap-2">
-            <ColorPicker color={selectedColor} onChange={onColorChange} />
+          <div className="cursor-move font-bold mb-2 text-sm">🎨 팔레트</div>
+          <div className="flex items-center gap-3">
+            <ColorPicker
+              color={selectedColor}
+              onChange={onColorChange}
+              isVisible={isDrawing}
+            />
             <button
               onClick={() => setIsEraser((prev) => !prev)}
-              className={`w-8 h-8 flex items-center justify-center rounded-md transition-all ${
-                isEraser
-                  ? "bg-red-500 text-white"
-                  : "bg-gray-200 hover:bg-gray-300 text-black"
+              className={`w-10 h-10 text-white font-bold text-sm rounded-full transition-all border-2 ${
+                isEraser ? "bg-red-600 border-red-800" : "bg-gray-300"
               }`}
             >
-              <Icon
-                icon="pan_tool"
-                tone={isEraser ? "light" : "dark"}
-                size={20}
-              />
+              ✕
             </button>
           </div>
         </div>
@@ -223,8 +166,6 @@ export default function CanvasOverlay({
           top: 0,
           left: 0,
           zIndex: 10,
-          width: "100%",
-          height: `${canvasHeight}px`,
         }}
       >
         <Layer>
@@ -233,7 +174,7 @@ export default function CanvasOverlay({
               key={i}
               points={line.points}
               stroke={line.color}
-              strokeWidth={4}
+              strokeWidth={isEraser ? 10 : 4}
               tension={0.5}
               lineCap="round"
               globalCompositeOperation={line.mode}
