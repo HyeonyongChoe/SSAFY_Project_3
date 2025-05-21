@@ -36,11 +36,10 @@ public class UserController {
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws IOException {
         userService.updateUserInfo(userId,nickName,image);
-        UserInfoDto userInfoDto = userService.getUserInfo(userId).getData();
         ResponseDto<Object> result = ResponseDto
                 .builder()
                 .success(true)
-                .data(userInfoDto)
+                .data("유저 정보 수정 완료")
                 .build();
         return ResponseEntity.ok(result);
     }
