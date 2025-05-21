@@ -21,6 +21,8 @@ import { useSpaceVersionStore } from "@/entities/band/store/spaceVersionStore";
 import { formatDate } from "@/shared/lib/formatDate";
 import { DeleteBandButton } from "@/features/deleteBand/ui/DeleteBandButton";
 import { ExitBandButton } from "@/features/deleteBand/ui/ExitBandButton";
+import { useGlobalStore } from "@/app/store/globalStore";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
@@ -82,14 +84,43 @@ export const SpaceContentLayout = ({
       debug: (msg) => console.log("🔹 STOMP DEBUG:", msg),
     });
 
-    client.onConnect = () => {
+    client.onConnect = async () => {
       console.log("✅ WebSocket connected");
       setStompClient(client);
-      navigate(`/room/${spaceId}`);
-    };
 
-    client.onStompError = (frame) => {
-      console.error("💥 STOMP error:", frame);
+      try {
+        const res = await axiosInstance.get(`/spaces/${spaceId}/selected-song`);
+
+        const data = res.data;
+
+        if (res.status === 200 && data?.data?.copySongId) {
+          console.log("🎵 선택된 곡 있음:", data.data.copySongId);
+          navigate(`/room/${spaceId}`);
+        } else {
+          console.log("🕒 선택된 곡 없음");
+          const isManager = useGlobalStore.getState().isManager;
+
+          if (isManager) {
+            console.log(
+              "🎩 매니저입니다 → ScoreSelectModal이 자동 호출될 예정"
+            );
+            navigate(`/room/${spaceId}`);
+          } else {
+            toast.info({
+              title: "대기 중",
+              message: "관리자가 곡을 선택할 때까지 기다려 주세요.",
+            });
+            navigate(`/room/${spaceId}`);
+          }
+        }
+      } catch (error) {
+        console.error("❌ 선택된 곡 조회 실패:", error);
+        toast.error({
+          title: "요청 실패",
+          message: "곡 정보를 불러오는 데 실패했습니다.",
+        });
+        navigate(`/room/${spaceId}`);
+      }
     };
 
     client.activate();
