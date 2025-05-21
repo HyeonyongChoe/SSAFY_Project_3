@@ -12,6 +12,8 @@ import { LayoutDefault } from "../layouts/LayoutDefault";
 import { TestPlaywithPage, TestSheetPage } from "@/pages/Test";
 import EnsembleRoom from "@/pages/EnsembleRoom/EnsembleRoom";
 import { RedirectSharePage } from "@/features/invite/ui/RedirectSharePage";
+import { LocalSignUpPage } from "@/features/auth/local/ui/LocalSignUpPage";
+import { LocalSignInPage } from "@/features/auth/local/ui/LocalSignInPage";
 
 const router = createBrowserRouter([
   {
@@ -71,6 +73,22 @@ const router = createBrowserRouter([
   {
     path: "/share/:slug/:shareKey",
     element: <RedirectSharePage />,
+  },
+  {
+    path: "/signup",
+    element: (
+      <LayoutDefault bgColor="black" noScroll noSignButton>
+        <LocalSignUpPage />
+      </LayoutDefault>
+    ),
+  },
+  {
+    path: "/signin",
+    element: (
+      <LayoutDefault bgColor="black" noScroll noSignButton>
+        <LocalSignInPage />
+      </LayoutDefault>
+    ),
   },
   //   {
   //     path: '/score/:scoreId',
