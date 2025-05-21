@@ -88,6 +88,9 @@ public class UserService {
 //        // 1. 인증(패스워드 일치 여부 체크)
 //        User user = userService.authenticate(loginDto);
         User user = userRepository.findByEmail(loginDto.getEmail()).orElse(null);
+        if(user == null) {
+            return Result.error(HttpStatus.NOT_FOUND.value(), "가입되지 않은 이메일입니다.");
+        }
         // 2. JWT 생성
         String token = jwtUtil.createToken(user.getUserId().toString());
         // 3. 토큰 반환
