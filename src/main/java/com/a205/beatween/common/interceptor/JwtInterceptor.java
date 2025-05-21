@@ -25,10 +25,10 @@ public class JwtInterceptor implements HandlerInterceptor{
 			return true;
 
 		String token = request.getHeader(HEADER_AUTH);
-		if(token != null) {
-			jwtUtil.validate(token);
-			return true;
-		}
+//		if(token != null) {
+//			jwtUtil.validate(token);
+//			return true;
+//		}
 		throw new Exception("유효하지 않은 접근입니다.");
 	}
 }

@@ -28,19 +28,19 @@ public class JwtUtil {
 	
 	// 유효성 검증
 	// 실제로 내용물을 확인하는 것은 아니고 실행했을 때 에러가 나는지로 유효성 확인
-	public Jws<Claims> validate(String token) {
-		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
-	}
+//	public Jws<Claims> validate(String token) {
+//		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+//	}
 
-	// JWT에서 사용자 ID 추출
-	public String extractUserId(String token) {
-		Claims claims = Jwts.parser()
-				.setSigningKey(secretKey)// 비밀키로 서명 검증
-				.build()
-				.parseClaimsJws(token) // 토큰을 파싱하여 JWS(JWT with Signature) 반환
-				.getBody(); // Payload 반환
-		return claims.getSubject(); // 사용자 ID 반환
-	}
+//	// JWT에서 사용자 ID 추출
+//	public String extractUserId(String token) {
+//		Claims claims = Jwts.parser()
+//				.setSigningKey(secretKey)// 비밀키로 서명 검증
+//				.build()
+//				.parseClaimsJws(token) // 토큰을 파싱하여 JWS(JWT with Signature) 반환
+//				.getBody(); // Payload 반환
+//		return claims.getSubject(); // 사용자 ID 반환
+//	}
 }
 
 

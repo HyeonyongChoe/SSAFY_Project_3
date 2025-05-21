@@ -21,19 +21,19 @@ public class JwtTest {
 		headers.put("typ", "JWT");
 
 		// JWT 구조 : 헤더, 페이로드, 서명
-		String token = Jwts.builder() // JWT를 만들 수 있는 빌더를 쓰게 되었음
-				.header() // 빌더 헤더를 만드는 객체가 되었다
-				.add("name", "choi").add(headers).and() // JWT 빌더로 돌아갔다
-				.subject("ssafy").expiration(new Date(System.currentTimeMillis() + 3000)) // 현재 시간 기준으로 3초 유효
-				.signWith(secretKey) // 서명 완료
-				.compact();
-		
-		System.out.println(token);
-		
-		Thread.sleep(4000);
-		
-		Jws<Claims> jwsClaims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
-		
-		System.out.println(jwsClaims);
+//		String token = Jwts.builder() // JWT를 만들 수 있는 빌더를 쓰게 되었음
+//				.header() // 빌더 헤더를 만드는 객체가 되었다
+//				.add("name", "choi").add(headers).and() // JWT 빌더로 돌아갔다
+//				.subject("ssafy").expiration(new Date(System.currentTimeMillis() + 3000)) // 현재 시간 기준으로 3초 유효
+//				.signWith(secretKey) // 서명 완료
+//				.compact();
+//
+//		System.out.println(token);
+//
+//		Thread.sleep(4000);
+//
+//		Jws<Claims> jwsClaims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+//
+//		System.out.println(jwsClaims);
 	}
 }

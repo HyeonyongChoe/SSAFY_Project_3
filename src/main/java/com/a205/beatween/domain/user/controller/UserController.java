@@ -4,6 +4,8 @@ import com.a205.beatween.common.reponse.ResponseDto;
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.service.SpaceService;
+import com.a205.beatween.domain.user.dto.LoginDto;
+import com.a205.beatween.domain.user.dto.SignupDto;
 import com.a205.beatween.domain.user.dto.UserInfoDto;
 import com.a205.beatween.domain.user.entity.User;
 import com.a205.beatween.domain.user.service.UserService;
@@ -25,39 +27,20 @@ public class UserController {
 
     private final UserService userService;
 
-    // 사용자 회원가입
-//    @PostMapping("/signup")
-//    public ResponseEntity<Result<?>> signup(@RequestBody User user) {
-//        if (userService.signup(user)) {
-//            return ResponseEntity.status(HttpStatus.CREATED).body("User added successfully");
-//        }
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add user");
-//    }
-
     @PostMapping("/signup")
-    public ResponseEntity<Result<?>> signup(@RequestBody User user) {
-        userService.signup(user);
+    public ResponseEntity<Result<?>> signup(@RequestBody SignupDto signupDto) {
+        userService.signup(signupDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Result.success("회원가입 성공"));
     }
 
 
-
-//    // 사용자 로그인
-//    @PostMapping("/login")
-//    public ResponseEntity<Map<String, Object>> login(@RequestBody User user) {
-//        HttpStatus status = null;
-//        Map<String, Object> result = new HashMap<>();
-//        User loginUser = userService.login(user.getId(), user.getPassword());
-//
-//        System.out.println(loginUser);
-//        if (loginUser != null) {
-//            result.put("message", "login 성공");
-//            result.put("access-token", jwtUtil.createToken(loginUser.getId()));
-//            status = HttpStatus.ACCEPTED;
-//        } else {
-//            status = HttpStatus.INTERNAL_SERVER_ERROR;
-//        }
-//        return new ResponseEntity<>(result, status);
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<Result<?>> login(@RequestBody LoginDto loginDto) {
+        userService.login(loginDto);
+        return ResponseEntity.status(HttpStatus.OK)/// //////////////
+                .body(Result.success("로그인 성공"));
+    }
 
     @GetMapping("/info")
     public ResponseEntity<Result<?>> getUserInfo(
