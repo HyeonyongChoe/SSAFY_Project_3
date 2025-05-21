@@ -23,7 +23,10 @@ public class User {
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "password", nullable = false, length = 20)
+    @Column(name = "nickname", nullable = false, length = 20)
+    private String nickname;
+
+    @Column(name = "password", nullable = false, length =100)
     private String password;
 
     @Column(name = "profile_image_url", nullable = true, length = 255)
