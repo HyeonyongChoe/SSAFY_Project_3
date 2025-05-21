@@ -5,7 +5,6 @@ import { ImageCircle } from "@/shared/ui/ImageCircle";
 import { useNavigate } from "react-router-dom";
 import { openConfirm, openModal } from "@/shared/lib/modal";
 import { toast } from "@/shared/lib/toast";
-import { ManageCategoryForm } from "@/features/manageCategory/ui/ManageCategoryForm";
 import { UpdateBandForm } from "@/features/updateBand/ui/UpdateBandForm";
 import { Client } from "@stomp/stompjs";
 import { useGlobalStore } from "@/app/store/globalStore";
@@ -14,6 +13,7 @@ import SockJS from "sockjs-client";
 import { NoteList } from "./ui/NoteList";
 import { CreateSheetButton } from "@/features/createSheet/ui/CreateSheetButton";
 import { useSpaceDetail } from "@/entities/band/hooks/useSpace";
+import { ManageCategoryButton } from "@/features/manageCategory/ui/ManageCategoryButton";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
@@ -210,28 +210,7 @@ export const SpaceContentLayout = ({
         {/* list title */}
         <div className="flex flex-wrap justify-between">
           <div className="text-2xl font-bold">악보 목록</div>
-          <Button
-            icon="settings"
-            fill
-            size="small"
-            onClick={() =>
-              openModal({
-                title: "카테고리 관리하기",
-                children: <ManageCategoryForm />,
-                okText: "만들기",
-                onConfirm: () =>
-                  toast.warning({
-                    title: "API 없음",
-                    message: "아직 API가 연결되지 않았습니다. 연결해주세요.",
-                  }),
-                buttonType: "icon",
-                icon: "add_circle",
-                fill: true,
-              })
-            }
-          >
-            카테고리 관리하기
-          </Button>
+          <ManageCategoryButton spaceId={teamId} />
         </div>
         <NoteList teamId={teamId} />
       </div>
