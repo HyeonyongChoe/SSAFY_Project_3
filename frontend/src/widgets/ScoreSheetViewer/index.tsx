@@ -109,7 +109,7 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
           <div className="h-[20px]" />
           <div id="verovio-container" />
 
-          {isDrawing && (
+          {/* {isDrawing && (
             <CanvasOverlay
               sheetId={1}
               spaceId="1"
@@ -119,8 +119,8 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
               onColorChange={setSelectedColor}
               isSocketConnected={isSocketConnected}
               stompClient={stompClient}
-            />
-          )}
+            /> */}
+          {/* )} */}
         </div>
       </div>
 
