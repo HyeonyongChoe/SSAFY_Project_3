@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     
     # 앱 설정
     DEBUG: bool = False
+
+    # OPENAI API 키
+    OPENAI_API_KEY: str = ""
     
     class Config:
         env_file = ".env"
