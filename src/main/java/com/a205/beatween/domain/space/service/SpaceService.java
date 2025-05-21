@@ -234,6 +234,7 @@ public class SpaceService {
                 .roleType(userSpace.getRoleType())
                 .description(space.getDescription())
                 .spaceType(space.getSpaceType())
+                .imageUrl(space.getImageUrl())
                 .createAt(space.getCreatedAt())
                 .updateAt(space.getUpdatedAt())
                 .members(members)
