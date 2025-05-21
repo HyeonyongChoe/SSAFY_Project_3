@@ -89,6 +89,7 @@ public class SpaceService {
                 .space(savedSpace)
                 .roleType(RoleType.OWNER)
                 .build();
+        userSpaceRepository.save(newUserSpace);
 
         // 스페이스 이름 기반 슬러그 생성
         String slug = getSlug(name);
