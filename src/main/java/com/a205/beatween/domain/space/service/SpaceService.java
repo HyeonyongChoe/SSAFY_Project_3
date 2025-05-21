@@ -2,7 +2,13 @@ package com.a205.beatween.domain.space.service;
 
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
+import com.a205.beatween.domain.drawing.entity.Drawing;
+import com.a205.beatween.domain.drawing.repository.DrawingRepository;
 import com.a205.beatween.domain.song.dto.CopySongListByCategoryDto;
+import com.a205.beatween.domain.song.entity.CopySheet;
+import com.a205.beatween.domain.song.entity.CopySong;
+import com.a205.beatween.domain.song.repository.CopySheetRepository;
+import com.a205.beatween.domain.song.repository.CopySongRepository;
 import com.a205.beatween.domain.song.service.SongService;
 import com.a205.beatween.domain.space.dto.InvitationDto;
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
@@ -10,11 +16,13 @@ import com.a205.beatween.domain.space.dto.SpaceDetailDto;
 import com.a205.beatween.domain.space.dto.SpaceSummaryDto;
 import com.a205.beatween.domain.space.dto.MemberDto;
 import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
+import com.a205.beatween.domain.space.entity.Category;
 import com.a205.beatween.domain.space.entity.Space;
 import com.a205.beatween.domain.space.entity.UserSpace;
 import com.a205.beatween.domain.space.enums.RoleType;
 import com.a205.beatween.domain.space.enums.SpaceType;
 import com.a205.beatween.domain.space.dto.SpacePreDto;
+import com.a205.beatween.domain.space.repository.CategoryRepository;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import com.a205.beatween.domain.user.entity.User;
@@ -42,6 +50,10 @@ public class SpaceService {
     private final UserRepository userRepository;
     private final S3Util s3Util;
     private final SongService songService;
+    private final CategoryRepository categoryRepository;
+    private final CopySongRepository copySongRepository;
+    private final CopySheetRepository copySheetRepository;
+    private final DrawingRepository drawingRepository;
 
     public boolean checkUserIsMemberOfSpace(Integer userId, Integer spaceId){
         return userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
@@ -257,6 +269,28 @@ public class SpaceService {
         if(userSpace.getRoleType().equals(RoleType.OWNER)) {
             List<UserSpace> userSpaceList = userSpaceRepository.findBySpace_SpaceId(spaceId);
             if(userSpaceList.size() > 1) return 2; //"팀원이 남았습니다.";
+            List<Category> categoryList = categoryRepository.findBySpace_SpaceId(spaceId);
+            for(Category category : categoryList) {
+                List<CopySong> copySongList = copySongRepository.findByCategory(category);
+                for(CopySong copySong : copySongList) {
+                    List<CopySheet> copySheetList = copySheetRepository.findByCopySong(copySong);
+                    for(CopySheet copySheet : copySheetList) {
+                        List<Drawing> drawingList = drawingRepository.findByCopySheet(copySheet);
+                        drawingRepository.deleteAll(drawingList);
+                        s3Util.delete(copySheet.getSheetUrl());
+                        copySheetRepository.delete(copySheet);
+                    }
+                    if(copySong.getThumbnailUrl().contains("copy_thumbnails/")) {
+                        s3Util.delete(copySong.getThumbnailUrl());
+                    }
+                    copySongRepository.delete(copySong);
+                }
+                categoryRepository.delete(category);
+            }
+        }
+        Space space = spaceRepository.findById(spaceId).orElse(null);
+        if(space != null && space.getImageUrl() != null) {
+            s3Util.delete(space.getImageUrl());
         }
         userSpaceRepository.delete(userSpace);
         return 0; //"팀 스페이스 삭제 완료";
