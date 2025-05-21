@@ -124,7 +124,9 @@ def transcribe_drums_with_omnizart(drums_path: str, storage_path: str) -> dict:
         print("오디오 전처리 완료")
         # 2. 임시 파일 저장
         temp_path = save_temp_wav(y_processed, sr, drums_path)
+        # print(f"temp_path : {temp_path}")
         rel_path = os.path.relpath(temp_path, storage_path)
+        # print(f"rel_path : {rel_path}")
         response = requests.post(
             "http://omnizart:5000/omnizart/drum",
             json={"filename": rel_path}
