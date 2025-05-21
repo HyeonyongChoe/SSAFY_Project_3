@@ -117,6 +117,8 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
         with yt_dlp.YoutubeDL(ydl_opts1) as ydl:
             info = ydl.extract_info(youtube_url, download=True)
 
+        vtt_official = bool(info.get("subtitles", {}))
+
         # 자막 체크 → 없으면 2차로 자동 자막만 다운로드
         subtitle_files = glob.glob(file_base + "*.vtt")
         if not subtitle_files:
@@ -138,12 +140,16 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
         # ------------------------------------------------------------------
         # 2. 결과 반환
         # ------------------------------------------------------------------
+
+
+
         return {
             "title": info.get("title", "Unknown Title"),
             "thumbnail": thumbnail_path,
             "duration_sec": info.get("duration", 0),
             "audio_file": wav_path,
             "subtitles": subtitle_files,
+            "vtt_official": vtt_official
         }
     except Exception as e:
         raise RuntimeError(f"YouTube download failed: {str(e)}")
