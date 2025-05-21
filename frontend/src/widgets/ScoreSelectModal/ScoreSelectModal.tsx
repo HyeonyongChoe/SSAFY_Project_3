@@ -1,14 +1,11 @@
 // ScoreSelectModal.tsx
 import { useEffect, useState } from "react";
-import {
-  fetchAllSheetsBySpace,
-  SongCategory,
-  selectSong,
-} from "@/entities/song/api/songApi";
+import { SongCategory, selectSong } from "@/entities/song/api/songApi";
 import { openModal, closeModal } from "@/shared/lib/modal";
 import { useGlobalStore } from "@/app/store/globalStore";
 import { useScoreStore } from "@/features/score/model/useScoreStore";
 import { AxiosError } from "axios";
+import { useAllSheetsBySpace } from "@/entities/song/hooks/useSong";
 
 interface ScoreSelectModalProps {
   spaceId: string;
@@ -29,32 +26,35 @@ export default function ScoreSelectModal({ spaceId }: ScoreSelectModalProps) {
   // 새로 추가: setParts 함수 가져오기
   const setParts = useScoreStore((s) => s.setParts);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const data = await fetchAllSheetsBySpace(spaceId);
-        setCategories(data);
-        console.log("📥 악보 목록 로드 완료:", data);
+  const { data, isLoading, error } = useAllSheetsBySpace(spaceId);
 
-        // 추가 디버깅: 카테고리 데이터 더 자세히 로그
-        if (data && data.length > 0) {
-          console.log("🔍 첫 번째 카테고리:", data[0]);
-          if (data[0].songs && data[0].songs.length > 0) {
-            console.log("🔍 첫 번째 곡:", data[0].songs[0]);
-            if (data[0].songs[0].sheets) {
-              console.log("🔍 첫 번째 곡의 sheets:", data[0].songs[0].sheets);
-              // sheets의 part 정보 확인
-              const parts = data[0].songs[0].sheets.map((sheet) => sheet.part);
-              console.log("🔍 첫 번째 곡에서 추출한 파트들:", parts);
-            }
-          }
+  useEffect(() => {
+    if (data) {
+      const categories = data.data;
+      setCategories(categories);
+      console.log("📥 악보 목록 로드 완료:", categories);
+
+      // 추가 디버깅: 카테고리 데이터 더 자세히 로그
+      if (categories.length > 0) {
+        const firstSong = categories[0].songs?.[0];
+        console.log("🔍 첫 번째 카테고리:", firstSong);
+
+        if (firstSong) {
+          console.log("🔍 첫 번째 곡:", firstSong);
+          console.log("🔍 첫 번째 곡의 sheets:", firstSong.sheets);
+          // sheets의 part 정보 확인
+          const parts = firstSong.sheets?.map((sheet) => sheet.part) ?? [];
+          console.log("🔍 첫 번째 곡에서 추출한 파트들:", parts);
+          setParts(parts);
+          setSelectedSheets(firstSong.sheets ?? []);
         }
-      } catch (e) {
-        console.error("❌ 악보 목록 불러오기 실패:", e);
       }
     }
-    fetchData();
-  }, [spaceId]);
+
+    if (error) {
+      console.error("❌ 악보 목록 불러오기 실패:", error);
+    }
+  }, [data, error]);
 
   useEffect(() => {
     const handlePopState = () => {

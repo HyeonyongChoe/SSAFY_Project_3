@@ -1,4 +1,5 @@
 import axiosInstance from "@/shared/api/axiosInstance";
+import { ResponseDto } from "@/shared/types/Response.types";
 
 export interface SheetData {
   copySheetId: number;
@@ -20,11 +21,11 @@ export interface SongCategory {
 
 export async function fetchAllSheetsBySpace(
   spaceId: string
-): Promise<SongCategory[]> {
+): Promise<ResponseDto<SongCategory[]>> {
   const response = await axiosInstance.get(
     `/api/v1/play/sheets/all/${spaceId}`
   );
-  return response.data.data;
+  return response.data;
 }
 
 export async function selectSong(

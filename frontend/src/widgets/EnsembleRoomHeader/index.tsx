@@ -120,6 +120,7 @@ export function EnsembleRoomHeader() {
           </span>
           <div className="flex mx-1">
             <Icon icon="chevron_right" tone="white" size={18} />
+            {JSON.stringify(parts)}asdf
           </div>
           <div className="bg-white rounded px-1 flex items-center h-6">
             <InstrumentDropdown
