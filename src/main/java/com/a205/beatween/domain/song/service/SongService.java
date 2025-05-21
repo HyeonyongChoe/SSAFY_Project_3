@@ -3,6 +3,7 @@ package com.a205.beatween.domain.song.service;
 import com.a205.beatween.common.event.SseEmitters;
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
+import com.a205.beatween.common.util.YoutubeUtil;
 import com.a205.beatween.domain.drawing.repository.DrawingRepository;
 import com.a205.beatween.domain.song.dto.*;
 import com.a205.beatween.domain.song.entity.CopySheet;
@@ -90,7 +91,9 @@ public class SongService {
         parts[2][0] = "vocal";
         parts[3][0] = "bass";
 
-        OriginalSong checkSong = originalSongRepository.findByYoutubeUrl(urlRequestDto.getYoutubeUrl());
+        String checkUrl = YoutubeUtil.extractYoutubeId(urlRequestDto.getYoutubeUrl());
+
+        OriginalSong checkSong = originalSongRepository.findByYoutubeUrl(checkUrl);
         if(checkSong != null) {
             CopySong copySong = insertCopySong(checkSong, spaceId);
             try {
@@ -123,6 +126,8 @@ public class SongService {
                                 parts[1][1] = response.getGuitarUrl();
                                 parts[2][1] = response.getGuitarUrl();
                                 parts[3][1] = response.getBassUrl();
+
+                                response.setYoutubeUrl(checkUrl);
 
                                 OriginalSong originalSong = insertOriginalSong(response);
                                 for(String[] part : parts) {
