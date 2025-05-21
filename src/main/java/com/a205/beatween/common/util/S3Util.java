@@ -51,10 +51,17 @@ public class S3Util {
 
     /**
      * S3에서 파일 삭제
-     * @param key 삭제할 파일의 key
+     * @param sourceUrl 삭제할 파일의 key
      */
-    public void delete(String key) {
+    public void delete(String sourceUrl) {
         try {
+            // 버킷 호스트명 접두어 제거 → key 추출
+            String hostPrefix = "https://" + bucket + ".s3.ap-northeast-2.amazonaws.com/";
+            if (!sourceUrl.startsWith(hostPrefix)) {
+                throw new IllegalArgumentException("지원하지 않는 S3 URL 형식입니다.");
+            }
+
+            String key = sourceUrl.replace(hostPrefix, "");
             DeleteObjectRequest req = DeleteObjectRequest.builder()
                     .bucket(bucket)
                     .key(key)
@@ -62,7 +69,7 @@ public class S3Util {
 
             s3Client.deleteObject(req);
         } catch (S3Exception e) {
-            log.error("S3 delete failed for key={} : {}", key, e.getMessage());
+            log.error("S3 delete failed for key={} : {}", sourceUrl, e.getMessage());
             throw new IllegalStateException("S3 삭제 실패", e);
         }
     }
