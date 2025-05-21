@@ -11,6 +11,7 @@ import { SpaceLayout } from "@/widgets/SpaceLayout";
 import { LayoutDefault } from "../layouts/LayoutDefault";
 import { TestPlaywithPage, TestSheetPage } from "@/pages/Test";
 import EnsembleRoom from "@/pages/EnsembleRoom/EnsembleRoom";
+import { RedirectSharePage } from "@/features/invite/ui/RedirectSharePage";
 
 const router = createBrowserRouter([
   {
@@ -66,6 +67,10 @@ const router = createBrowserRouter([
         <TestPlaywithPage />
       </LayoutDefault>
     ),
+  },
+  {
+    path: "/share/:slug/:shareKey",
+    element: <RedirectSharePage />,
   },
   //   {
   //     path: '/score/:scoreId',

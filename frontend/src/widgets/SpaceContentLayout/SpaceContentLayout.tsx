@@ -1,4 +1,3 @@
-import { Button } from "@/shared/ui/Button";
 import { ImageBox } from "./ui/ImageBox";
 import { PlaywithButton } from "./ui/PlaywithButton";
 import { ImageCircle } from "@/shared/ui/ImageCircle";

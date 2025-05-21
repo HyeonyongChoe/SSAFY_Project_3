@@ -33,9 +33,7 @@ export const InviteButton = ({ spaceId }: InviteButtonProps) => {
     if (copied) return;
     if (data?.data) {
       navigator.clipboard
-        .writeText(
-          `${import.meta.env.VITE_APP_BASE_URL}/api/v1/spaces/${data.data}`
-        )
+        .writeText(`${import.meta.env.VITE_APP_BASE_URL}${data.data}`)
         .then(() => {
           toast.success({
             title: "복사 성공",
