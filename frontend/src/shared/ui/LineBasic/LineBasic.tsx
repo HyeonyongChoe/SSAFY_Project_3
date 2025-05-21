@@ -3,21 +3,29 @@ import { Button } from "../Button";
 import { Input } from "../Input";
 
 interface LineBasicProps {
+  text?: string;
   editable?: boolean;
   selected?: boolean;
   mode?: "view" | "create";
   onCreate?: (value: string) => void;
+  onCreateCancel?: () => void;
+  onUpdate?: (value: string) => void;
+  onDelete?: () => void;
 }
 
 export const LineBasic = ({
+  text: initialText = "",
   editable,
   selected,
   mode = "view",
   onCreate,
+  onCreateCancel,
+  onUpdate,
+  onDelete,
 }: LineBasicProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-  const [text, setText] = useState("text");
+  const [text, setText] = useState(initialText);
   const [originalText, setOriginalText] = useState(text);
 
   const handleEdit = () => {
@@ -31,29 +39,6 @@ export const LineBasic = ({
     setIsEditing(false);
   };
 
-  if (mode === "create") {
-    return (
-      <div className="group flex gap-1.5 justify-between items-center transition-all px-2 py-3 border-b border-neutral100/30">
-        <div className="flex-grow">
-          <Input value={text} onChange={setText} />
-        </div>
-        <div className="min-w-fit">
-          <Button
-            icon="add"
-            fill
-            color="green"
-            onClick={() => {
-              if (onCreate) onCreate(text);
-              setText("");
-            }}
-          >
-            생성
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       className={`group flex gap-1.5 justify-between items-center transition-all px-2 py-3 border-b border-neutral100/30 ${
@@ -65,18 +50,18 @@ export const LineBasic = ({
       }`}
     >
       <div className="flex-grow">
-        {isEditing ? (
+        {isEditing || mode === "create" ? (
           <Input value={text} onChange={setText} />
         ) : isConfirmingDelete ? (
           <span className="text-caution font-medium">
-            정말 삭제하시겠습니까?
+            곡까지 모두 지워집니다. 정말 삭제하시겠습니까?
           </span>
         ) : (
           text
         )}
       </div>
 
-      {editable && (
+      {(editable || mode === "create") && (
         <div className="flex gap-1 min-w-fit">
           {isEditing ? (
             <>
@@ -84,11 +69,39 @@ export const LineBasic = ({
                 icon="check"
                 fill
                 color="green"
-                onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  if (onUpdate) onUpdate(text);
+                  setIsEditing(false);
+                }}
               >
                 저장
               </Button>
               <Button icon="close" fill color="blue" onClick={handleCancelEdit}>
+                취소
+              </Button>
+            </>
+          ) : mode === "create" ? (
+            <>
+              <Button
+                icon="add"
+                fill
+                color="green"
+                onClick={() => {
+                  if (onCreate) onCreate(text);
+                  setText("");
+                }}
+              >
+                생성
+              </Button>
+              <Button
+                icon="close"
+                fill
+                color="blue"
+                onClick={() => {
+                  handleCancelEdit();
+                  if (mode === "create" && onCreateCancel) onCreateCancel();
+                }}
+              >
                 취소
               </Button>
             </>
@@ -107,7 +120,8 @@ export const LineBasic = ({
                 fill
                 color="caution"
                 onClick={() => {
-                  console.log("삭제됨");
+                  if (onDelete) onDelete();
+                  setIsConfirmingDelete(false);
                 }}
               >
                 확인
