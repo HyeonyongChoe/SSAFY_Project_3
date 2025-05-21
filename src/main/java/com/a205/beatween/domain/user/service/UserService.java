@@ -9,8 +9,13 @@ import com.a205.beatween.domain.song.repository.CopySongRepository;
 import com.a205.beatween.domain.space.dto.CategoryAndSongsDto;
 import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.entity.Category;
+import com.a205.beatween.domain.space.entity.Space;
+import com.a205.beatween.domain.space.entity.UserSpace;
+import com.a205.beatween.domain.space.enums.RoleType;
 import com.a205.beatween.domain.space.enums.SpaceType;
 import com.a205.beatween.domain.space.repository.CategoryRepository;
+import com.a205.beatween.domain.space.repository.SpaceRepository;
+import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import com.a205.beatween.domain.space.service.SpaceService;
 import com.a205.beatween.domain.user.dto.LoginDto;
 import com.a205.beatween.domain.user.dto.SignupDto;
@@ -34,6 +39,8 @@ import java.util.Map;
 public class UserService {
     final UserRepository userRepository;
     final SpaceService spaceService;
+    final SpaceRepository spaceRepository;
+    final UserSpaceRepository userSpaceRepository;
     final CategoryRepository categoryRepository;
     final CopySongRepository copySongRepository;
     private final S3Util s3Util;
@@ -48,6 +55,7 @@ public class UserService {
         if (userRepository.existsByNickname(signupDto.getNickname())) {
             return Result.error(HttpStatus.BAD_REQUEST.value(), "이미 가입된 닉네임입니다.");
         }
+        // users 테이블에 저장
         User user = User.builder()
                 .email(signupDto.getEmail())
                 .nickname(signupDto.getNickname())
@@ -56,8 +64,23 @@ public class UserService {
                 .userStatus(UserStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .build();
-
         userRepository.save(user);
+
+        // spaces 테이블에 저장
+        Space personalSpace = Space.builder()
+                .spaceType(SpaceType.PERSONAL)
+                .createdAt(LocalDateTime.now())
+                .build();
+        spaceRepository.save(personalSpace);
+
+        // users_spaces 테이블에 저장
+        UserSpace userSpace = UserSpace.builder()
+                .user(user)
+                .space(personalSpace)
+                .roleType(RoleType.OWNER)
+                .build();
+        userSpaceRepository.save(userSpace);
+
         return Result.success("회원가입 성공");
     }
 
