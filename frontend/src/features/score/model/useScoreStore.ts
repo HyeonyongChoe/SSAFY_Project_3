@@ -1,4 +1,6 @@
+// useScoreStore.ts
 import { create } from "zustand";
+import { Sheet } from "@/entities/song/types/song.types";
 
 interface ScoreStore {
   xmlData: string;
@@ -33,6 +35,16 @@ interface ScoreStore {
 
   systems: { el: Element; measureIds: number[] }[];
   setSystems: (systems: { el: Element; measureIds: number[] }[]) => void;
+
+  selectedSheets: Sheet[];
+  setSelectedSheets: (sheets: Sheet[]) => void;
+
+  selectedPartSheetUrl: string | null;
+  setSelectedPartSheetUrl: (url: string) => void;
+
+  // 새로 추가: parts 상태 관리
+  parts: string[];
+  setParts: (parts: string[]) => void;
 }
 
 export const useScoreStore = create<ScoreStore>((set) => ({
@@ -70,4 +82,20 @@ export const useScoreStore = create<ScoreStore>((set) => ({
 
   systems: [],
   setSystems: (systems) => set({ systems }),
+
+  selectedSheets: [],
+  setSelectedSheets: (sheets) => {
+    console.log("🔧 setSelectedSheets 호출됨, 데이터:", sheets);
+    set({ selectedSheets: sheets });
+  },
+
+  selectedPartSheetUrl: null,
+  setSelectedPartSheetUrl: (url) => set({ selectedPartSheetUrl: url }),
+
+  // 새로 추가: parts 상태 초기화 및 설정 함수
+  parts: [],
+  setParts: (parts) => {
+    console.log("🔧 setParts 호출됨, 데이터:", parts);
+    set({ parts });
+  },
 }));

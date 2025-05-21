@@ -10,8 +10,8 @@ import { PlayStatus } from "@/entities/play/types/Play.types";
 let audioCtx: AudioContext | null = null;
 
 export function PlayControl() {
-  const { isPlaying, togglePlay, currentMeasure } = usePlayerStore();
-  const { measureCount, bpm } = useScoreStore();
+  const { isPlaying, togglePlay } = usePlayerStore();
+  const { measureCount, bpm, currentMeasure } = useScoreStore();
   const setGlobalPlaying = useGlobalStore((state) => state.setIsPlaying);
   const setShowHeaderFooter = useHeaderFooterStore(
     (state) => state.setShowHeaderFooter
@@ -22,7 +22,7 @@ export function PlayControl() {
 
   const playMetronomeBeep = () => {
     try {
-      console.log("🎵 메트로놈 비프음 재생");
+      console.log("\uD83C\uDFB5 메트로놈 비프음 재생");
       if (!audioCtx) {
         audioCtx = new (window.AudioContext ||
           (window as any).webkitAudioContext)();
@@ -43,7 +43,7 @@ export function PlayControl() {
       osc.start();
       osc.stop(audioCtx.currentTime + 0.05);
     } catch (err) {
-      console.warn("🔇 오디오 재생 실패:", err);
+      console.warn("\uD83D\uDD07 오디오 재생 실패:", err);
     }
   };
 

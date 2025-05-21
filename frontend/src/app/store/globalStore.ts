@@ -15,6 +15,8 @@ type GlobalState = {
   setIsManager: (isManager: boolean) => void;
   isDrawing: boolean;
   setIsDrawing: (value: boolean) => void;
+  hasSelectedSong: boolean;
+  setHasSelectedSong: (value: boolean) => void;
 };
 
 export const useGlobalStore = create<GlobalState>((set) => ({
@@ -37,7 +39,9 @@ export const useGlobalStore = create<GlobalState>((set) => ({
   clientId: Math.floor(Math.random() * 10000),
   setClientId: (id) => set({ clientId: id }),
   isManager: false,
-  setIsManager: (isManager) => set({ isManager }),
+  setIsManager: (flag) => set({ isManager: flag }),
   isDrawing: false,
   setIsDrawing: (value) => set({ isDrawing: value }),
+  hasSelectedSong: false,
+  setHasSelectedSong: (value) => set({ hasSelectedSong: value }),
 }));

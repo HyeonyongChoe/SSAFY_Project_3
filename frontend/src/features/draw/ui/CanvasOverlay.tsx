@@ -7,7 +7,6 @@ interface CanvasOverlayProps {
   spaceId: string;
   userId: string;
   selectedColor: string;
-  isPaletteVisible: boolean;
   onColorChange: (color: string) => void;
   isSocketConnected: boolean;
   stompClient: Client | null;
@@ -18,20 +17,21 @@ export default function CanvasOverlay({
   spaceId,
   userId,
   selectedColor,
-  isPaletteVisible,
   onColorChange,
   isSocketConnected,
   stompClient,
 }: CanvasOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [drawing, setDrawing] = useState(false);
-  const [showPalette, setShowPalette] = useState(isPaletteVisible);
+  const [showPalette, setShowPalette] = useState(false);
+  const [palettePos, setPalettePos] = useState({ x: 16, y: 16 });
+  const paletteRef = useRef<HTMLDivElement>(null);
   const clientIdRef = useRef<string>(crypto.randomUUID());
+  const draggingRef = useRef(false);
+  const offsetRef = useRef({ x: 0, y: 0 });
 
-  // show-color-picker 이벤트 수신
   useEffect(() => {
     const handler = () => {
-      console.log("🎨 색상 선택기 열림 → 드로잉 활성화 true");
       setShowPalette(true);
     };
     window.addEventListener("show-color-picker", handler);
@@ -59,7 +59,7 @@ export default function CanvasOverlay({
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (!drawing || !showPalette) return;
+    if (!drawing) return;
     const { x, y } = getRelativeCoords(e);
     drawDot(x, y, selectedColor);
 
@@ -98,9 +98,7 @@ export default function CanvasOverlay({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const onMouseDown = () => {
-      if (showPalette) setDrawing(true);
-    };
+    const onMouseDown = () => setDrawing(true);
     const onMouseUp = () => setDrawing(false);
 
     canvas.addEventListener("mousedown", onMouseDown);
@@ -112,14 +110,33 @@ export default function CanvasOverlay({
       canvas.removeEventListener("mouseup", onMouseUp);
       canvas.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [drawing, selectedColor, showPalette]);
+  }, [drawing, selectedColor]);
 
-  useEffect(() => {
-    console.log(
-      "🖼️ CanvasOverlay mounted, isPaletteVisible:",
-      isPaletteVisible
-    );
-  }, [isPaletteVisible]);
+  // 드래그 핸들 전용
+  const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    draggingRef.current = true;
+    offsetRef.current = {
+      x: e.clientX - palettePos.x,
+      y: e.clientY - palettePos.y,
+    };
+
+    const handleMove = (moveEvent: MouseEvent) => {
+      if (!draggingRef.current) return;
+      setPalettePos({
+        x: moveEvent.clientX - offsetRef.current.x,
+        y: moveEvent.clientY - offsetRef.current.y,
+      });
+    };
+
+    const handleEnd = () => {
+      draggingRef.current = false;
+      document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseup", handleEnd);
+    };
+
+    document.addEventListener("mousemove", handleMove);
+    document.addEventListener("mouseup", handleEnd);
+  };
 
   return (
     <div
@@ -132,8 +149,18 @@ export default function CanvasOverlay({
       }}
     >
       {showPalette && (
-        <div style={{ position: "absolute", top: 16, left: 16, zIndex: 20 }}>
-          <ColorPicker onChange={onColorChange} />
+        <div
+          ref={paletteRef}
+          className="fixed z-[100] bg-white rounded shadow-lg border"
+          style={{ top: palettePos.y, left: palettePos.x }}
+        >
+          <div
+            className="cursor-move bg-gray-100 px-3 py-1 rounded-t font-medium text-sm select-none"
+            onMouseDown={handleDragStart}
+          >
+            🎨 팔레트 이동
+          </div>
+          <ColorPicker color={selectedColor} onChange={onColorChange} />
         </div>
       )}
       <canvas
@@ -147,7 +174,7 @@ export default function CanvasOverlay({
           top: 0,
           left: 0,
           zIndex: 10,
-          pointerEvents: showPalette ? "auto" : "none",
+          pointerEvents: "auto",
         }}
       />
     </div>
