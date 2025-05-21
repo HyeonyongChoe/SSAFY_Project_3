@@ -65,16 +65,8 @@ export default function ScoreSelectModal({ spaceId }: ScoreSelectModalProps) {
   }, []);
 
   useEffect(() => {
-    if (categories.length === 0 || !isManager) return;
-
-    console.log("🟡 모달 열기 조건 확인:", {
-      categories,
-      selectedCategoryId,
-      selectedSongId,
-      userId,
-      spaceId,
-      isManager,
-    });
+    if (!Array.isArray(categories) || categories.length === 0 || !isManager)
+      return;
 
     openModal({
       title: "곡 선택",
@@ -83,34 +75,19 @@ export default function ScoreSelectModal({ spaceId }: ScoreSelectModalProps) {
       onConfirm: async () => {
         if (!selectedSongId) return;
 
-        console.log("🚀 곡 선택 요청 시작", {
-          userId,
-          copySongId: selectedSongId,
-          spaceId,
-        });
-
         try {
           await selectSong(spaceId, userId, selectedSongId);
-
-          console.log("🔍 categories:", categories);
 
           const selectedSong = categories
             .flatMap((cat) => cat.songs)
             .find((song) => song.copySongId === selectedSongId);
 
-          console.log("🔍 selectedSong 찾음:", selectedSong);
-
           if (selectedSong && selectedSong.sheets) {
-            console.log("🔍 selectedSong.sheets:", selectedSong.sheets);
-
             // sheets 배열 확인
             const sheets = selectedSong.sheets;
-            console.log("🔍 sheets 배열:", sheets);
 
             // 각 sheet 객체의 구조 확인
             if (sheets.length > 0) {
-              console.log("🔍 첫 번째 sheet 구조:", sheets[0]);
-              console.log("🔍 첫 번째 sheet의 part 속성:", sheets[0].part);
             }
 
             // 파트 추출 - sheets 배열의 각 항목에서 part 속성 추출

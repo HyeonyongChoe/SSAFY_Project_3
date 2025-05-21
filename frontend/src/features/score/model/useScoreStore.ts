@@ -85,7 +85,6 @@ export const useScoreStore = create<ScoreStore>((set) => ({
 
   selectedSheets: [],
   setSelectedSheets: (sheets) => {
-    console.log("🔧 setSelectedSheets 호출됨, 데이터:", sheets);
     set({ selectedSheets: sheets });
   },
 
@@ -95,7 +94,6 @@ export const useScoreStore = create<ScoreStore>((set) => ({
   // 새로 추가: parts 상태 초기화 및 설정 함수
   parts: [],
   setParts: (parts) => {
-    console.log("🔧 setParts 호출됨, 데이터:", parts);
     set({ parts });
   },
 }));
