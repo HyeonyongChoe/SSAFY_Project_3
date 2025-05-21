@@ -24,7 +24,6 @@ public class PlayServiceImpl implements PlayService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final SimpMessagingTemplate messagingTemplate;
     private final DrawingService drawingService;
-    private final CopySheetRepository copySheetRepository;
     private final CategoryRepository categoryRepository;
     private final CopySongRepository copySongRepository;
 
