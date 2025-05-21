@@ -7,21 +7,18 @@ import { UserSettingModal } from "@/features/user/ui/UserSettingModal";
 import { useSpace } from "@/entities/band/hooks/useSpace";
 import { usePersonalSpaceStore } from "@/entities/band/model/store";
 import { useEffect } from "react";
-
-// 임시 데이터입니다
-const dummyPerson = {
-  id: 1,
-  imageUrl:
-    "https://images.pexels.com/photos/3866555/pexels-photo-3866555.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-};
+import { useParsedUserInfo } from "@/entities/user/hooks/useParsedUserInfo";
+import { useUserImageVersionStore } from "@/entities/user/store/userVersionStore";
 
 export const SpaceNav = () => {
   const location = useLocation();
   const isRoot = location.pathname === "/";
   const navigate = useNavigate();
 
-  const { data } = useSpace();
-  const bands = data?.data || [];
+  const { data: spaceData } = useSpace();
+  const bands = spaceData?.data || [];
+
+  const { userInfo } = useParsedUserInfo();
 
   const myBand = bands.find((band) => band.space_type === "PERSONAL");
 
@@ -36,6 +33,11 @@ export const SpaceNav = () => {
   }, [myBand, setPersonalSpaceId]);
 
   const teamBands = bands.filter((band) => band.space_type === "TEAM");
+
+  const version = useUserImageVersionStore((state) => state.version);
+  const versionedImageUrl = userInfo?.profileImageUrl
+    ? `${userInfo.profileImageUrl}?v=${version ?? 0}`
+    : undefined;
 
   return (
     <aside className="h-full bg-neutral100/10 shadow-custom rounded-xl flex flex-col justify-between px-1 py-3">
@@ -85,8 +87,8 @@ export const SpaceNav = () => {
           <div className="divider px-2" />
         </div>
         <div className="cursor-pointer">
-          <Popover trigger={<ImageCircle imageUrl={dummyPerson.imageUrl} />}>
-            <UserSettingModal />
+          <Popover trigger={<ImageCircle imageUrl={versionedImageUrl} />}>
+            <UserSettingModal name={userInfo?.name} />
           </Popover>
         </div>
       </div>

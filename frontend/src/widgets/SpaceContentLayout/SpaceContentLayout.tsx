@@ -14,6 +14,7 @@ import { NoteList } from "./ui/NoteList";
 import { CreateSheetButton } from "@/features/createSheet/ui/CreateSheetButton";
 import { useSpaceDetail } from "@/entities/band/hooks/useSpace";
 import { ManageCategoryButton } from "@/features/manageCategory/ui/ManageCategoryButton";
+import { useUserImageVersionStore } from "@/entities/user/store/userVersionStore";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
@@ -30,6 +31,8 @@ export const SpaceContentLayout = ({
 
   const navigate = useNavigate();
   const setStompClient = useSocketStore((state) => state.setStompClient);
+
+  const version = useUserImageVersionStore((state) => state.version);
 
   const handlePlayWithClick = () => {
     const clientId = useGlobalStore.getState().clientId;
@@ -127,7 +130,11 @@ export const SpaceContentLayout = ({
               {bandData?.members?.map((member, idx) => (
                 <ImageCircle
                   key={idx}
-                  imageUrl={member.profileImageUrl}
+                  imageUrl={
+                    member.profileImageUrl
+                      ? `${member.profileImageUrl}?v=${version}`
+                      : undefined
+                  }
                   alt={member.nickName}
                 />
               ))}

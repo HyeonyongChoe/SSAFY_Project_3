@@ -10,6 +10,7 @@ export const UpdateProfileButton = () => {
 
   const handleConfirm = () => {
     const formData = updateProfileFormRef.current?.getFormData();
+    console.log(formData);
     if (!formData) return;
 
     updateMutation.mutate(formData);
