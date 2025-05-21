@@ -9,6 +9,7 @@ import { usePersonalSpaceStore } from "@/entities/band/model/store";
 import { useEffect } from "react";
 import { useParsedUserInfo } from "@/entities/user/hooks/useParsedUserInfo";
 import { useUserImageVersionStore } from "@/entities/user/store/userVersionStore";
+import { useSpaceVersionStore } from "@/entities/band/store/spaceVersionStore";
 
 export const SpaceNav = () => {
   const location = useLocation();
@@ -34,10 +35,12 @@ export const SpaceNav = () => {
 
   const teamBands = bands.filter((band) => band.space_type === "TEAM");
 
-  const version = useUserImageVersionStore((state) => state.version);
-  const versionedImageUrl = userInfo?.profileImageUrl
-    ? `${userInfo.profileImageUrl}?v=${version ?? 0}`
+  const versionUser = useUserImageVersionStore((state) => state.version);
+  const versionedUserImageUrl = userInfo?.profileImageUrl
+    ? `${userInfo.profileImageUrl}?v=${versionUser ?? 0}`
     : undefined;
+
+  const versionSpace = useSpaceVersionStore((state) => state.getVersion);
 
   return (
     <aside className="h-full bg-neutral100/10 shadow-custom rounded-xl flex flex-col justify-between px-1 py-3">
@@ -61,11 +64,16 @@ export const SpaceNav = () => {
         {/* Team Band */}
         {teamBands.map((band) => {
           const teamActive = location.pathname === `/team/${band.space_id}`;
+          const version = versionSpace(band.space_id);
+          const versionedSpaceImageUrl = band.img_url
+            ? `${band.img_url}?t=${version}`
+            : undefined;
+
           return (
             <SpaceNavItem
               key={band.space_id}
               bandId={band.space_id}
-              imageUrl={band.img_url}
+              imageUrl={versionedSpaceImageUrl}
               name={band.space_name}
               onClick={() => {
                 navigate(`/team/${band.space_id}`);
@@ -87,7 +95,7 @@ export const SpaceNav = () => {
           <div className="divider px-2" />
         </div>
         <div className="cursor-pointer">
-          <Popover trigger={<ImageCircle imageUrl={versionedImageUrl} />}>
+          <Popover trigger={<ImageCircle imageUrl={versionedUserImageUrl} />}>
             <UserSettingModal name={userInfo?.name} />
           </Popover>
         </div>

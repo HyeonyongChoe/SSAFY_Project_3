@@ -31,7 +31,7 @@ export const useUpdateProfile = () => {
             queryKey: ["spaceDetail", personalSpaceId],
           });
         }
-        updateVersion(1);
+        updateVersion();
       } else {
         toast.warning({
           title: "프로필 수정 실패",
