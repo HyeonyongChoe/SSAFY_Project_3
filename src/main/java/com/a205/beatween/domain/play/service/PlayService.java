@@ -20,5 +20,5 @@ public interface PlayService {
 
     Result<List<CategoryWithSongsResponse>> getAllSheets(Integer spaceId);
 
-    Result<SheetSelectResponse> selectSheet(SheetSelectRequest request);
+    Result<Void> selectSong(Integer spaceId, Integer copySongId, Integer userId);
 }

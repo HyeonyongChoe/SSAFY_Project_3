@@ -163,41 +163,26 @@ public class PlayServiceImpl implements PlayService {
         return Result.success(result);
     }
 
-
     @Override
-    public Result<SheetSelectResponse> selectSheet(SheetSelectRequest req) {
-        int spaceId = req.getSpaceId();
-        Integer copySongId = req.getCopySongId() == 0 ? null : req.getCopySongId();
-        String part = req.getInstrumentPart();
-        String songKey = "ws:space:" + spaceId + ":selectedSong";
+    public Result<Void> selectSong(Integer spaceId, Integer copySongId, Integer userId) {
+        String userKey = "ws:space:" + spaceId + ":user:" + userId;
+        String sessionId = (String) redisTemplate.opsForValue().get(userKey);
 
-        if (copySongId != null) {
-            redisTemplate.opsForValue().set(songKey, String.valueOf(copySongId));
-        } else {
-            String stored = (String) redisTemplate.opsForValue().get(songKey);
-            if (stored == null) {
-                return Result.error(404, "아직 곡이 선택되지 않았습니다.");
-            }
-            copySongId = Integer.parseInt(stored);
+        String managerKey = "ws:space:" + spaceId + ":manager";
+        String managerSessionId = (String) redisTemplate.opsForValue().get(managerKey);
+
+        if (sessionId == null || managerSessionId == null || !sessionId.equals(managerSessionId)) {
+            return Result.error(403, "매니저만 곡을 선택할 수 있습니다.");
         }
 
-        Optional<CopySheet> optionalSheet =
-                copySheetRepository.findByCopySong_CopySongIdAndPart(copySongId, part);
+        String selectedKey = "ws:space:" + spaceId + ":selectedSong";
+        redisTemplate.opsForValue().set(selectedKey, String.valueOf(copySongId));
 
-        if (optionalSheet.isEmpty()) {
-            return Result.error(404, "선택한 세션에 해당하는 악보가 존재하지 않습니다.");
-        }
-
-        CopySheet sheet = optionalSheet.get();
-
-        SheetSelectResponse response = new SheetSelectResponse(
-                sheet.getCopySheetId(),
-                sheet.getPart(),
-                sheet.getSheetUrl()
-        );
-
-        return Result.success(response);
+        log.info("곡 선택 저장 - spaceId: {}, copySongId: {}, managerSession: {}", spaceId, copySongId, managerSessionId);
+        return Result.success(null);
     }
+
+
 
 }
 

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -36,9 +37,23 @@ public class PlayController {
     }
 
 
-    @PostMapping("/sheets/select")
-    public ResponseEntity<ResponseDto<SheetSelectResponse>> selectSheet(@RequestBody SheetSelectRequest request) {
-        Result<SheetSelectResponse> result = playService.selectSheet(request);
-        return ResponseEntity.ok(ResponseDto.from(result));
+    @PostMapping("/spaces/{spaceId}/selected-song")
+    public ResponseEntity<ResponseDto<Void>> selectSong(
+            @PathVariable Integer spaceId,
+            @RequestBody SelectSongRequest request
+    ) {
+        Result<Void> result = playService.selectSong(
+                spaceId,
+                request.getCopySongId(),
+                request.getUserId()
+        );
+
+        int status = result.isSuccess() ? 200 : result.getError().getCode();
+
+        return ResponseEntity
+                .status(status)
+                .body(ResponseDto.from(result));
     }
+
+
 }
