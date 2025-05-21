@@ -643,7 +643,8 @@ def midi_to_musicxml(
             _run_musescore_cli(midi_path, tmp_xml)
 
         single_xml[part] = tmp_xml
-
+    print("단일 악기.musicxml 생성 완료")
+    
     # ──────────────────────────────────────────────────────────────
     # 2) 임시 XML → 최종 1-파트 XML
     # ──────────────────────────────────────────────────────────────
@@ -660,11 +661,8 @@ def midi_to_musicxml(
             if timed_sylls:
                 attach_lyrics_by_absolute_time(sc, timed_sylls, bpm)
             sc.write("musicxml", fp=tmp_xml)  # 덮어쓰기
-        else:
-            if part == "bass":
-                _postprocess_bass_tab(tmp_xml)
-            elif part == "guitar":
-                _postprocess_guitar_tab(tmp_xml)
+
+    print("가사 매핑 완료")
 
     # ──────────────────────────────────────────────────────────────
     # 3) 보컬 + 악기 듀오 (music21 사용 X)
@@ -686,11 +684,14 @@ def midi_to_musicxml(
             _postprocess_bass_tab(duo_xml)     # staff 2 TAB
         elif inst == "guitar":
             _postprocess_guitar_tab(duo_xml)
+            
+    print("악보 합치기 및 타브 변환 완료")
 
     # 4) 임시 파일 정리
     for p in temp_dir.glob("*.musicxml"):
         p.unlink(missing_ok=True)
     temp_dir.rmdir()
+    print("임시 파일 정리 완료")
 
     # 5) 마디 수 계산
     vocal_tree = ET.parse(final_paths["vocal"])
@@ -705,5 +706,7 @@ def midi_to_musicxml(
     # '12', '120-121', '99a' 등에서 맨 끝 숫자만 추출
     nums_in_str = re.findall(r"\d+", last_num_raw)
     measure_count = int(nums_in_str[-1]) if nums_in_str else 0
+
+    print(f"마디 수 계산 완료. 마디 수 : {measure_count}")
 
     return final_paths, measure_count

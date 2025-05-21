@@ -34,21 +34,27 @@ app.add_middleware(
 async def process_youtube(req: YoutubeRequest):
     try:
         # 1. 유튜브 오디오 다운로드
+        print("유튜브 오디오 다운로드 시작")
         wav_info = dlw.download_youtube_audio(req.youtube_url, str(STORAGE_PATH))
         wav_path = wav_info["audio_file"]
         thumbnail_path = wav_info["thumbnail"]
         song_title = wav_info["title"]
         duration_sec = wav_info["duration_sec"]
         subtitle_paths = wav_info["subtitles"]
+        print("유튜브 오디오 다운로드 완료")
 
         # 가사 생성
+        print("가사 생성(gpt) 시작")
         vtt_path = update_lyrics_vtt(subtitle_paths, song_title, duration_sec)
+        print("가사 생성 완료")
 
         uniq_name = dlw.extract_youtube_id(req.youtube_url)
         # bpm 추출
         bpm = int(tcm.extract_bpm(wav_path))
+        print(f"bpm : {bpm}")
 
         # 2. 악기 분리
+        print("악기 분리 시작")
         path_list = spw.separate_audio_with_demucs(wav_path, str(STORAGE_PATH))
 
         for stem in path_list:
@@ -58,8 +64,10 @@ async def process_youtube(req: YoutubeRequest):
             new_track.export(path_list[stem], format="wav")
 
         end_time = tcm.get_wav_duration(path_list["other"])
+        print("악기 분리 완료")
         
         # 3. 전사 요청
+        print("midi 전사 시작")
         midi_results = {}
         # 드럼
         midi_results["drum"] = str(STORAGE_PATH)+ "/" + tcm.transcribe_drums_with_omnizart(path_list["drums"], str(STORAGE_PATH))
@@ -70,8 +78,17 @@ async def process_youtube(req: YoutubeRequest):
         midi_results["guitar"] = tcm.guitar_audio_to_midi(path_list["other"], path_list["other"].replace(".wav", ".mid"))
         # 보컬
         midi_results["vocal"] = tcm.vocal_audio_to_midi(path_list["vocals"], path_list["vocals"].replace(".wav", ".mid"))
+        print("midi 전사 완료")
+
+        # bpm 조정
+        print("bpm 조정")
+        for stem, xml_path in midi_results.items():
+            print(stem)
+            tcm.add_dummy_note(xml_path, xml_path, end_time)
+            tcm.change_bpm(xml_path, xml_path, bpm)
 
         # 4. midi -> musicxml
+        print("musicxml 변환 시작")
         musicxml_paths, measure_count = midi_to_musicxml(
             bass_midi=midi_results["bass"],
             drum_midi=midi_results["drum"],
@@ -81,22 +98,26 @@ async def process_youtube(req: YoutubeRequest):
             save_path=str(STORAGE_PATH),
             bpm=bpm,
         )
+        print("musicxml 변환 완료")
+        print(musicxml_paths)
 
 
         # musicxml S3 업로드
+        print("S3 업로드 시작")
         s3_urls: dict[str, str] = {}
         for stem, xml_path in musicxml_paths.items():
             print(stem)
-            tcm.add_dummy_note(xml_path, xml_path, end_time)
-            tcm.change_bpm(xml_path, xml_path, bpm)
             s3_key = f"original_sheets/sheet_{uniq_name}_{stem}.musicxml"
             s3_urls[stem] = us3.upload_file(xml_path, s3_key)
+            print(f"{stem}업로드 완료 : {s3_urls[stem]}")
         # 썸네일 S3 업로드
         if thumbnail_path:
             thumb_key = f"thumbnails/{uniq_name}{Path(thumbnail_path).suffix}"
             thumbnail_url = us3.upload_file(thumbnail_path, thumb_key)
+            print(f"썸네이리 업로드 완료 : {thumbnail_url}")
         else:
             thumbnail_url = None
+        print("S3 업로드 완료")
 
 
         return CreateSheetResponse(
