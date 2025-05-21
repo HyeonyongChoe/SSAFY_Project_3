@@ -9,6 +9,7 @@ import com.a205.beatween.domain.user.dto.SignupDto;
 import com.a205.beatween.domain.user.dto.UserInfoDto;
 import com.a205.beatween.domain.user.entity.User;
 import com.a205.beatween.domain.user.service.UserService;
+import com.a205.beatween.common.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/signup")
     public ResponseEntity<Result<?>> signup(@RequestBody SignupDto signupDto) {
@@ -34,12 +36,13 @@ public class UserController {
                 .body(Result.success("회원가입 성공"));
     }
 
-
     @PostMapping("/login")
     public ResponseEntity<Result<?>> login(@RequestBody LoginDto loginDto) {
-        userService.login(loginDto);
-        return ResponseEntity.status(HttpStatus.OK)/// //////////////
-                .body(Result.success("로그인 성공"));
+        Result<Map<String, String>> result = userService.login(loginDto);
+        String token = result.getData().get("token");
+//        System.out.println("token : " + token);
+//        System.out.println("extracted userId : " + jwtUtil.extractUserId(token));
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/info")

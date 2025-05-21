@@ -61,7 +61,7 @@ public class UserService {
         return Result.success("회원가입 성공");
     }
 
-    public Result<?> login(LoginDto loginDto) {
+    public Result<Map<String, String>> login(LoginDto loginDto) {
 //        // 1. 인증(패스워드 일치 여부 체크)
 //        User user = userService.authenticate(loginDto);
         User user = userRepository.findByEmail(loginDto.getEmail()).orElse(null);
