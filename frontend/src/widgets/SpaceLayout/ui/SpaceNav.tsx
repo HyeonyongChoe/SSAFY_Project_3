@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ImageCircle } from "@/shared/ui/ImageCircle/ImageCircle";
 import { CreateBandButton } from "@/features/createBand";
 import { Popover } from "@/shared/ui/Popover";
-import { UserSettingModal } from "@/features/user/UserSettingModal";
+import { UserSettingModal } from "@/features/user/ui/UserSettingModal";
 import { useSpace } from "@/entities/band/hooks/useSpace";
 import { usePersonalSpaceStore } from "@/entities/band/model/store";
 import { useEffect } from "react";

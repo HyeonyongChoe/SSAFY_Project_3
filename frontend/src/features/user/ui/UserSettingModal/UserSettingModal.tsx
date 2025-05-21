@@ -1,11 +1,14 @@
 import { useGlobalStore } from "@/app/store/globalStore";
-import { UpdateProfileForm, UpdateProfileRef } from "@/features/updateProfile/ui/UpdateProfileForm";
-import { useUpdateProfile } from "@/features/updateProfile/hooks/useUpdateProfile";
+import {
+  UpdateProfileForm,
+  UpdateProfileRef,
+} from "@/features/user/ui/UpdateProfileForm";
 import { openConfirm, openModal } from "@/shared/lib/modal";
 import { toast } from "@/shared/lib/toast";
 import { ButtonBox } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import { useUpdateProfile } from "../../hooks/useUpdateProfile";
 
 export const UserSettingModal = () => {
   const navigate = useNavigate();

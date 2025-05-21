@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { updateProfile } from "../services/updateProfileService";
 import { toast } from "@/shared/lib/toast";
+import { updateProfile } from "../services/updateProfileService";
 
 export const useUpdateProfile = () => {
   return useMutation({
