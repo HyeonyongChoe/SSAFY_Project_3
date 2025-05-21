@@ -2,7 +2,13 @@ package com.a205.beatween.domain.space.service;
 
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
+import com.a205.beatween.domain.drawing.entity.Drawing;
+import com.a205.beatween.domain.drawing.repository.DrawingRepository;
 import com.a205.beatween.domain.song.dto.CopySongListByCategoryDto;
+import com.a205.beatween.domain.song.entity.CopySheet;
+import com.a205.beatween.domain.song.entity.CopySong;
+import com.a205.beatween.domain.song.repository.CopySheetRepository;
+import com.a205.beatween.domain.song.repository.CopySongRepository;
 import com.a205.beatween.domain.song.service.SongService;
 import com.a205.beatween.domain.space.dto.InvitationDto;
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
@@ -10,11 +16,13 @@ import com.a205.beatween.domain.space.dto.SpaceDetailDto;
 import com.a205.beatween.domain.space.dto.SpaceSummaryDto;
 import com.a205.beatween.domain.space.dto.MemberDto;
 import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
+import com.a205.beatween.domain.space.entity.Category;
 import com.a205.beatween.domain.space.entity.Space;
 import com.a205.beatween.domain.space.entity.UserSpace;
 import com.a205.beatween.domain.space.enums.RoleType;
 import com.a205.beatween.domain.space.enums.SpaceType;
 import com.a205.beatween.domain.space.dto.SpacePreDto;
+import com.a205.beatween.domain.space.repository.CategoryRepository;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
 import com.a205.beatween.domain.user.entity.User;
@@ -42,6 +50,10 @@ public class SpaceService {
     private final UserRepository userRepository;
     private final S3Util s3Util;
     private final SongService songService;
+    private final CategoryRepository categoryRepository;
+    private final CopySongRepository copySongRepository;
+    private final CopySheetRepository copySheetRepository;
+    private final DrawingRepository drawingRepository;
 
     public boolean checkUserIsMemberOfSpace(Integer userId, Integer spaceId){
         return userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
@@ -90,12 +102,12 @@ public class SpaceService {
     }
 
 
-    public Result<InvitationDto> resolveInvitationLink(String teamSlug, String shareKey, Principal principal) {
+    public Result<InvitationDto> resolveInvitationLink(Integer userId, String teamSlug, String shareKey) {
 
         // 유저Id 확인
         //TODO : 로그인 구현 후 주석 해제
 //      Integer userId = getUserId(principal);
-        Integer userId = 2; // 임시 유저 id
+//        Integer userId = 2; // 임시 유저 id
 
         // shareKey로 Space 조회. 만약 이 shareKey로 space를 찾을 수 없다면 잘못된 초대 링크임
         Space space = spaceRepository.findByShareKey(shareKey).orElse(null);
@@ -114,16 +126,17 @@ public class SpaceService {
         Integer spaceId = space.getSpaceId();
         boolean isMember = userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
 
-        // 만약 유저가 팀에 속해있지 않다면, 초대 모달에 필요한 최소한의 정보만 반환
+        // 만약 유저가 팀에 속해있지 않다면, 해당 팀에 가입
         if(!isMember) {
-            SpaceSummaryDto spaceSummaryDto = SpaceSummaryDto.builder()
-                    .spaceName(space.getName())
-                    .spaceId(space.getSpaceId())
+            UserSpace newUserSpace = UserSpace.builder()
+                    .user(userRepository.getById(userId))
+                    .space(space)
+                    .roleType(RoleType.MEMBER)
                     .build();
-            return Result.success(InvitationDto.ofInviteNonMember(spaceSummaryDto));
+            userSpaceRepository.save(newUserSpace);
         }
 
-        // 만약 유저가 이미 팀에 속해 있다면, 해당 팀 스페이스의 모든 정보 반환
+        // 링크를 클릭한 모든 유저에게 팀 스페이스의 모든 정보 반환
         SpaceDetailDto spaceDetailDto = null;
         SpaceDetailResponseDto spaceDetailResponseDto = getSpaceDetail(spaceId, userId);
         List<CopySongListByCategoryDto> songList = songService.getAllSongs(spaceId);
@@ -132,14 +145,7 @@ public class SpaceService {
                 .songList(songList)
                 .build();
         return Result.success(InvitationDto.ofInviteMember(spaceDetailDto));
-
-
-        // 이후 로직 : isMember가 true라면 프론트에서 space 정보 바로 보여줌, 만약 아니라면 가입하시겠습니까 모달 띄움,
-        // 예 클릭하면 space 정보 보여줌, POST 요청으로 가입 요청
-        // 아니오 클릭하면 모달 닫고 아무것도 안함
     }
-
-
 
 
     public Result<String> getTeamSpaceInvitationLink(Integer spaceId) {
@@ -257,6 +263,28 @@ public class SpaceService {
         if(userSpace.getRoleType().equals(RoleType.OWNER)) {
             List<UserSpace> userSpaceList = userSpaceRepository.findBySpace_SpaceId(spaceId);
             if(userSpaceList.size() > 1) return 2; //"팀원이 남았습니다.";
+            List<Category> categoryList = categoryRepository.findBySpace_SpaceId(spaceId);
+            for(Category category : categoryList) {
+                List<CopySong> copySongList = copySongRepository.findByCategory(category);
+                for(CopySong copySong : copySongList) {
+                    List<CopySheet> copySheetList = copySheetRepository.findByCopySong(copySong);
+                    for(CopySheet copySheet : copySheetList) {
+                        List<Drawing> drawingList = drawingRepository.findByCopySheet(copySheet);
+                        drawingRepository.deleteAll(drawingList);
+                        s3Util.delete(copySheet.getSheetUrl());
+                        copySheetRepository.delete(copySheet);
+                    }
+                    if(copySong.getThumbnailUrl().contains("copy_thumbnails/")) {
+                        s3Util.delete(copySong.getThumbnailUrl());
+                    }
+                    copySongRepository.delete(copySong);
+                }
+                categoryRepository.delete(category);
+            }
+        }
+        Space space = spaceRepository.findById(spaceId).orElse(null);
+        if(space != null && space.getImageUrl() != null) {
+            s3Util.delete(space.getImageUrl());
         }
         userSpaceRepository.delete(userSpace);
         return 0; //"팀 스페이스 삭제 완료";

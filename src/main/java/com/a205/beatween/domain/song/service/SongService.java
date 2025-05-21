@@ -221,11 +221,14 @@ public class SongService {
 
     @Transactional
     public void deleteSheet(Integer spaceId, Integer songId) {
+        CopySong copySong = copySongRepository.getReferenceById(songId);
         List<CopySheet> copySheetList = copySheetRepository.findByCopySong_CopySongId(songId);
         for(CopySheet copySheet : copySheetList) {
             drawingRepository.deleteByCopySheet_CopySheetId(copySheet.getCopySheetId());
+            s3Util.delete(copySheet.getSheetUrl());
             copySheetRepository.deleteById(copySheet.getCopySheetId());
         }
+        s3Util.delete(copySong.getThumbnailUrl());
         copySongRepository.deleteById(songId);
     }
 
@@ -265,18 +268,20 @@ public class SongService {
                 .originalSong(copySong.getOriginalSong())
                 .category(destCategory)
                 .title(copySong.getTitle())
-                .thumbnailUrl(copySong.getThumbnailUrl())
+                .thumbnailUrl(copySong.getOriginalSong().getThumbnailUrl())
                 .build();
 
         CopySong newCopySong = copySongRepository.save(replicateSong);
 
         List<CopySheet> copySheetList = copySheetRepository.findByCopySong_CopySongId(copySong.getCopySongId());
         for(CopySheet copySheet : copySheetList) {
+            String newName = "copy_sheets/s".concat(String.valueOf(copySong.getCopySongId())).concat(copySheet.getPart()).concat(".musicxml");
+            String url = s3Util.copyFromUrl(copySheet.getSheetUrl(),newName);
             CopySheet replicateSheet = CopySheet
                     .builder()
                     .copySong(newCopySong)
                     .part(copySheet.getPart())
-                    .sheetUrl(copySheet.getSheetUrl())
+                    .sheetUrl(url)
                     .build();
             copySheetRepository.save(replicateSheet);
         }

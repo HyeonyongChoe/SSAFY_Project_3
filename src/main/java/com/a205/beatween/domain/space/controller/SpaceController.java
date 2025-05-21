@@ -48,12 +48,12 @@ public class SpaceController {
 
     @GetMapping("/share/{teamSlug}/{shareKey}")
     public ResponseEntity<Result<?>> handleInvitationLink(
+            @RequestHeader("X-USER-ID") Integer userId, // 임시 헤더
             @PathVariable String teamSlug,
-            @PathVariable String shareKey,
-            Principal principal
+            @PathVariable String shareKey
     ) {
 
-        Result<InvitationDto> invitation = spaceService.resolveInvitationLink(teamSlug, shareKey, principal);
+        Result<InvitationDto> invitation = spaceService.resolveInvitationLink(userId, teamSlug, shareKey);
 
         return ResponseEntity.ok(invitation);
     }
