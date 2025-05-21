@@ -1,7 +1,9 @@
 package com.a205.beatween.domain.play.service;
 
-import com.a205.beatween.domain.play.dto.ManagerStatusMessage;
-import com.a205.beatween.domain.play.dto.PlayControlMessage;
+import com.a205.beatween.common.reponse.Result;
+import com.a205.beatween.domain.play.dto.*;
+
+import java.util.List;
 
 public interface PlayService {
     void savePlaySession(PlayControlMessage message);
@@ -15,4 +17,8 @@ public interface PlayService {
     void broadcastManagerChange(String spaceId, String newManagerSessionId);
 
     void handleManualDisconnect(String spaceId, String sessionId, String userId);
+
+    List<CategoryWithSongsResponse> getAllSheets(Integer spaceId);
+
+    Result<SheetSelectResponse> selectSheet(SheetSelectRequest request);
 }

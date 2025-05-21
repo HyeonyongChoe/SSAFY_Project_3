@@ -20,7 +20,7 @@ public class DrawingController {
 
     private final DrawingService drawingService;
 
-    @GetMapping("/{copySheetId}")
+    @GetMapping("/practice/{copySheetId}")
     public ResponseEntity<ResponseDto<List<DrawingPoint>>> getDrawing(
             @PathVariable("copySheetId") Integer copySheetId) {
 
@@ -28,13 +28,23 @@ public class DrawingController {
         return ResponseEntity.ok(ResponseDto.from(result));
     }
 
-    @PostMapping("/save")
+    @PostMapping("/practice/save")
     public ResponseEntity<ResponseDto<Void>> saveDrawing(
             @RequestBody Map<Integer, List<DrawingPoint>> drawingMap) {
 
         Result<Void> result = drawingService.savePersonalDrawings(drawingMap);
         return ResponseEntity.ok(ResponseDto.from(result));
     }
+
+    @GetMapping("/play/{copySheetId}")
+    public ResponseEntity<ResponseDto<List<DrawingPoint>>> getPlayDrawing(
+            @PathVariable("copySheetId") Integer copySheetId,
+            @RequestParam("spaceId") String spaceId) {
+
+        List<DrawingPoint> points = drawingService.getDrawingBySheet(spaceId, copySheetId);
+        return ResponseEntity.ok(ResponseDto.from(Result.success(points)));
+    }
+
 
 
 

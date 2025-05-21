@@ -1,18 +1,21 @@
 package com.a205.beatween.domain.play.service;
 
+import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.domain.drawing.service.DrawingService;
-import com.a205.beatween.domain.play.dto.ManagerChangedMessage;
-import com.a205.beatween.domain.play.dto.ManagerStatusMessage;
-import com.a205.beatween.domain.play.dto.PlayControlMessage;
+import com.a205.beatween.domain.play.dto.*;
+import com.a205.beatween.domain.song.entity.CopySheet;
+import com.a205.beatween.domain.song.entity.CopySong;
+import com.a205.beatween.domain.song.repository.CopySheetRepository;
+import com.a205.beatween.domain.song.repository.CopySongRepository;
+import com.a205.beatween.domain.space.entity.Category;
+import com.a205.beatween.domain.space.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,9 @@ public class PlayServiceImpl implements PlayService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final SimpMessagingTemplate messagingTemplate;
     private final DrawingService drawingService;
+    private final CopySheetRepository copySheetRepository;
+    private final CategoryRepository categoryRepository;
+    private final CopySongRepository copySongRepository;
 
     @Override
     public void savePlaySession(PlayControlMessage message) {
@@ -83,7 +89,6 @@ public class PlayServiceImpl implements PlayService {
         redisTemplate.delete(sessionToUserKey);
         redisTemplate.delete(userToSessionKey);
 
-        // 리더 재지정
         String currentLeader = (String) redisTemplate.opsForValue().get(managerKey);
         if (Objects.equals(currentLeader, sessionId)) {
             String newLeader = redisTemplate.opsForZSet()
@@ -100,7 +105,6 @@ public class PlayServiceImpl implements PlayService {
             }
         }
 
-        // 마지막 사용자 → 드로잉 저장
         if (count != null && count <= 0) {
             Set<String> keys = redisTemplate.keys("drawings:" + spaceId + ":*");
             List<Integer> copySheetIds = keys.stream()
@@ -116,7 +120,77 @@ public class PlayServiceImpl implements PlayService {
         }
     }
 
+    @Override
+    public List<CategoryWithSongsResponse> getAllSheets(Integer spaceId) {
+        List<Category> categories = categoryRepository.findBySpace_SpaceId(spaceId);
+        List<CategoryWithSongsResponse> result = new ArrayList<>();
 
+        for (Category category : categories) {
+            List<CopySong> copySongs = copySongRepository.findByCategory(category);
+            List<SongWithSheetsResponse> songResponses = new ArrayList<>();
 
+            for (CopySong copySong : copySongs) {
+                List<CopySheet> copySheets = copySong.getSheets(); // LAZY
+                List<SheetInfoResponse> sheetInfos = copySheets.stream().map(sheet ->
+                        SheetInfoResponse.builder()
+                                .copySheetId(sheet.getCopySheetId())
+                                .part(sheet.getPart())
+                                .sheetUrl(sheet.getSheetUrl())
+                                .build()
+                ).toList();
+
+                songResponses.add(SongWithSheetsResponse.builder()
+                        .copySongId(copySong.getCopySongId())
+                        .title(copySong.getTitle())
+                        .sheets(sheetInfos)
+                        .build());
+            }
+
+            result.add(CategoryWithSongsResponse.builder()
+                    .categoryId(category.getCategoryId())
+                    .categoryName(category.getName())
+                    .songs(songResponses)
+                    .build());
+        }
+
+        return result;
+    }
+
+    @Override
+    public Result<SheetSelectResponse> selectSheet(SheetSelectRequest req) {
+        int spaceId = req.getSpaceId();
+        Integer copySongId = req.getCopySongId() == 0 ? null : req.getCopySongId();
+        String part = req.getInstrumentPart();
+        String songKey = "ws:space:" + spaceId + ":selectedSong";
+
+        if (copySongId != null) {
+            redisTemplate.opsForValue().set(songKey, String.valueOf(copySongId));
+        } else {
+            String stored = (String) redisTemplate.opsForValue().get(songKey);
+            if (stored == null) {
+                return Result.error(404, "아직 곡이 선택되지 않았습니다.");
+            }
+            copySongId = Integer.parseInt(stored);
+        }
+
+        Optional<CopySheet> optionalSheet =
+                copySheetRepository.findByCopySong_CopySongIdAndPart(copySongId, part);
+
+        if (optionalSheet.isEmpty()) {
+            return Result.error(404, "선택한 세션에 해당하는 악보가 존재하지 않습니다.");
+        }
+
+        CopySheet sheet = optionalSheet.get();
+
+        SheetSelectResponse response = new SheetSelectResponse(
+                sheet.getCopySheetId(),
+                sheet.getPart(),
+                sheet.getSheetUrl()
+        );
+
+        return Result.success(response);
+    }
 
 }
+
+
