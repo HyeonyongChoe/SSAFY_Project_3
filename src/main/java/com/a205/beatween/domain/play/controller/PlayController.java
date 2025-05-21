@@ -4,17 +4,23 @@ import com.a205.beatween.common.reponse.ResponseDto;
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.domain.play.dto.*;
 import com.a205.beatween.domain.play.service.PlayService;
+import com.a205.beatween.domain.song.entity.CopySheet;
+import com.a205.beatween.domain.song.entity.CopySong;
+import com.a205.beatween.domain.song.repository.CopySheetRepository;
+import com.a205.beatween.domain.song.repository.CopySongRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/play")
 @RequiredArgsConstructor
 public class PlayController {
     private final PlayService playService;
+    private final CopySongRepository copySongRepository;
 
     @GetMapping("/state/{spaceId}")
     public ResponseEntity<PlayControlMessage> getPlayState(@PathVariable("spaceId") Integer spaceId) {
@@ -67,6 +73,36 @@ public class PlayController {
         Result<SelectedSongResponse> result = playService.getSelectedSong(spaceId);
         int status = result.isSuccess() ? 200 : result.getError().getCode();
         return ResponseEntity.status(status).body(ResponseDto.from(result));
+    }
+
+    @GetMapping("/sheets/{copySheetId}/with-drawing")
+    public ResponseEntity<ResponseDto<SheetWithDrawingResponse>> getSheetWithDrawing(
+            @PathVariable Integer copySheetId,
+            @RequestParam("spaceId") String spaceId
+    ) {
+        Result<SheetWithDrawingResponse> result = playService.getSheetWithDrawing(spaceId, copySheetId);
+        int status = result.isSuccess() ? 200 : result.getError().getCode();
+        return ResponseEntity.status(status).body(ResponseDto.from(result));
+    }
+
+    @GetMapping("/sheets/{copySongId}/sheets")
+    public ResponseEntity<ResponseDto<List<SheetInfoResponse>>> getSheetsBySong(@PathVariable Integer copySongId) {
+        CopySong copySong = copySongRepository.findById(copySongId).orElse(null);
+        if (copySong == null) {
+            return ResponseEntity.status(404)
+                    .body(ResponseDto.from(Result.error(404, "해당 곡을 찾을 수 없습니다.")));
+        }
+
+        List<CopySheet> sheets = copySong.getSheets();
+        List<SheetInfoResponse> result = sheets.stream()
+                .map(sheet -> SheetInfoResponse.builder()
+                        .copySheetId(sheet.getCopySheetId())
+                        .part(sheet.getPart())
+                        .sheetUrl(sheet.getSheetUrl())
+                        .build())
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(ResponseDto.from(Result.success(result)));
     }
 
 }
