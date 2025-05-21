@@ -42,7 +42,11 @@ public class SongController {
             @PathVariable("spaceId") Integer spaceId,
             @RequestHeader("Authorization") String token,
             @RequestBody UrlRequestDto urlRequestDto) {
+
+        System.out.println("createSheet() 호출됨");
+
         Integer userId = jwtUtil.extractUserId(token);
+//        System.out.println("/sheets에서 userId : " + userId);
         songService.createSheet(urlRequestDto, userId, spaceId);
 
         return ResponseEntity.ok().build();

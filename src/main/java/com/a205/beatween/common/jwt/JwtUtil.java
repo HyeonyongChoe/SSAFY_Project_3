@@ -33,7 +33,13 @@ public class JwtUtil {
 //	}
 
 	// JWT에서 사용자 ID 추출
-	public int extractUserId(String token) {
+	public int extractUserId(String authorizationHeader) {
+
+		String rawHeader = authorizationHeader; // ex) "Bearer eyJ... abc..."
+		String token = rawHeader
+				.replaceFirst("(?i)^Bearer\\s+", "")  // "Bearer " 제거
+				.replaceAll("\\s+", "");             // 모든 공백(스페이스, 탭, 개행) 제거
+
 		Claims claims = Jwts.parser()
 				.setSigningKey(secretKey)// 비밀키로 서명 검증
 				.parseClaimsJws(token) // 토큰을 파싱하여 JWS(JWT with Signature) 반환
