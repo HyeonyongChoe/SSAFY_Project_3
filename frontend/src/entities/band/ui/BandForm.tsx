@@ -17,10 +17,11 @@ interface BandFormProps {
     description?: string;
     imageUrl?: string;
   };
+  isMe?: boolean;
 }
 
 export const BandForm = forwardRef<BandFormHandle, BandFormProps>(
-  ({ mode = "create", spaceId, initialData }, ref) => {
+  ({ mode = "create", spaceId, initialData, isMe = false }, ref) => {
     const [bandName, setBandName] = useState(initialData?.spaceName ?? "");
     const [bandDetail, setBandDetail] = useState(
       initialData?.description ?? ""
@@ -61,15 +62,17 @@ export const BandForm = forwardRef<BandFormHandle, BandFormProps>(
             imageUrl={imageUrlWithVersion}
           />
         </div>
-        <ItemField icon="diversity_3" title="밴드 이름" required>
-          <Input
-            value={bandName}
-            onChange={setBandName}
-            placeholder="밴드 이름 (ex. 비트윈)"
-            maxLength={20}
-            showCount={true}
-          />
-        </ItemField>
+        {!isMe && (
+          <ItemField icon="diversity_3" title="밴드 이름" required>
+            <Input
+              value={bandName}
+              onChange={setBandName}
+              placeholder="밴드 이름 (ex. 비트윈)"
+              maxLength={20}
+              showCount={true}
+            />
+          </ItemField>
+        )}
         <ItemField icon="subject" title="밴드 설명" required>
           <TextArea
             value={bandDetail}
