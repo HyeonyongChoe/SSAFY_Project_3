@@ -4,17 +4,18 @@ import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.domain.drawing.service.DrawingService;
 import com.a205.beatween.domain.play.dto.*;
 import com.a205.beatween.domain.song.entity.CopySheet;
+import com.a205.beatween.domain.song.entity.CopySong;
 import com.a205.beatween.domain.song.repository.CopySheetRepository;
+import com.a205.beatween.domain.song.repository.CopySongRepository;
+import com.a205.beatween.domain.space.entity.Category;
+import com.a205.beatween.domain.space.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,8 @@ public class PlayServiceImpl implements PlayService {
     private final SimpMessagingTemplate messagingTemplate;
     private final DrawingService drawingService;
     private final CopySheetRepository copySheetRepository;
+    private final CategoryRepository categoryRepository;
+    private final CopySongRepository copySongRepository;
 
     @Override
     public void savePlaySession(PlayControlMessage message) {
@@ -115,6 +118,42 @@ public class PlayServiceImpl implements PlayService {
             redisTemplate.delete(managerKey);
             log.info("마지막 사용자 → 캐시 정리 완료: {}", spaceId);
         }
+    }
+
+    @Override
+    public List<CategoryWithSongsResponse> getAllSheets(Integer spaceId) {
+        List<Category> categories = categoryRepository.findBySpace_SpaceId(spaceId);
+        List<CategoryWithSongsResponse> result = new ArrayList<>();
+
+        for (Category category : categories) {
+            List<CopySong> copySongs = copySongRepository.findByCategory(category);
+            List<SongWithSheetsResponse> songResponses = new ArrayList<>();
+
+            for (CopySong copySong : copySongs) {
+                List<CopySheet> copySheets = copySong.getSheets(); // LAZY
+                List<SheetInfoResponse> sheetInfos = copySheets.stream().map(sheet ->
+                        SheetInfoResponse.builder()
+                                .copySheetId(sheet.getCopySheetId())
+                                .part(sheet.getPart())
+                                .sheetUrl(sheet.getSheetUrl())
+                                .build()
+                ).toList();
+
+                songResponses.add(SongWithSheetsResponse.builder()
+                        .copySongId(copySong.getCopySongId())
+                        .title(copySong.getTitle())
+                        .sheets(sheetInfos)
+                        .build());
+            }
+
+            result.add(CategoryWithSongsResponse.builder()
+                    .categoryId(category.getCategoryId())
+                    .categoryName(category.getName())
+                    .songs(songResponses)
+                    .build());
+        }
+
+        return result;
     }
 
     @Override
