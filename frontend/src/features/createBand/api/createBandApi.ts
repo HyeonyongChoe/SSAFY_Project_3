@@ -1,34 +1,25 @@
 import axiosInstance from "@/shared/api/axiosInstance";
-import { CreateBandRequest, CreateBandResponse } from "../types/createBand.types";
+import {
+  CreateBandRequest,
+  CreateBandResponse,
+} from "../types/createBand.types";
 
 export const createBandApi = async (
   data: CreateBandRequest
 ): Promise<CreateBandResponse> => {
-  const hasImage = !!data.image;
+  const formData = new FormData();
+  formData.append("name", data.name);
+  if (data.description) formData.append("description", data.description);
+  if (data.image) formData.append("image", data.image); // optional
 
-  let body: FormData | string;
-  const headers: Record<string, string> = {};
-
-  if (hasImage && data.image) {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    if (data.description) formData.append("description", data.description);
-    formData.append("image", data.image);
-    body = formData;
-  } else {
-    headers["Content-Type"] = "application/json";
-    body = JSON.stringify({
-      name: data.name,
-      description: data.description,
-    });
-  }
-
-  // ✅ 임시 유저 ID — 나중에 Zustand 등에서 가져올 것
-  headers["X-USER-ID"] = "1";
+  const headers = {
+    "X-USER-ID": "1", // ✅ 임시 유저 ID
+    // ✅ Content-Type 생략 (브라우저가 multipart 설정함)
+  };
 
   const response = await axiosInstance.post<CreateBandResponse>(
     "/api/v1/spaces",
-    body,
+    formData,
     { headers }
   );
 
