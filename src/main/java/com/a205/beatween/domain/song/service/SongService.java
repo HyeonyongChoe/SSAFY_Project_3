@@ -124,7 +124,7 @@ public class SongService {
 
                                 parts[0][1] = response.getDrumUrl();
                                 parts[1][1] = response.getGuitarUrl();
-                                parts[2][1] = response.getGuitarUrl();
+                                parts[2][1] = response.getVocalUrl();
                                 parts[3][1] = response.getBassUrl();
 
                                 response.setYoutubeUrl(checkUrl);
