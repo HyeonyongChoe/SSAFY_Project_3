@@ -10,6 +10,7 @@
 | **IDE-Backend** | IntelliJ IDEA 2025.1 (Community) |
 | **IDE-AI** | PyCharm |
 
+<br><br>
 ### 2) 환경 변수 및 의존성
 
 **(1) Frontend**
@@ -127,11 +128,13 @@
 | `GOOGLE_ID` | 자동화 스크립트 또는 OAuth 클라이언트 구성에서 쓰이는 Google 계정(또는 Client ID) 식별자 |
 | `GOOGLE_PW` | Google 계정 비밀번호(또는 서비스 전용 비밀번호) |
 
+<br><br>
 ### 3) 배포 시 특이사항
 
 - EC2 인스턴스 안에서 Jenkins를 컨테이너로 실행함
 - 하나의 EC2 인스턴스에서 Jenkins, NginX, Spring Boot, Redis, FastAPI, Flask를 관리함
 
+<br><br>
 ### 4) DB 접속 정보 등 포함된 파일 목록
 
 ```jsx
@@ -173,6 +176,13 @@ SPRING_DATA_REDIS_PASSWORD={redis_passward}
 | **StompJS + SockJS** | WebSocket(STOMP) 메시징 | ❌ 없음 | 서버 `/ws` 엔드포인트 | `socketStore`, `/app/play/update` 등 |
 | **OpenAI Open API Key** | GPT 모델 api를 이용하기 위한 키 발급 | ✅ 필요 | `OPENAI_API_KEY` 환경 변수에 저장 | 백엔드 `OpenAiService` 또는 AI 모듈에서 REST 호출 |
 | **MuseScore 3** | 로컬 악보 편집·검증 툴 | ❌ 없음 | Windows 7+ 설치 파일:▶ [MuseScore-3.6.2.548021803-x86.paf.exe](https://ftp.osuosl.org/pub/musescore-nightlies/windows/3x/stable/MuseScore-3.6.2.548021803-x86.paf.exe) (88 MB, 2021-02-08)※ 해당 링크 접속 불가 시 → MuseScore 홈페이지 → **Download** → **Older and unsupported versions** → **MuseScore 3.0–3.6.2** → Windows 7+ | 개발자 로컬 환경에서 MusicXML·MIDI 테스트 및 악보 검수 |
+
+---
+
+# 3. DB 덤프 파일 최신본
+[DB 덤프 다운로드](./beatween_db-2025_05_22_13_04_28-dump.zip)
+
+<br>
 
 ---
 
