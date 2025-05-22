@@ -121,7 +121,7 @@
 ## 🚀 배포 및 운영
 
 - **CI/CD**: GitLab, Jenkins, Docker 기반 자동화
-- **배포 환경**: AWS EC2, S3, OpenSearch
+- **배포 환경**: AWS EC2, S3
 - **외부 API**: OpenAI GPT API 활용
 
 ---
