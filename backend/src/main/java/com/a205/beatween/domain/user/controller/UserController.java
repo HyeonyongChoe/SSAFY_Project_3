@@ -40,6 +40,9 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Result<?>> login(@RequestBody LoginDto loginDto) {
         Result<Map<String, String>> result = userService.login(loginDto);
+        if(!result.isSuccess()) {
+            return ResponseEntity.ok(result);
+        }
         String token = result.getData().get("token");
 //        System.out.println("token : " + token);
 //        System.out.println("extracted userId : " + jwtUtil.extractUserId(token));

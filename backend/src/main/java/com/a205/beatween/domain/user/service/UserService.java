@@ -94,11 +94,14 @@ public class UserService {
 
     public Result<Map<String, String>> login(LoginDto loginDto) {
 //        // 1. 인증(패스워드 일치 여부 체크)
-//        User user = userService.authenticate(loginDto);
         User user = userRepository.findByEmail(loginDto.getEmail()).orElse(null);
         if(user == null) {
-            return Result.error(HttpStatus.NOT_FOUND.value(), "가입되지 않은 이메일입니다.");
+            return Result.error(HttpStatus.NOT_FOUND.value(), "이메일 또는 비밀번호가 틀렸습니다.");
         }
+        if(!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
+            return Result.error(HttpStatus.NOT_FOUND.value(), "이메일 또는 비밀번호가 틀렸습니다.");
+        }
+
         // 2. JWT 생성
         String token = jwtUtil.createToken(user.getUserId().toString());
         // 3. 토큰 반환
