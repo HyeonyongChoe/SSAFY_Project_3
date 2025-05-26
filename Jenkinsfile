@@ -41,8 +41,8 @@ pipeline {
     stage('Prepare FastAPI .env') {
         steps {
           sh '''
-            mkdir -p ${WORKSPACE}/fastapi
-            cp /home/ubuntu/deployment/fastapi/.env ${WORKSPACE}/fastapi/.env
+            mkdir -p ${WORKSPACE}/backend/fastapi
+            cp /home/ubuntu/deployment/fastapi/.env ${WORKSPACE}/backend/fastapi/.env
           '''
         }
       }
