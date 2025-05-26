@@ -1,7 +1,6 @@
 import { ImageBox } from "./ui/ImageBox";
 import { PlaywithButton } from "./ui/PlaywithButton";
 import { ImageCircle } from "@/shared/ui/ImageCircle";
-import { useNavigate } from "react-router-dom";
 import { openModal } from "@/shared/lib/modal";
 import { toast } from "@/shared/lib/toast";
 import { UpdateBandForm } from "@/features/updateBand/ui/UpdateBandForm";
@@ -22,7 +21,7 @@ import { DeleteBandButton } from "@/features/deleteBand/ui/DeleteBandButton";
 import { ExitBandButton } from "@/features/deleteBand/ui/ExitBandButton";
 import { InviteButton } from "@/features/invite/ui/InviteButton";
 import { useGlobalStore } from "@/app/store/globalStore";
-import axiosInstance from "@/shared/api/axiosInstance";
+import { useSongLoading } from "@/features/score/hooks/useSongLoading";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
@@ -33,26 +32,19 @@ export const SpaceContentLayout = ({
   type = "team",
   teamId,
 }: SpaceContentLayoutProps) => {
-  if (!teamId) {
-    return <div>잘못된 밴드 정보입니다.</div>;
-  }
+  if (!teamId) return <div>잘못된 밴드 정보입니다.</div>;
 
   const updateFormRef = useRef<BandFormHandle>(null);
   const { mutate: updateBandMutate } = useUpdateBand(Number(teamId));
-  const navigate = useNavigate();
   const setStompClient = useSocketStore((state) => state.setStompClient);
   const versionUser = useUserImageVersionStore((state) => state.version);
-  const versionSpace = useSpaceVersionStore((state) =>
-    state.getVersion(teamId)
-  );
+  const versionSpace = useSpaceVersionStore((state) => state.getVersion(teamId));
+  const loadSelectedSongOrPrompt = useSongLoading();
 
   const handleConfirm = () => {
     const formData = updateFormRef.current?.getFormData();
     if (!formData) {
-      toast.warning({
-        title: "폼 데이터 없음",
-        message: "폼이 제대로 입력되지 않았습니다.",
-      });
+      toast.warning({ title: "폼 데이터 없음", message: "폼이 제대로 입력되지 않았습니다." });
       return;
     }
     updateBandMutate(formData);
@@ -61,26 +53,18 @@ export const SpaceContentLayout = ({
   const handlePlayWithClick = () => {
     const spaceId = String(teamId);
     const token = localStorage.getItem("accessToken");
-
     if (!token) {
-      toast.error({
-        title: "인증 실패",
-        message: "로그인이 필요합니다.",
-      });
+      toast.error({ title: "인증 실패", message: "로그인이 필요합니다." });
       return;
     }
 
     const encodedToken = encodeURIComponent(`Bearer ${token}`);
-    const wsUrl = `${
-      import.meta.env.VITE_BROKER_URL
-    }?spaceId=${spaceId}&token=${encodedToken}`;
+    const wsUrl = `${import.meta.env.VITE_BROKER_URL}?spaceId=${spaceId}&token=${encodedToken}`;
 
     const client = new Client({
       webSocketFactory: () => new SockJS(wsUrl),
       reconnectDelay: 5000,
-      connectHeaders: {
-        spaceId,
-      },
+      connectHeaders: { spaceId },
       debug: (msg) => console.log("🔹 STOMP DEBUG:", msg),
     });
 
@@ -88,70 +72,28 @@ export const SpaceContentLayout = ({
       console.log("✅ WebSocket connected");
       setStompClient(client);
 
-      // 👑 매니저 권한 여부 수신
       client.subscribe(`/user/queue/play/manager/${spaceId}`, (message) => {
         const isManager = JSON.parse(message.body);
         console.log("👑 현재 유저의 매니저 여부:", isManager);
-        useGlobalStore.getState().setIsManager(isManager); // Zustand 상태 업데이트
+        useGlobalStore.getState().setIsManager(isManager);
       });
 
-      // 🔄 매니저 변경 브로드캐스트 수신
       client.subscribe(`/topic/play/manager/${spaceId}`, (message) => {
         const newManager = JSON.parse(message.body);
         console.log("🔄 매니저 변경 감지:", newManager);
-        // 추가 로직 필요 시 작성
       });
 
-      try {
-        const res = await axiosInstance.get(
-          `api/v1/play/spaces/${spaceId}/selected-song`
-        );
-
-        const data = res.data;
-
-        if (res.status === 200 && data?.data?.copySongId) {
-          console.log("🎵 선택된 곡 있음:", data.data.copySongId);
-          navigate(`/room/${spaceId}`);
-        } else {
-          console.log("🕒 선택된 곡 없음");
-          const isManager = useGlobalStore.getState().isManager;
-
-          if (isManager) {
-            console.log(
-              "🎩 매니저입니다 → ScoreSelectModal이 자동 호출될 예정"
-            );
-            navigate(`/room/${spaceId}`);
-          } else {
-            toast.info({
-              title: "대기 중",
-              message: "관리자가 곡을 선택할 때까지 기다려 주세요.",
-            });
-            navigate(`/room/${spaceId}`);
-          }
-        }
-      } catch (error) {
-        console.error("❌ 선택된 곡 조회 실패:", error);
-        toast.error({
-          title: "요청 실패",
-          message: "곡 정보를 불러오는 데 실패했습니다.",
-        });
-        navigate(`/room/${spaceId}`);
-      }
+      await loadSelectedSongOrPrompt(spaceId);
     };
 
     client.activate();
   };
 
   const { data, error, isLoading } = useSpaceDetail(teamId);
-
   if (isLoading) return <div>로딩중...</div>;
   if (error) return <div>에러: {error.message}</div>;
   if (data && !data.success)
-    return (
-      <div className="py-6 text-warning font-bold">
-        상정 가능한 범위의 오류 발생: {data.error?.message}
-      </div>
-    );
+    return <div className="py-6 text-warning font-bold">상정 가능한 오류 발생: {data.error?.message}</div>;
 
   const isOwner = data?.data.roleType === "OWNER";
   const bandData = data?.data;

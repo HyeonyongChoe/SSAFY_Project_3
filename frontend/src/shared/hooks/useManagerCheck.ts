@@ -11,6 +11,8 @@ export function useManagerCheck(spaceId: string) {
   const stompClient = useSocketStore((s) => s.stompClient);
   const setIsManager = useGlobalStore((s) => s.setIsManager);
   const clientId = useGlobalStore((s) => s.clientId);
+  const userId = useGlobalStore((s) => s.userId);
+
 
   const [pendingManager, setPendingManager] = useState<boolean | null>(null);
   const subscribedRef = useRef(false); // ✅ 중복 구독 방지
@@ -34,10 +36,13 @@ export function useManagerCheck(spaceId: string) {
     const broadcastSub = stompClient.subscribe(
       `/topic/play/manager/${spaceId}`,
       (msg) => {
-        const data = JSON.parse(msg.body); // { userId: "456", ... }
-        const isNewManager = String(data.userId) === String(clientId);
-        console.log("🔁 매니저 변경 수신:", data, "→ 나인가?", isNewManager);
-        setPendingManager(isNewManager);
+    const data = JSON.parse(msg.body); // { sessionId: 'xxx', userId: '7' }
+    console.log("🔁 매니저 변경 수신:", data);
+    console.log("🔍 현재 userId:", userId);
+
+    const isNewManager = String(data.userId) === String(userId);
+    console.log("✅ 나인가?", isNewManager);
+    setPendingManager(isNewManager);
       }
     );
 

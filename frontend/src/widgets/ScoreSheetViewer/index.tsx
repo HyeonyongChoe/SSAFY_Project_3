@@ -72,15 +72,19 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!containerRef.current || !isPlaying) return;
-    const currentSystemIndex = systems.findIndex((sys) =>
-      sys.measureIds.includes(currentMeasure)
-    );
-    if (currentSystemIndex === -1) return;
-    const currentSystem = systems[currentSystemIndex].el as SVGGraphicsElement;
-    currentSystem.scrollIntoView({ behavior: "smooth", block: "start" });
-    lastSystemIndexRef.current = currentSystemIndex;
-  }, [isPlaying]);
+  if (!containerRef.current || !isPlaying) return;
+
+  const currentSystemIndex = systems.findIndex((sys) =>
+    sys.measureIds.includes(currentMeasure)
+  );
+
+  if (currentSystemIndex === -1) return;
+
+  const currentSystem = systems[currentSystemIndex].el as SVGGraphicsElement;
+  currentSystem.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  lastSystemIndexRef.current = currentSystemIndex;
+}, [isPlaying, currentMeasure, systems]);
 
   useEffect(() => {
     if (!containerRef.current) return;

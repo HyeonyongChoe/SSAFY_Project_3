@@ -33,38 +33,41 @@ export function usePlaySync(spaceId: string) {
           const { playStatus, startTimestamp, bpm, currentMeasure } = message;
 
           if (playStatus === "PLAYING") {
-            console.log("▶️ [START] PLAYING 상태 진입");
-            requestAnimationFrame(() => {
-              setScorePlaying(true);
-              setGlobalPlaying(true);
-              setBpm(Number(bpm));
-            });
+  console.log("▶️ [START] PLAYING 상태 진입");
 
-            const beatDuration = 60000 / bpm;
-            const measureDuration = beatDuration * 4;
+  requestAnimationFrame(() => {
+    setScorePlaying(true);
+    setGlobalPlaying(true);
+    setBpm(Number(bpm));
+  });
 
-            isPausedRef.current = false;
-            resumeTimestampRef.current = startTimestamp ?? Date.now();
+  const beatDuration = 60000 / bpm;
+  const measureDuration = beatDuration * 4;
+          isPausedRef.current = false;
+          resumeTimestampRef.current = startTimestamp ?? Date.now();
 
-            let lastMeasure = -1;
+          // ✅ 서버에서 받은 현재 마디 반영
+          let lastMeasure = currentMeasure ?? 0;
+          currentMeasureRef.current = lastMeasure;
+          setCurrentMeasure(lastMeasure); // ✅ 여기 꼭 필요함
 
-            const tick = () => {
-              const now = Date.now();
-              const elapsed = now - resumeTimestampRef.current;
-              const measure = Math.floor(elapsed / measureDuration);
+          const tick = () => {
+            const now = Date.now();
+            const elapsed = now - resumeTimestampRef.current;
+            const measure = Math.floor(elapsed / measureDuration);
 
-              if (measure !== lastMeasure) {
-                console.log(`🎯 [TICK] 마디 이동: ${lastMeasure} → ${measure}`);
-                lastMeasure = measure;
-                currentMeasureRef.current = measure;
-                setCurrentMeasure(measure);
-              }
-
-              animationFrameIdRef.current = requestAnimationFrame(tick);
-            };
+            if (measure !== lastMeasure) {
+              console.log(`🎯 [TICK] 마디 이동: ${lastMeasure} → ${measure}`);
+              lastMeasure = measure;
+              currentMeasureRef.current = measure;
+              setCurrentMeasure(measure);
+            }
 
             animationFrameIdRef.current = requestAnimationFrame(tick);
-          } else {
+          };
+
+          animationFrameIdRef.current = requestAnimationFrame(tick);
+        } else {
             console.log("⏸️ [STOP] 정지 상태 진입:", playStatus);
 
             requestAnimationFrame(() => {
