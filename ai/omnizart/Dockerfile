@@ -28,4 +28,4 @@ COPY . .
 RUN omnizart download-checkpoints
 
 # Gunicorn으로 서버 실행
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "600", "--log-level", "debug", "omnizart_service:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "900", "--log-level", "debug", "omnizart_service:app"]

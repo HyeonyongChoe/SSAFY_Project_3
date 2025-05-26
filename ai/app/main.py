@@ -67,21 +67,24 @@ async def process_youtube(req: YoutubeRequest):
             new_track.export(path_list[stem], format="wav")
 
         end_time = tcm.get_wav_duration(path_list["other"])
-        print("악기 분리 완료")
+        print(f"악기 분리 완료 : path_list>{path_list}")
         
         # 3. 전사 요청
         print("midi 전사 시작")
         midi_results = {}
         # 드럼
         midi_results["drum"] = str(STORAGE_PATH)+ "/" + tcm.transcribe_drums_with_omnizart(path_list["drums"], str(STORAGE_PATH))
+        print("드럼 전사 완료")
         # 베이스
         midi_results["bass"] = tcm.bass_audio_to_midi(path_list["bass"], path_list["bass"].replace(".wav", ".mid"))
+        print("베이스 전사 완료")
         # 기타
         # results["guitar"] = str(STORAGE_PATH)+ "/" + tcm.transcribe_music_with_omnizart(path_list["other"], str(STORAGE_PATH))
         midi_results["guitar"] = tcm.guitar_audio_to_midi(path_list["other"], path_list["other"].replace(".wav", ".mid"))
+        print("기타 전사 완료")
         # 보컬
         midi_results["vocal"] = tcm.vocal_audio_to_midi(path_list["vocals"], path_list["vocals"].replace(".wav", ".mid"))
-        print("midi 전사 완료")
+        print("전체 전사 완료")
 
         # bpm 조정
         print("bpm 조정")
@@ -123,14 +126,15 @@ async def process_youtube(req: YoutubeRequest):
         print("S3 업로드 완료")
 
         # storage 폴더 내의 모든 파일 삭제
-        # for item in STORAGE_PATH.iterdir():
-        #     try:
-        #         if item.is_dir():
-        #             shutil.rmtree(item)  # 디렉터리 전체 삭제
-        #         else:
-        #             item.unlink()  # 파일 삭제
-        #     except Exception as e:
-        #         print(f"삭제 실패: {item!r} → {e}")
+        for item in STORAGE_PATH.iterdir():
+            try:
+                if item.is_dir():
+                    # shutil.rmtree(item)  # 디렉터리 전체 삭제
+                    pass
+                else:
+                    item.unlink()  # 파일 삭제
+            except Exception as e:
+                print(f"삭제 실패: {item!r} → {e}")
 
         return CreateSheetResponse(
             title=song_title,

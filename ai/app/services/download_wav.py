@@ -3,16 +3,21 @@ import functools
 import os, re, json, glob, requests, mimetypes
 from pathlib import Path
 import yt_dlp
+from core.config import get_settings
+from yt_dlp.utils import DownloadError
 
 # 다양한 유튜브 URL 패턴을 지원하는 정규식
 _YT_ID_RE = re.compile(r'(?:v=|\/)([0-9A-Za-z_-]{11})')
-
 
 def _run_ydl(url: str, opts: dict, *, download: bool):
     """yt-dlp 호출을 별도 함수로 분리 – 스레드에서 실행될 대상"""
     with yt_dlp.YoutubeDL(opts) as ydl:
         return ydl.extract_info(url, download=download)
 
+# 쿠키 불러오기
+COOKIE_FILE = get_settings().COOKIE_FILE
+if not os.path.exists(COOKIE_FILE):
+    raise FileNotFoundError(f"쿠키 파일이 존재하지 않습니다: {COOKIE_FILE}")
 
 # YouTube ID 추출
 def extract_youtube_id(url: str) -> str | None:
@@ -115,6 +120,7 @@ def download_youtube_audio(youtube_url: str, storage_path: str, timeout_sec: int
                 {"key": "FFmpegExtractAudio", "preferredcodec": "wav"},
             ],
             "quiet": True,
+            "cookiefile": str(COOKIE_FILE),
         }
         print("옵션 세팅 완료")
 
@@ -164,6 +170,9 @@ def download_youtube_audio(youtube_url: str, storage_path: str, timeout_sec: int
         # ------------------------------------------------------------------
         # 2. 결과 반환
         # ------------------------------------------------------------------
+
+
+
         return {
             "title": info.get("title", "Unknown Title"),
             "thumbnail": thumbnail_path,
