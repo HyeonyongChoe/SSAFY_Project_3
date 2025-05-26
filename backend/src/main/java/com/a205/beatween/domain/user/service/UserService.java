@@ -24,7 +24,9 @@ import com.a205.beatween.domain.user.entity.User;
 import com.a205.beatween.domain.user.enums.UserStatus;
 import com.a205.beatween.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,14 +39,16 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    final UserRepository userRepository;
-    final SpaceService spaceService;
-    final SpaceRepository spaceRepository;
-    final UserSpaceRepository userSpaceRepository;
-    final CategoryRepository categoryRepository;
-    final CopySongRepository copySongRepository;
+    private final UserRepository userRepository;
+    private final SpaceService spaceService;
+    private final SpaceRepository spaceRepository;
+    private final UserSpaceRepository userSpaceRepository;
+    private final CategoryRepository categoryRepository;
+    private final CopySongRepository copySongRepository;
     private final S3Util s3Util;
     private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+
 
     public Result<?> signup(SignupDto signupDto) {
         // 회원가입 시 이메일 중복 체크
@@ -55,11 +59,15 @@ public class UserService {
         if (userRepository.existsByNickname(signupDto.getNickname())) {
             return Result.error(HttpStatus.BAD_REQUEST.value(), "이미 가입된 닉네임입니다.");
         }
+
+        // 비밀번호 암호화
+        String encodedPw = getEncodedPw(signupDto.getPassword());
+
         // users 테이블에 저장
         User user = User.builder()
                 .email(signupDto.getEmail())
                 .nickname(signupDto.getNickname())
-                .password(signupDto.getPassword())
+                .password(encodedPw)
                 .profileImageUrl(null)
                 .userStatus(UserStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
@@ -178,5 +186,9 @@ public class UserService {
         }
         userRepository.save(user);
 
+    }
+
+    String getEncodedPw(String pw) {
+        return passwordEncoder.encode(pw);
     }
 }
