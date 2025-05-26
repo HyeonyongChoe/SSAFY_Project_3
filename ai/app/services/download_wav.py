@@ -87,7 +87,7 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
         Path(storage_path).mkdir(parents=True, exist_ok=True)
         print("저장 폴더 생성 완료")
         # 자막 우선순위
-        langs = ("ko", "en")
+        langs = ("ko", "en", "en.*", "ja", "fr", "es.*", "de", "zh.*", "ru.*")
         # 파일 이름
         file_base = os.path.join(storage_path, "input")
         base_template = file_base + ".%(ext)s"
