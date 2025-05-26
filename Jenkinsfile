@@ -25,7 +25,7 @@ pipeline {
           sh 'chmod +x gradlew'
           sh './gradlew clean bootJar'
           // 빌드된 jar가 backend/build/libs/*.jar 에 생성됨
-          sh 'cp build/libs/*.jar ${WORKSPACE}/app.jar'
+          sh 'cp build/libs/*.jar ${WORKSPACE}/backend/app.jar'
         }
       }
     }
