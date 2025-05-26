@@ -85,6 +85,7 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
         # ------------------------------------------------------------------
         # 저장 폴더 만들기
         Path(storage_path).mkdir(parents=True, exist_ok=True)
+        print("저장 폴더 생성 완료")
         # 자막 우선순위
         langs = ("ko", "en")
         # 파일 이름
@@ -106,6 +107,7 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
             ],
             "quiet": True,
         }
+        print("옵션 세팅 완료")
 
         # 1차 시도 – 오디오 + 제작자(수동) 자막
         ydl_opts1 = ydl_common_opts | {
@@ -117,9 +119,13 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
         with yt_dlp.YoutubeDL(ydl_opts1) as ydl:
             info = ydl.extract_info(youtube_url, download=True)
 
+        vtt_official = bool(info.get("subtitles", {}))
+            
+        print("1차 다운로드 완료")
+
         # 자막 체크 → 없으면 2차로 자동 자막만 다운로드
         subtitle_files = glob.glob(file_base + "*.vtt")
-        if not subtitle_files:
+        if not vtt_official:
             ydl_opts2 = ydl_common_opts | {
                 "skip_download": True,
                 "writesubtitles": False,
@@ -128,12 +134,16 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
             with yt_dlp.YoutubeDL(ydl_opts2) as ydl:
                 ydl.download([youtube_url])
             subtitle_files = glob.glob(file_base + "*.vtt")
+            
+        print("2차 다운로드 완료")
 
         # 섬네일 다운로드
         thumbnail_path = _download_thumbnail(info, Path(file_base))
+        print("썸네일 다운로드 완료")
 
         # 메타데이터 txt 생성
         _write_human_readable_meta(f"{file_base}.info.json", f"{file_base}_info.txt")
+        print("메타데이터 생성 완료")
 
         # ------------------------------------------------------------------
         # 2. 결과 반환
@@ -144,6 +154,7 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
             "duration_sec": info.get("duration", 0),
             "audio_file": wav_path,
             "subtitles": subtitle_files,
+            "vtt_official": vtt_official
         }
     except Exception as e:
         raise RuntimeError(f"YouTube download failed: {str(e)}")
