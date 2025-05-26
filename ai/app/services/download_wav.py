@@ -1,9 +1,18 @@
+import concurrent.futures
+import functools
 import os, re, json, glob, requests, mimetypes
 from pathlib import Path
 import yt_dlp
 
 # 다양한 유튜브 URL 패턴을 지원하는 정규식
 _YT_ID_RE = re.compile(r'(?:v=|\/)([0-9A-Za-z_-]{11})')
+
+
+def _run_ydl(url: str, opts: dict, *, download: bool):
+    """yt-dlp 호출을 별도 함수로 분리 – 스레드에서 실행될 대상"""
+    with yt_dlp.YoutubeDL(opts) as ydl:
+        return ydl.extract_info(url, download=download)
+
 
 # YouTube ID 추출
 def extract_youtube_id(url: str) -> str | None:
@@ -70,7 +79,7 @@ def _download_thumbnail(info: dict, base_no_ext: Path) -> str | None:
 
 
 # 다운로더 메인 함수
-def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
+def download_youtube_audio(youtube_url: str, storage_path: str, timeout_sec: int = 300) -> dict:
     """
     Returns (dict):
         title         (str)  : 영상 제목
@@ -109,33 +118,40 @@ def download_youtube_audio(youtube_url: str, storage_path: str) -> dict:
         }
         print("옵션 세팅 완료")
 
-        # 1차 시도 – 오디오 + 제작자(수동) 자막
-        ydl_opts1 = ydl_common_opts | {
-            "format": "bestaudio/best",
-            "writesubtitles": True,
-            "writeautomaticsub": False,
-            "writeinfojson": True,
-        }
-        with yt_dlp.YoutubeDL(ydl_opts1) as ydl:
-            info = ydl.extract_info(youtube_url, download=True)
+        # 시간 제한
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+                # 1차 시도 – 오디오 + 제작자(수동) 자막
+                ydl_opts1 = ydl_common_opts | {
+                    "format": "bestaudio/best",
+                    "writesubtitles": True,
+                    "writeautomaticsub": False,
+                    "writeinfojson": True,
+                }
+                future1 = ex.submit(_run_ydl, youtube_url, ydl_opts1, download=True)
+                info = future1.result(timeout=timeout_sec)  # ⏰ 5 분 제한
 
-        vtt_official = bool(info.get("subtitles", {}))
+                vtt_official = bool(info.get("subtitles", {}))
             
-        print("1차 다운로드 완료")
+                print("1차 다운로드 완료")
 
-        # 자막 체크 → 없으면 2차로 자동 자막만 다운로드
-        subtitle_files = glob.glob(file_base + "*.vtt")
-        if not vtt_official:
-            ydl_opts2 = ydl_common_opts | {
-                "skip_download": True,
-                "writesubtitles": False,
-                "writeautomaticsub": True,
-            }
-            with yt_dlp.YoutubeDL(ydl_opts2) as ydl:
-                ydl.download([youtube_url])
-            subtitle_files = glob.glob(file_base + "*.vtt")
-            
-        print("2차 다운로드 완료")
+                # 자막 체크 → 없으면 2차로 자동 자막만 다운로드
+                subtitle_files = glob.glob(file_base + "*.vtt")
+                if not vtt_official:
+                    ydl_opts2 = ydl_common_opts | {
+                        "skip_download": True,
+                        "writesubtitles": False,
+                        "writeautomaticsub": True,
+                    }
+                    future2 = ex.submit(_run_ydl, youtube_url, ydl_opts2, download=False)
+                    future2.result(timeout=timeout_sec)  # 🕔 다시 5 분 제한
+                    subtitle_files = glob.glob(file_base + "*.vtt")
+
+                    print("2차 다운로드 완료")
+        except concurrent.futures.TimeoutError:
+            raise RuntimeError("5 분 안에 다운로드가 끝나지 않았습니다. 곡 또는 url에 문제가 있습니다.")
+        except Exception as e:
+            raise RuntimeError(f"YouTube download failed: {e}")
 
         # 섬네일 다운로드
         thumbnail_path = _download_thumbnail(info, Path(file_base))
