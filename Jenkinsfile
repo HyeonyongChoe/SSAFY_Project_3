@@ -21,20 +21,18 @@ pipeline {
 
     stage('Build JAR') {
       steps {
-        sh 'chmod +x gradlew'
-        sh './gradlew clean bootJar'
-      }
-    }
-
-    stage('Copy JAR to deploy dir') {
-      steps {
-        sh 'cp build/libs/*.jar ${WORKSPACE}/app.jar'
+        dir('backend') {
+          sh 'chmod +x gradlew'
+          sh './gradlew clean bootJar'
+          // 빌드된 jar가 backend/build/libs/*.jar 에 생성됨
+          sh 'cp build/libs/*.jar ${WORKSPACE}/app.jar'
+        }
       }
     }
 
     stage('Prepare .env') {
       steps {
-        sh 'cp /home/ubuntu/deployment/.env ${WORKSPACE}/.env'
+        sh 'cp /home/ubuntu/deployment/.env ${WORKSPACE}/backend/.env'
       }
     }
 
@@ -54,7 +52,7 @@ pipeline {
         sh """
           docker-compose \
             -f ${COMPOSE_FILE} \
-            --project-directory ${WORKSPACE} \
+            --project-directory ${WORKSPACE}/backend \
             build spring-boot
         """
       }
