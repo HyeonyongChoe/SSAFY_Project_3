@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -37,8 +39,26 @@ public class NotificationController {
     public ResponseEntity<ResponseDto<Object>> updateUserNotification(
             @PathVariable("userNotificationId") Integer userNotificationId
     ) {
-        notificationService.updateUserNotification(userNotificationId);
-        ResponseDto<Object> result = ResponseDto.builder().success(true).build();
+        Integer spaceId = notificationService.updateUserNotification(userNotificationId);
+        Map<String,Integer> map = new HashMap<>();
+        map.put("spaceId", spaceId);
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .data(map)
+                .build();
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{userNotificationId}")
+    public ResponseEntity<ResponseDto<Object>> deleteUserNotification(
+            @PathVariable("userNotificationId") Integer userNotificationId
+    ) {
+        notificationService.deleteUserNotification(userNotificationId);
+        ResponseDto<Object> result = ResponseDto
+                .builder()
+                .success(true)
+                .build();
         return ResponseEntity.ok(result);
     }
 }

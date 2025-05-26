@@ -19,7 +19,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
             "JOIN UserNotification un " +
             "ON n.notificationId = un.notification.notificationId " +
             "WHERE un.user.userId =:userId " +
-            "AND un.isRead = false " +
             "ORDER BY n.createdAt DESC ")
     List<NotificationDto> findByUserId(Integer userId);
 }
