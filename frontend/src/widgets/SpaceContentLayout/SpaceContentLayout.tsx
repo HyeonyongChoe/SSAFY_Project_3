@@ -88,6 +88,20 @@ export const SpaceContentLayout = ({
       console.log("✅ WebSocket connected");
       setStompClient(client);
 
+      // 👑 매니저 권한 여부 수신
+      client.subscribe(`/user/queue/play/manager/${spaceId}`, (message) => {
+        const isManager = JSON.parse(message.body);
+        console.log("👑 현재 유저의 매니저 여부:", isManager);
+        useGlobalStore.getState().setIsManager(isManager); // Zustand 상태 업데이트
+      });
+
+      // 🔄 매니저 변경 브로드캐스트 수신
+      client.subscribe(`/topic/play/manager/${spaceId}`, (message) => {
+        const newManager = JSON.parse(message.body);
+        console.log("🔄 매니저 변경 감지:", newManager);
+        // 추가 로직 필요 시 작성
+      });
+
       try {
         const res = await axiosInstance.get(
           `api/v1/play/spaces/${spaceId}/selected-song`

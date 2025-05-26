@@ -19,16 +19,17 @@ export function useVerovioLoader(
   const setSystems = useScoreStore((state) => state.setSystems);
   const setMeasureCount = useScoreStore((state) => state.setMeasureCount);
 
-  // 매번 selected에 맞는 sheetUrl을 설정
+  // 1. 악기 선택 → 해당 시트 URL 세팅
   useEffect(() => {
     const match = sheets.find((s) => s.part === selectedPart);
     if (match) {
       setSelectedSheetUrl(match.sheetUrl);
     } else {
-      setSelectedSheetUrl(""); // null 대신 빈 문자열로 설정해 타입 오류 방지
+      setSelectedSheetUrl("");
     }
   }, [selectedPart, sheets, setSelectedSheetUrl]);
 
+  // 2. URL이 바뀌면 Verovio 렌더링
   useEffect(() => {
     let cleanup: (() => void) | null = null;
 
@@ -36,7 +37,7 @@ export function useVerovioLoader(
       console.log("🎯 useVerovioLoader 실행됨, sheetUrl:", sheetUrl);
 
       if (!sheetUrl) {
-        console.warn("⛔ sheetUrl 없음, 렌더링 스킵");
+        console.warn("🚫 선택된 sheetUrl 없음 - 렌더링 스킵");
         return;
       }
 
@@ -46,7 +47,7 @@ export function useVerovioLoader(
       const verovioTarget = container.querySelector("#verovio-container");
       if (!verovioTarget) return;
 
-      verovioTarget.innerHTML = ""; // URL이 바뀔 때마다 초기화
+      verovioTarget.innerHTML = "";
 
       try {
         const VerovioModule = await createVerovioModule({
@@ -80,10 +81,7 @@ export function useVerovioLoader(
           xmlCache[sheetUrl] = xml;
         }
 
-        console.log("🧾 현재 캐시 상태:", xmlCache);
-
         toolkit.loadData(xml);
-
         const pageCount = toolkit.getPageCount();
         for (let i = 1; i <= pageCount; i++) {
           const svg = toolkit.renderToSVG(i, {});
@@ -92,7 +90,7 @@ export function useVerovioLoader(
           verovioTarget.appendChild(wrapper);
         }
 
-        // ✅ 시스템과 마디 정보 수집
+        // 시스템, 마디 정보 수집
         const systemElements = verovioTarget.querySelectorAll("g.system");
         const systemList: { el: Element; measureIds: number[] }[] = [];
         let globalMeasureIndex = 0;

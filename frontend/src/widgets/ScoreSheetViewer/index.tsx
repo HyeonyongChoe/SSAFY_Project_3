@@ -7,7 +7,9 @@ import { usePlaySync } from "@/shared/hooks/usePlaySync";
 import { useGlobalStore } from "@/app/store/globalStore";
 import { useHeaderFooterStore } from "@/app/store/headerFooterStore";
 import { useSocketStore } from "@/app/store/socketStore";
-import CanvasOverlay from "@/features/draw/ui/CanvasOverlay"; // 드로잉 컴포넌트 경로 맞춰주세요
+import CanvasOverlay from "@/features/draw/ui/CanvasOverlay";
+import { useInstrumentStore } from "@/features/instrument/model/useInstrumentStore";
+import axiosInstance from "@/shared/api/axiosInstance";
 
 interface ScoreSheetViewerProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
@@ -16,20 +18,50 @@ interface ScoreSheetViewerProps {
 const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   containerRef,
 }) => {
-  const { isFullscreen, currentMeasure, systems, isPlaying } = useScoreStore();
+  const { isFullscreen, currentMeasure, systems, isPlaying, selectedSheets } =
+    useScoreStore();
   const { setShowHeaderFooter } = useHeaderFooterStore();
   const clientId = useGlobalStore((s) => s.clientId);
   const isDrawing = useGlobalStore((s) => s.isDrawing);
-  const stompClient = useSocketStore((s) => s.stompClient);
   const isSocketConnected = useSocketStore((s) => s.isConnected);
+  const stompClient = useSocketStore((state) => state.stompClient);
+  const spaceId = useSocketStore((state) => state.spaceId);
+  const selectedPart = useInstrumentStore((s) => s.selected);
+  const setInstrument = useInstrumentStore((s) => s.setInstrument);
+  const hasSelectedSong = useGlobalStore((s) => s.hasSelectedSong);
+  const currentSheet = selectedSheets.find((s) => s.part === selectedPart);
 
   const [selectedColor, setSelectedColor] = useState("#000000");
 
-  usePlaySync("1");
+  usePlaySync(spaceId ?? "");
   useVerovioLoader(containerRef);
   useMeasureHighlight(containerRef);
 
   const lastSystemIndexRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!selectedPart && selectedSheets.length > 0) {
+      setInstrument(selectedSheets[0].part);
+    }
+  }, [selectedSheets, selectedPart, setInstrument]);
+
+  useEffect(() => {
+    const targetSheet = selectedSheets.find((s) => s.part === selectedPart);
+    if (hasSelectedSong && targetSheet?.copySheetId && spaceId) {
+      const fetchSheetWithDrawing = async () => {
+        try {
+          const res = await axiosInstance.get(
+            `/api/v1/play/sheets/${targetSheet.copySheetId}/with-drawing`,
+            { params: { spaceId } }
+          );
+          console.log("🎨 시트+드로잉 데이터:", res.data);
+        } catch (error) {
+          console.error("❌ 시트+드로잉 로드 실패:", error);
+        }
+      };
+      fetchSheetWithDrawing();
+    }
+  }, [hasSelectedSong, selectedPart, selectedSheets, spaceId]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -41,40 +73,30 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
 
   useEffect(() => {
     if (!containerRef.current || !isPlaying) return;
-
     const currentSystemIndex = systems.findIndex((sys) =>
       sys.measureIds.includes(currentMeasure)
     );
-
     if (currentSystemIndex === -1) return;
-
     const currentSystem = systems[currentSystemIndex].el as SVGGraphicsElement;
-
     currentSystem.scrollIntoView({ behavior: "smooth", block: "start" });
     lastSystemIndexRef.current = currentSystemIndex;
   }, [isPlaying]);
 
   useEffect(() => {
     if (!containerRef.current) return;
-
     const container = containerRef.current;
     const systemElements = container.querySelectorAll("g.system");
-
     if (isPlaying) {
       systemElements.forEach((el) => el.classList.add("dimmed"));
     } else {
       systemElements.forEach((el) => el.classList.remove("dimmed"));
     }
-
     const currentSystemIndex = systems.findIndex((sys) =>
       sys.measureIds.includes(currentMeasure)
     );
     if (currentSystemIndex === -1) return;
-
     const currentSystem = systems[currentSystemIndex].el as SVGGraphicsElement;
-
     if (isPlaying) currentSystem.classList.remove("dimmed");
-
     if (
       isPlaying &&
       lastSystemIndexRef.current !== currentSystemIndex &&
@@ -83,7 +105,6 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
       currentSystem.scrollIntoView({ behavior: "smooth", block: "start" });
       lastSystemIndexRef.current = currentSystemIndex;
     }
-
     if (!isPlaying) {
       lastSystemIndexRef.current = null;
     }
@@ -109,17 +130,17 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
           <div className="h-[20px]" />
           <div id="verovio-container" />
 
-          {isDrawing && (
+          {isDrawing && currentSheet && (
             <CanvasOverlay
-              sheetId={1}
-              spaceId="1"
-              userId={clientId.toString()}
               selectedColor={selectedColor}
               isPaletteVisible={isDrawing}
               onColorChange={setSelectedColor}
-              isSocketConnected={isSocketConnected}
+              isDrawing={true}
+              sheetId={currentSheet.copySheetId}
+              spaceId={spaceId ?? ""}
+              userId={clientId.toString()}
               stompClient={stompClient}
-              isDrawing={true} // 또는 상태에서 가져온 값
+              isSocketConnected={isSocketConnected}
             />
           )}
         </div>

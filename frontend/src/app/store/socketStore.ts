@@ -30,30 +30,31 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   setIsConnected: (value) => set({ isConnected: value }),
 
   disconnectWithCleanup: async () => {
-    const { stompClient, spaceId } = get();
+    const { stompClient } = get();
 
-    if (stompClient && stompClient.connected && spaceId) {
+    if (stompClient && stompClient.connected) {
       try {
-        // disconnect 메시지 전송
+        // disconnect 메시지 전송 (body 필수, headers 생략 가능)
         stompClient.publish({
           destination: "/app/disconnect",
-          headers: {
-            spaceId,
-          },
+          body: "", // STOMP에서는 body가 꼭 있어야 함
         });
 
-        // 메시지 전송 완료를 위한 짧은 대기
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        // 메시지 전송 여유 시간 확보 (100ms보다 여유롭게)
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
+        // WebSocket 연결 종료
         await stompClient.deactivate();
+
+        console.log("✅ [Store] WebSocket 정상 종료됨");
       } catch (error) {
-        console.error("❌ [Store] WebSocket 해제 중 오류:", error);
+        console.error("❌ [Store] WebSocket 종료 중 오류:", error);
       }
     } else {
-      console.warn("⚠️ [Store] 연결된 WebSocket이 없거나 spaceId가 없음");
+      console.warn("⚠️ [Store] 종료 시도: 연결된 stompClient가 없음");
     }
 
     // 상태 초기화
-    set({ stompClient: null, spaceId: null });
+    set({ stompClient: null, spaceId: null, isConnected: false });
   },
 }));

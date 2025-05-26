@@ -1,17 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 import { Stage, Layer, Line } from "react-konva";
 import ColorPicker from "@/features/draw/ui/ColorPicker";
+import { useScoreStore } from "@/features/score/model/useScoreStore";
+import { useInstrumentStore } from "@/features/instrument/model/useInstrumentStore";
+import { useSocketStore } from "@/app/store/socketStore";
+import { useGlobalStore } from "@/app/store/globalStore";
+import { useParams } from "react-router-dom";
+import { Client } from "@stomp/stompjs";
 
 interface CanvasOverlayProps {
   sheetId: number;
   spaceId: string;
   userId: string;
   selectedColor: string;
-  onColorChange: (color: string) => void;
   isSocketConnected: boolean;
-  stompClient: any;
+  stompClient: Client | null;
+
+  onColorChange: (color: string) => void;
   isDrawing: boolean;
-  isPaletteVisible: boolean; // ✅ 이 줄 추가
+  isPaletteVisible: boolean;
 }
 
 type KonvaCompositeOperation = "source-over" | "destination-out";
@@ -34,6 +41,24 @@ export default function CanvasOverlay({
   const [isEraser, setIsEraser] = useState(false);
   const drawingLine = useRef<LineData | null>(null);
   const [canvasHeight, setCanvasHeight] = useState(window.innerHeight);
+
+  const { roomId } = useParams();
+  const spaceId = roomId ?? "";
+  const stompClient = useSocketStore((s) => s.stompClient);
+  const isSocketConnected = useSocketStore((s) => s.isConnected);
+  const clientId = useGlobalStore((s) => s.clientId);
+  const selectedPart = useInstrumentStore((s) => s.selected);
+  const selectedSheets = useScoreStore((s) => s.selectedSheets);
+
+  const currentSheet = selectedSheets.find((s) => s.part === selectedPart);
+  const sheetId = currentSheet?.copySheetId;
+
+  useEffect(() => {
+    console.log("🎯 selectedPart:", selectedPart);
+    console.log("📄 selectedSheets:", selectedSheets);
+    console.log("🔍 currentSheet:", currentSheet);
+    console.log("🧪 현재 구독 sheetId:", sheetId);
+  }, [stompClient, isSocketConnected, sheetId]);
 
   useEffect(() => {
     const handleShowPalette = () => setShowPalette(true);
@@ -60,7 +85,7 @@ export default function CanvasOverlay({
 
   useEffect(() => {
     if (!isDrawing) {
-      setShowPalette(false); // 드로잉 종료 시 팔레트 숨김
+      setShowPalette(false);
     }
   }, [isDrawing]);
 
@@ -102,6 +127,28 @@ export default function CanvasOverlay({
 
     drawingLine.current.points.push(point.x, point.y);
     setLines((prev) => [...prev.slice(0, -1), { ...drawingLine.current! }]);
+
+    if (drawingLine.current.points.length % 10 === 0) {
+      sendDrawData(drawingLine.current);
+    }
+  };
+
+  const sendDrawData = (line: LineData) => {
+    if (!stompClient || !stompClient.connected || !sheetId) return;
+
+    const drawMessage = {
+      sheetId,
+      spaceId,
+      userId: clientId.toString(),
+      color: line.color,
+      points: line.points,
+      mode: line.mode,
+    };
+
+    stompClient.publish({
+      destination: "/app/updateDraw",
+      body: JSON.stringify(drawMessage),
+    });
   };
 
   const handleEnd = () => {
@@ -111,10 +158,55 @@ export default function CanvasOverlay({
     document.body.style.touchAction = "auto";
 
     if (drawingLine.current?.points.length) {
-      setLines((prev) => [...prev, { ...drawingLine.current! }]);
+      const finishedLine = { ...drawingLine.current! };
+      setLines((prev) => [...prev, finishedLine]);
+      sendDrawData(finishedLine);
     }
     drawingLine.current = null;
   };
+
+  useEffect(() => {
+    if (!stompClient || !stompClient.connected || !sheetId) return;
+
+    console.log("✅ [Socket] subscribe 실행 조건 충족:", sheetId);
+
+    const drawSub = stompClient.subscribe(
+      `/topic/draw/${sheetId}`,
+      (message: any) => {
+        try {
+          const draw: LineData = JSON.parse(message.body);
+          console.log("📥 실시간 드로잉 수신:", draw);
+          setLines((prev) => [...prev, draw]);
+        } catch (err) {
+          console.error("❌ 드로잉 메시지 파싱 실패:", err);
+        }
+      }
+    );
+
+    const initSub = stompClient.subscribe(
+      `/topic/draw/init/${sheetId}`,
+      (message: any) => {
+        try {
+          const drawArray: LineData[] = JSON.parse(message.body);
+          console.log("📥 초기 드로잉 수신:", drawArray);
+          setLines((prev) => (prev.length > 0 ? prev : drawArray));
+        } catch (err) {
+          console.error("❌ 초기 드로잉 메시지 파싱 실패:", err);
+        }
+      }
+    );
+
+    stompClient.publish({
+      destination: `/app/getDrawing/${spaceId}/${sheetId}`,
+    });
+
+    return () => {
+      drawSub.unsubscribe();
+      initSub.unsubscribe();
+    };
+  }, [stompClient?.connected, sheetId, spaceId]);
+
+  if (!sheetId) return null;
 
   return (
     <div
