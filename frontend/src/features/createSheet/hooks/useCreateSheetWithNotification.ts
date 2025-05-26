@@ -21,7 +21,6 @@ export function useCreateSheetWithNotification(spaceId: number) {
     spaceId,
     {
       onProcess: (data) => {
-        setCreating(true);
         addNotification({
           id: crypto.randomUUID(),
           type: "process",
