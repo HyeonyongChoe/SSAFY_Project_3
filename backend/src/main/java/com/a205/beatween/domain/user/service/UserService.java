@@ -73,6 +73,14 @@ public class UserService {
                 .build();
         spaceRepository.save(personalSpace);
 
+        Category category = Category
+                .builder()
+                .space(personalSpace)
+                .name("기본")
+                .build();
+
+        categoryRepository.save(category);
+
         // users_spaces 테이블에 저장
         UserSpace userSpace = UserSpace.builder()
                 .user(user)
