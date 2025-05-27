@@ -127,7 +127,7 @@ public class SongService {
                     .builder()
                     .type("create_sheet")
                     .space(space)
-                    .content(user.getNickname()+"님이 ["+checkSong.getTitle()+"]곡을 생성하였습니다.")
+                    .content("["+user.getNickname()+"]님이 ["+checkSong.getTitle()+"]곡을 생성하였습니다.")
                     .build();
             notification = notificationRepository.save(notification);
 

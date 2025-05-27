@@ -146,7 +146,7 @@ public class SpaceService {
                     .builder()
                     .type("join_team")
                     .space(space)
-                    .content(user.getNickname()+"님이 ["+space.getName()+"]에 참여하셨습니다.")
+                    .content("["+user.getNickname()+"]님이 ["+space.getName()+"]에 참여하셨습니다.")
                     .build();
             notification = notificationRepository.save(notification);
 
