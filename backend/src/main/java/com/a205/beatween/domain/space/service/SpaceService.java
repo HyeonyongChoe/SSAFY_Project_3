@@ -238,6 +238,7 @@ public class SpaceService {
                     .builder()
                     .nickName(user.getNickname())
                     .profileImageUrl(user.getProfileImageUrl())
+                    .updateAt(user.getUpdatedAt())
                     .build();
             members.add(memberDto);
         }
@@ -275,6 +276,7 @@ public class SpaceService {
             String url = s3Util.upload(image.getBytes(),"image/png", key);
             space.setImageUrl(url);
         }
+        space.setUpdatedAt(LocalDateTime.now());
         space = spaceRepository.save(space);
 
         return getSpaceDetail(spaceId,userId);

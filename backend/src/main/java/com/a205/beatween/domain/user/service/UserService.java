@@ -167,6 +167,7 @@ public class UserService {
         userInfoDto = UserInfoDto.builder()
                 .name(name)
                 .profileImageUrl(profileImageUrl)
+                .updatedAt(user.getUpdatedAt())
                 .spaces(spaces)
                 .categoriesAndSongsOfMySpace(categoriesAndSongsOfMySpace)
                 .build();
