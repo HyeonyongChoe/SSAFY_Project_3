@@ -25,7 +25,11 @@ import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.repository.CategoryRepository;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
+import com.a205.beatween.domain.user.entity.Notification;
 import com.a205.beatween.domain.user.entity.User;
+import com.a205.beatween.domain.user.entity.UserNotification;
+import com.a205.beatween.domain.user.repository.NotificationRepository;
+import com.a205.beatween.domain.user.repository.UserNotificationRepository;
 import com.a205.beatween.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -54,6 +58,8 @@ public class SpaceService {
     private final CopySongRepository copySongRepository;
     private final CopySheetRepository copySheetRepository;
     private final DrawingRepository drawingRepository;
+    private final NotificationRepository notificationRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     public boolean checkUserIsMemberOfSpace(Integer userId, Integer spaceId){
         return userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
@@ -114,6 +120,7 @@ public class SpaceService {
     public Result<InvitationDto> resolveInvitationLink(Integer userId, String teamSlug, String shareKey) {
         // shareKey로 Space 조회. 만약 이 shareKey로 space를 찾을 수 없다면 잘못된 초대 링크임
         Space space = spaceRepository.findByShareKey(shareKey).orElse(null);
+        User user = userRepository.getReferenceById(userId);
         if(space == null) {
             return Result.error(HttpStatus.NOT_FOUND.value(), "잘못된 초대 링크입니다.");
         }
@@ -135,6 +142,25 @@ public class SpaceService {
 
         // 만약 유저가 팀에 속해있지 않다면, 해당 팀에 가입
         if(!isMember) {
+            Notification notification = Notification
+                    .builder()
+                    .type("join_team")
+                    .space(space)
+                    .content(user.getNickname()+"님이 ["+space.getName()+"]에 참여하셨습니다.")
+                    .build();
+            notification = notificationRepository.save(notification);
+
+            List<UserSpace> userSpaceList = userSpaceRepository.findBySpace(space);
+
+            for(UserSpace userSpace : userSpaceList) {
+                UserNotification userNotification = UserNotification
+                        .builder()
+                        .user(userSpace.getUser())
+                        .notification(notification)
+                        .isRead(false)
+                        .build();
+                userNotificationRepository.save(userNotification);
+            }
             UserSpace newUserSpace = UserSpace.builder()
                     .user(userRepository.getById(userId))
                     .space(space)
