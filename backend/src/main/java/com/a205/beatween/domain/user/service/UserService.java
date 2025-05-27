@@ -46,7 +46,7 @@ public class UserService {
     private final S3Util s3Util;
     private final JwtUtil jwtUtil;
 
-    public Result<?> signup(SignupDto signupDto) {
+    public Result<String> signup(SignupDto signupDto) {
         // 회원가입 시 이메일 중복 체크
         if (userRepository.existsByEmail(signupDto.getEmail())) {
             return Result.error(HttpStatus.BAD_REQUEST.value(), "이미 가입된 이메일입니다.");
@@ -97,7 +97,10 @@ public class UserService {
 //        User user = userService.authenticate(loginDto);
         User user = userRepository.findByEmail(loginDto.getEmail()).orElse(null);
         if(user == null) {
-            return Result.error(HttpStatus.NOT_FOUND.value(), "가입되지 않은 이메일입니다.");
+            return Result.error(HttpStatus.NOT_FOUND.value(), "이메일 또는 비밀번호가 틀렸습니다.");
+        }
+        if(loginDto.getPassword().equals(user.getPassword())) {
+            return Result.error(HttpStatus.NOT_FOUND.value(), "이메일 또는 비밀번호가 틀렸습니다.");
         }
         // 2. JWT 생성
         String token = jwtUtil.createToken(user.getUserId().toString());

@@ -32,7 +32,10 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<Result<?>> signup(@RequestBody SignupDto signupDto) {
-        userService.signup(signupDto);
+        Result<String> result = userService.signup(signupDto);
+        if(!result.isSuccess()) {
+            return ResponseEntity.ok(result);
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Result.success("회원가입 성공"));
     }
