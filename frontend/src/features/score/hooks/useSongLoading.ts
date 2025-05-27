@@ -1,12 +1,14 @@
 // src/features/score/hooks/useSongLoading.ts
 import { useGlobalStore } from "@/app/store/globalStore";
 import { useScoreStore } from "@/features/score/model/useScoreStore";
-import { fetchSelectedSong, fetchAllSheetsBySpace } from "@/entities/song/api/songApi";
+import {
+  fetchSelectedSong,
+  fetchAllSheetsBySpace,
+} from "@/entities/song/api/songApi";
 import { Sheet } from "@/entities/song/types/song.types";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/shared/lib/toast";
 import { useSongListStore } from "./useSongListStore";
-
 
 export function useSongLoading() {
   const navigate = useNavigate();
@@ -16,7 +18,7 @@ export function useSongLoading() {
     const isManager = useGlobalStore.getState().isManager;
     const categories = await fetchAllSheetsBySpace(spaceId);
 
-useSongListStore.getState().setCategories(categories);
+    useSongListStore.getState().setCategories(categories);
 
     try {
       const song = await fetchSelectedSong(spaceId);

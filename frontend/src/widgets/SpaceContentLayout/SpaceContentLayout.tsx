@@ -22,6 +22,7 @@ import { ExitBandButton } from "@/features/deleteBand/ui/ExitBandButton";
 import { InviteButton } from "@/features/invite/ui/InviteButton";
 import { useGlobalStore } from "@/app/store/globalStore";
 import { useSongLoading } from "@/features/score/hooks/useSongLoading";
+import { useScoreStore } from "@/features/score/model/useScoreStore";
 
 interface SpaceContentLayoutProps {
   type?: "personal" | "team";
@@ -38,19 +39,31 @@ export const SpaceContentLayout = ({
   const { mutate: updateBandMutate } = useUpdateBand(Number(teamId));
   const setStompClient = useSocketStore((state) => state.setStompClient);
   const versionUser = useUserImageVersionStore((state) => state.version);
-  const versionSpace = useSpaceVersionStore((state) => state.getVersion(teamId));
+  const versionSpace = useSpaceVersionStore((state) =>
+    state.getVersion(teamId)
+  );
   const loadSelectedSongOrPrompt = useSongLoading();
+  const resetScoreState = useScoreStore((state) => state.reset);
+  const setHasSelectedSong = useGlobalStore(
+    (state) => state.setHasSelectedSong
+  );
 
   const handleConfirm = () => {
     const formData = updateFormRef.current?.getFormData();
     if (!formData) {
-      toast.warning({ title: "폼 데이터 없음", message: "폼이 제대로 입력되지 않았습니다." });
+      toast.warning({
+        title: "폼 데이터 없음",
+        message: "폼이 제대로 입력되지 않았습니다.",
+      });
       return;
     }
     updateBandMutate(formData);
   };
 
   const handlePlayWithClick = () => {
+    resetScoreState();
+    setHasSelectedSong(false);
+
     const spaceId = String(teamId);
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -59,30 +72,20 @@ export const SpaceContentLayout = ({
     }
 
     const encodedToken = encodeURIComponent(`Bearer ${token}`);
-    const wsUrl = `${import.meta.env.VITE_BROKER_URL}?spaceId=${spaceId}&token=${encodedToken}`;
+    const wsUrl = `${
+      import.meta.env.VITE_BROKER_URL
+    }?spaceId=${spaceId}&token=${encodedToken}`;
 
     const client = new Client({
       webSocketFactory: () => new SockJS(wsUrl),
       reconnectDelay: 5000,
       connectHeaders: { spaceId },
-      debug: (msg) => console.log("🔹 STOMP DEBUG:", msg),
+      debug: () => {},
     });
 
     client.onConnect = async () => {
       console.log("✅ WebSocket connected");
       setStompClient(client);
-
-      client.subscribe(`/user/queue/play/manager/${spaceId}`, (message) => {
-        const isManager = JSON.parse(message.body);
-        console.log("👑 현재 유저의 매니저 여부:", isManager);
-        useGlobalStore.getState().setIsManager(isManager);
-      });
-
-      client.subscribe(`/topic/play/manager/${spaceId}`, (message) => {
-        const newManager = JSON.parse(message.body);
-        console.log("🔄 매니저 변경 감지:", newManager);
-      });
-
       await loadSelectedSongOrPrompt(spaceId);
     };
 
@@ -93,7 +96,11 @@ export const SpaceContentLayout = ({
   if (isLoading) return <div>로딩중...</div>;
   if (error) return <div>에러: {error.message}</div>;
   if (data && !data.success)
-    return <div className="py-6 text-warning font-bold">상정 가능한 오류 발생: {data.error?.message}</div>;
+    return (
+      <div className="py-6 text-warning font-bold">
+        상정 가능한 오류 발생: {data.error?.message}
+      </div>
+    );
 
   const isOwner = data?.data.roleType === "OWNER";
   const bandData = data?.data;

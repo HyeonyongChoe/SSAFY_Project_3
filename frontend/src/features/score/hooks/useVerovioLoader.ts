@@ -72,10 +72,8 @@ export function useVerovioLoader(
 
         let xml: string;
         if (xmlCache[sheetUrl]) {
-          console.log("📦 XML 캐시 사용:", sheetUrl);
           xml = xmlCache[sheetUrl];
         } else {
-          console.log("🌐 XML 네트워크 요청:", sheetUrl);
           const response = await fetch(sheetUrl);
           xml = await response.text();
           xmlCache[sheetUrl] = xml;
@@ -115,9 +113,7 @@ export function useVerovioLoader(
         cleanup = () => {
           verovioTarget.innerHTML = "";
         };
-      } catch (e) {
-        console.error("🔥 Verovio 로드 실패:", e);
-      }
+      } catch (e) {}
     }
 
     init();

@@ -9,6 +9,7 @@ export interface SheetData {
 export interface Song {
   copySongId: number;
   title: string;
+  bpm: number; // ✅ 추가
   sheets: SheetData[];
 }
 

@@ -10,6 +10,7 @@ import { useSocketStore } from "@/app/store/socketStore";
 import CanvasOverlay from "@/features/draw/ui/CanvasOverlay";
 import { useInstrumentStore } from "@/features/instrument/model/useInstrumentStore";
 import axiosInstance from "@/shared/api/axiosInstance";
+import { Sheet } from "@/entities/song/types/song.types";
 
 interface ScoreSheetViewerProps {
   containerRef: React.RefObject<HTMLDivElement | null>;
@@ -18,8 +19,18 @@ interface ScoreSheetViewerProps {
 const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   containerRef,
 }) => {
-  const { isFullscreen, currentMeasure, systems, isPlaying, selectedSheets } =
-    useScoreStore();
+  const {
+    isFullscreen,
+    currentMeasure,
+    systems,
+    isPlaying,
+    selectedSheets,
+    setSelectedSheets,
+    setParts,
+    setBpm,
+    reset,
+  } = useScoreStore();
+
   const { setShowHeaderFooter } = useHeaderFooterStore();
   const clientId = useGlobalStore((s) => s.clientId);
   const isDrawing = useGlobalStore((s) => s.isDrawing);
@@ -29,6 +40,7 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   const selectedPart = useInstrumentStore((s) => s.selected);
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
   const hasSelectedSong = useGlobalStore((s) => s.hasSelectedSong);
+  const setHasSelectedSong = useGlobalStore((s) => s.setHasSelectedSong);
   const currentSheet = selectedSheets.find((s) => s.part === selectedPart);
 
   const [selectedColor, setSelectedColor] = useState("#000000");
@@ -38,6 +50,36 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   useMeasureHighlight(containerRef);
 
   const lastSystemIndexRef = useRef<number | null>(null);
+
+  // 🌟 [NEW] 초기 곡 선택 상태 확인 및 초기화
+  useEffect(() => {
+    const initializeSelectedSong = async () => {
+      if (!spaceId) return;
+      try {
+        const res = await axiosInstance.get(
+          `/api/v1/play/spaces/${spaceId}/selected-song`
+        );
+        const data = res.data?.data;
+        if (!data?.copySongId) {
+          console.warn("🎵 선택된 곡 없음 → 상태 초기화");
+          reset();
+          setHasSelectedSong(false);
+        } else {
+          console.log("✅ 선택된 곡 확인됨 → 상태 유지");
+          setSelectedSheets(data.sheets || []);
+          setParts(data.sheets.map((s: Sheet) => s.part));
+          setBpm(data.bpm || 120); // 곡에서 bpm 받아오기
+          setHasSelectedSong(true);
+        }
+      } catch (err) {
+        console.error("❌ 선택된 곡 조회 실패", err);
+        reset();
+        setHasSelectedSong(false);
+      }
+    };
+
+    initializeSelectedSong();
+  }, [spaceId]);
 
   useEffect(() => {
     if (!selectedPart && selectedSheets.length > 0) {
@@ -54,9 +96,9 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
             `/api/v1/play/sheets/${targetSheet.copySheetId}/with-drawing`,
             { params: { spaceId } }
           );
-          console.log("🎨 시트+드로잉 데이터:", res.data);
+          console.log("🎨 시트+드로이어 데이터:", res.data);
         } catch (error) {
-          console.error("❌ 시트+드로잉 로드 실패:", error);
+          console.error("❌ 시트+드로이를 로드 실패:", error);
         }
       };
       fetchSheetWithDrawing();
@@ -64,27 +106,15 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   }, [hasSelectedSong, selectedPart, selectedSheets, spaceId]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (container) {
-      console.log("🧪 scrollHeight:", container.scrollHeight);
-      console.log("🧪 clientHeight:", container.clientHeight);
-    }
-  }, []);
-
-  useEffect(() => {
-  if (!containerRef.current || !isPlaying) return;
-
-  const currentSystemIndex = systems.findIndex((sys) =>
-    sys.measureIds.includes(currentMeasure)
-  );
-
-  if (currentSystemIndex === -1) return;
-
-  const currentSystem = systems[currentSystemIndex].el as SVGGraphicsElement;
-  currentSystem.scrollIntoView({ behavior: "smooth", block: "start" });
-
-  lastSystemIndexRef.current = currentSystemIndex;
-}, [isPlaying, currentMeasure, systems]);
+    if (!containerRef.current || !isPlaying) return;
+    const currentSystemIndex = systems.findIndex((sys) =>
+      sys.measureIds.includes(currentMeasure)
+    );
+    if (currentSystemIndex === -1) return;
+    const currentSystem = systems[currentSystemIndex].el as SVGGraphicsElement;
+    currentSystem.scrollIntoView({ behavior: "smooth", block: "start" });
+    lastSystemIndexRef.current = currentSystemIndex;
+  }, [isPlaying]);
 
   useEffect(() => {
     if (!containerRef.current) return;
