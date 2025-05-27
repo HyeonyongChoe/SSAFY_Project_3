@@ -24,7 +24,6 @@ import com.a205.beatween.domain.user.entity.User;
 import com.a205.beatween.domain.user.enums.UserStatus;
 import com.a205.beatween.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -102,10 +101,11 @@ public class UserService {
             return Result.error(HttpStatus.NOT_FOUND.value(), "이메일 또는 비밀번호가 틀렸습니다.");
         }
 
-        // 2. JWT 생성
-        String token = jwtUtil.createToken(user.getUserId().toString());
-        // 3. 토큰 반환
-        Map<String, String> data = Map.of("token", token);
+        // 2. token 생성
+        String acceessToken = jwtUtil.createToken(user.getUserId().toString());
+
+        // 3. token 반환
+        Map<String, String> data = Map.of("token", acceessToken);
         return Result.success(data);
     }
 
