@@ -128,13 +128,20 @@ public class PlayServiceImpl implements PlayService {
             log.info("마지막 사용자 → 드로잉 저장 대상 copySheetIds: {}", copySheetIds);
 
             drawingService.saveAllDrawingsBySpaceId(spaceId);
+
             redisTemplate.delete(sessionCountKey);
             redisTemplate.delete(memberKey);
             redisTemplate.delete(managerKey);
+
             String selectedSongKey = "ws:space:" + spaceId + ":selectedSong";
+            String playSessionKey = "play:session:" + spaceId;
+
             redisTemplate.delete(selectedSongKey);
+            redisTemplate.delete(playSessionKey);
+
             log.info("마지막 사용자 → 캐시 정리 완료: {}", spaceId);
         }
+
     }
 
     @Override
