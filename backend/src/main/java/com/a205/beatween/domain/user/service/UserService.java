@@ -97,9 +97,10 @@ public class UserService {
 //        User user = userService.authenticate(loginDto);
         User user = userRepository.findByEmail(loginDto.getEmail()).orElse(null);
         if(user == null) {
+            System.out.println("login 메서드 : 이메일 틀림");
             return Result.error(HttpStatus.NOT_FOUND.value(), "이메일 또는 비밀번호가 틀렸습니다.");
         }
-        if(loginDto.getPassword().equals(user.getPassword())) {
+        if(!loginDto.getPassword().equals(user.getPassword())) {
             return Result.error(HttpStatus.NOT_FOUND.value(), "이메일 또는 비밀번호가 틀렸습니다.");
         }
         // 2. JWT 생성
