@@ -46,10 +46,17 @@ public class RefreshTokenService {
     }
 
     public boolean isRefreshTokenValid(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token) // JWS로 서명, 만료 기한 검증. 만약 만료되었다면 자동으로 예외 처리됨
-                .getBody(); // Payload 반환
+        Claims claims = null;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token) // JWS로 서명, 만료 기한 검증. 만약 만료되었다면 예외 던짐
+                    .getBody(); // Payload 반환
+        } catch (Exception e) {
+            // 토큰이 유효하지 않거나 만료된 경우
+            return false;
+        }
+
 
         // 타입 확인
         String type = claims.get("type", String.class);
