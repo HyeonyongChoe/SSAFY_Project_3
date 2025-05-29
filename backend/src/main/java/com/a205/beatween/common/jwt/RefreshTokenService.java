@@ -1,9 +1,14 @@
 package com.a205.beatween.common.jwt;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -12,6 +17,8 @@ public class RefreshTokenService {
     private final StringRedisTemplate stringRedisTemplate;
     private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
     private static final String PREFIX = "refresh_token:";
+    private String key = "BEATWEEN_A_AND_B_SecretKey_SecretKey_SecretKey";
+    private SecretKey secretKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
 
     public RefreshTokenService(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
@@ -36,5 +43,28 @@ public class RefreshTokenService {
     public void deleteRefreshToken(String userId) {
         String key = PREFIX + userId;
         stringRedisTemplate.delete(key);
+    }
+
+    public boolean isRefreshTokenValid(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token) // JWS로 서명, 만료 기한 검증. 만약 만료되었다면 자동으로 예외 처리됨
+                .getBody(); // Payload 반환
+
+        // 타입 확인
+        String type = claims.get("type", String.class);
+        if(!type.equals("refresh")) {
+            return false;
+        }
+        return true;
+    }
+
+    public String extractUserId(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();  // userId
     }
 }
