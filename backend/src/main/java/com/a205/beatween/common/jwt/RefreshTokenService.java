@@ -10,7 +10,7 @@ import java.util.Optional;
 @Service
 public class RefreshTokenService {
     private final StringRedisTemplate stringRedisTemplate;
-    private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(28);
+    private static final Duration REFRESH_TOKEN_TTL = Duration.ofDays(30);
     private static final String PREFIX = "refresh_token:";
 
     public RefreshTokenService(StringRedisTemplate stringRedisTemplate) {

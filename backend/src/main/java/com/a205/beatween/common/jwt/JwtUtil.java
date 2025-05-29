@@ -14,9 +14,9 @@ public class JwtUtil {
 	private String key = "BEATWEEN_A_AND_B_SecretKey_SecretKey_SecretKey";
 	private SecretKey secretKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
 
-	public String createToken(String userId) {
-		long oneHourInMs = 1000L * 60 * 60; // 1시간
-		Date exp = new Date(System.currentTimeMillis() + oneHourInMs); // 1시간
+	public String createAccessToken(String userId) {
+		long oneHourInMs = 1000L * 60 * 60 * 4; // 4시간
+		Date exp = new Date(System.currentTimeMillis() + oneHourInMs); // 4시간
 		return Jwts.builder()
 				.setSubject(userId) // subject 필드에 사용자 ID 설정
 				.setExpiration(exp) // 만료 시간 설정
@@ -25,8 +25,8 @@ public class JwtUtil {
 	}
 
 	public String createRefreshToken(String userId) {
-		long fourWeeksInMs = 1000L * 60 * 60 * 24 * 28;  // 4주
-		Date exp = new Date(System.currentTimeMillis() + fourWeeksInMs);
+		long oneMonthInMs = 1000L * 60 * 60 * 24 * 30;  // 30일
+		Date exp = new Date(System.currentTimeMillis() + oneMonthInMs);
 		return Jwts.builder()
 				.setSubject(userId)
 				.setExpiration(exp)

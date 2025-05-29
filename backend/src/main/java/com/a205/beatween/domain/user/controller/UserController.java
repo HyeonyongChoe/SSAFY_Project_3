@@ -10,6 +10,8 @@ import com.a205.beatween.domain.user.dto.UserInfoDto;
 import com.a205.beatween.domain.user.entity.User;
 import com.a205.beatween.domain.user.service.UserService;
 import com.a205.beatween.common.jwt.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.jaxb.mapping.JaxbQueryHint;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,15 +41,28 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Result<?>> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<Result<?>> login(
+            @RequestBody LoginDto loginDto,
+            HttpServletResponse response // 쿠키 설정을 위해 주입
+    ) {
         Result<Map<String, String>> result = userService.login(loginDto);
         if(!result.isSuccess()) {
             return ResponseEntity.ok(result);
         }
-        String token = result.getData().get("token");
-//        System.out.println("token : " + token);
-//        System.out.println("extracted userId : " + jwtUtil.extractUserId(token));
-        return ResponseEntity.ok(result);
+        String accessToken = result.getData().get("accessToken");
+        String refreshToken = result.getData().get("refreshToken");
+
+        // HttpOnly 쿠키에 리프레시 토큰 담음
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);          // HTTPS 환경이라면 true
+        cookie.setPath("/");
+        cookie.setMaxAge((int) Duration.ofDays(30).getSeconds());
+        response.addCookie(cookie);
+
+        // 응답 바디에는 액세스 토큰만 담음
+        Map<String, String> data = Map.of("accessToken", accessToken);
+        return ResponseEntity.ok(Result.success(data));
     }
 
     @GetMapping("/info")

@@ -1,6 +1,7 @@
 package com.a205.beatween.domain.user.service;
 
 import com.a205.beatween.common.jwt.JwtUtil;
+import com.a205.beatween.common.jwt.RefreshTokenService;
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
 import com.a205.beatween.domain.song.dto.CopySongDto;
@@ -32,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +49,7 @@ public class UserService {
     private final S3Util s3Util;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenService refreshTokenService;
 
 
     public Result<?> signup(SignupDto signupDto) {
@@ -92,7 +95,7 @@ public class UserService {
     }
 
     public Result<Map<String, String>> login(LoginDto loginDto) {
-//        // 1. 인증(패스워드 일치 여부 체크)
+        // 인증
         User user = userRepository.findByEmail(loginDto.getEmail()).orElse(null);
         if(user == null) {
             return Result.error(HttpStatus.NOT_FOUND.value(), "이메일 또는 비밀번호가 틀렸습니다.");
@@ -101,11 +104,16 @@ public class UserService {
             return Result.error(HttpStatus.NOT_FOUND.value(), "이메일 또는 비밀번호가 틀렸습니다.");
         }
 
-        // 2. token 생성
-        String acceessToken = jwtUtil.createToken(user.getUserId().toString());
+        // token 생성 및 저장
+        String acceessToken = jwtUtil.createAccessToken(user.getUserId().toString());
+        String refreshToken = jwtUtil.createRefreshToken(user.getUserId().toString());
+        refreshTokenService.storeRefreshToken(user.getUserId().toString(), refreshToken);
 
-        // 3. token 반환
-        Map<String, String> data = Map.of("token", acceessToken);
+
+        // token 반환
+        Map<String, String> data = new HashMap<>();
+        data.put("accessToken", acceessToken);
+        data.put("refreshToken", refreshToken);
         return Result.success(data);
     }
 
