@@ -15,8 +15,14 @@ public class JwtUtil {
 	private SecretKey secretKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
 
 	public String createAccessToken(String userId) {
-		long oneHourInMs = 1000L * 60 * 60 * 4; // 4시간
-		Date exp = new Date(System.currentTimeMillis() + oneHourInMs); // 4시간
+		long fourHoursInMs = 1000L * 60 * 60 * 4; // 4시간
+//		long oneHourInMs = 1000L * 20; // 20초
+
+//		System.out.println("createAccessToken : 20초짜리 액세스 토큰 생성");
+		System.out.println("createAccessToken : 4시간짜리 액세스 토큰 생성");
+
+		Date exp = new Date(System.currentTimeMillis() + fourHoursInMs); // 4시간
+//		Date exp = new Date(System.currentTimeMillis() + oneHourInMs); // 4시간
 		return Jwts.builder()
 				.setSubject(userId) // subject 필드에 사용자 ID 설정
 				.setExpiration(exp) // 만료 시간 설정
@@ -48,6 +54,19 @@ public class JwtUtil {
 				.parseClaimsJws(token) // 토큰을 파싱하여 JWS(JWT with Signature) 반환
 				.getBody(); // Payload 반환
 		return Integer.parseInt(claims.getSubject()); // 사용자 ID 반환
+	}
+
+	// 액세스 토큰 검증
+	public boolean isAccessTokenValid(String token) {
+		try {
+			Claims claims = Jwts.parser()
+					.setSigningKey(secretKey) // 비밀키로 서명 검증
+					.parseClaimsJws(token) // JWS로 서명, 만료 기한 검증. 만약 만료되었다면 자동으로 예외 처리됨
+					.getBody(); // Payload 반환
+		} catch (Exception e) {
+			return false; // 유효하지 않은 토큰
+		}
+		return true; // 유효한 토큰
 	}
 }
 
