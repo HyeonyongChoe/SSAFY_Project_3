@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect, ReactNode } from "react";
+import { useRef, useEffect, ReactNode, useMemo } from "react";
 import { PanelModal } from "../Panel";
+import { nanoid } from "nanoid";
+import { usePopoverStore } from "@/shared/lib/store/popoverStore";
 
 interface PopoverProps {
   trigger: ReactNode;
-  children: ReactNode;
+  children: ReactNode | ((close: () => void) => ReactNode);
   directionY?: "top" | "bottom";
   className?: String;
 }
@@ -14,23 +16,28 @@ export const Popover = ({
   directionY = "top",
   className,
 }: PopoverProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const id = useMemo(() => nanoid(), []);
+
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLDivElement | null>(null);
 
+  const { openId, setOpenId } = usePopoverStore();
+  const isOpen = openId === id;
+
+  const closePopover = () => setOpenId(null);
   const togglePopover = () => {
-    setIsOpen(!isOpen);
+    setOpenId(isOpen ? null : id);
   };
 
   // 외부 클릭시 창 닫음
-  const handleOutsideClick = (event: any) => {
+  const handleOutsideClick = (event: MouseEvent) => {
     if (
       popoverRef.current &&
       !popoverRef.current.contains(event.target as Node) &&
       triggerRef.current &&
       !triggerRef.current.contains(event.target as Node)
     ) {
-      setIsOpen(false);
+      setOpenId(null);
     }
   };
 
@@ -43,13 +50,20 @@ export const Popover = ({
 
   return (
     <div className="relative">
-      <div onClick={togglePopover} ref={triggerRef}>
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          togglePopover();
+        }}
+        ref={triggerRef}
+      >
         {trigger}
       </div>
 
       {isOpen && (
         <div ref={popoverRef}>
           <PanelModal
+            onClick={(e) => e.stopPropagation()}
             tone="white"
             className={`absolute min-w-[16rem] z-10 p-2 text-neutral1000 ${
               directionY === "top"
@@ -57,7 +71,9 @@ export const Popover = ({
                 : "bottom-0 right-0 translate-y-[calc(100%+.5rem)]"
             } ${className}`}
           >
-            {children}
+            {typeof children === "function"
+              ? (children as (close: () => void) => ReactNode)(closePopover)
+              : children}
           </PanelModal>
         </div>
       )}
