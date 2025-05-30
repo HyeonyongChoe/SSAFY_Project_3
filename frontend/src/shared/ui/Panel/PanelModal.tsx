@@ -27,7 +27,7 @@ export function PanelModal({
   return (
     <div
       onClick={onClick}
-      className={`${bgClass} rounded-xl b-blur ${className}`}
+      className={`${bgClass} rounded-xl overflow-hidden b-blur ${className}`}
     >
       {children}
     </div>

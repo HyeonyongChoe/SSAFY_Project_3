@@ -5,7 +5,7 @@ import { usePopoverStore } from "@/shared/lib/store/popoverStore";
 
 interface PopoverProps {
   trigger: ReactNode;
-  children: ReactNode;
+  children: ReactNode | ((close: () => void) => ReactNode);
   directionY?: "top" | "bottom";
   className?: String;
 }
@@ -24,6 +24,7 @@ export const Popover = ({
   const { openId, setOpenId } = usePopoverStore();
   const isOpen = openId === id;
 
+  const closePopover = () => setOpenId(null);
   const togglePopover = () => {
     setOpenId(isOpen ? null : id);
   };
@@ -70,7 +71,9 @@ export const Popover = ({
                 : "bottom-0 right-0 translate-y-[calc(100%+.5rem)]"
             } ${className}`}
           >
-            {children}
+            {typeof children === "function"
+              ? (children as (close: () => void) => ReactNode)(closePopover)
+              : children}
           </PanelModal>
         </div>
       )}
