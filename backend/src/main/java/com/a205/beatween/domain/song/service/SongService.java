@@ -35,6 +35,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -127,7 +128,7 @@ public class SongService {
                     .builder()
                     .type("create_sheet")
                     .space(space)
-                    .content(user.getNickname()+"님이 ["+checkSong.getTitle()+"]곡을 생성하였습니다.")
+                    .content("["+user.getNickname()+"]님이 ["+checkSong.getTitle()+"]곡을 생성하였습니다.")
                     .build();
             notification = notificationRepository.save(notification);
 
@@ -301,6 +302,7 @@ public class SongService {
                         .categoryId(category.getCategoryId())
                         .title(copySong.getTitle())
                         .thumbnailUrl(copySong.getThumbnailUrl())
+                        .updatedAt(copySong.getUpdatedAt())
                         .build();
                 copySongDtoList.add(copySongDto);
             }
@@ -325,6 +327,7 @@ public class SongService {
                 .category(destCategory)
                 .title(copySong.getTitle())
                 .thumbnailUrl(copySong.getOriginalSong().getThumbnailUrl())
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         CopySong newCopySong = copySongRepository.save(replicateSong);
@@ -348,6 +351,7 @@ public class SongService {
                 .categoryId(newCopySong.getCategory().getCategoryId())
                 .title(newCopySong.getTitle())
                 .thumbnailUrl(newCopySong.getThumbnailUrl())
+                .updatedAt(newCopySong.getUpdatedAt())
                 .build();
     }
 
@@ -366,6 +370,7 @@ public class SongService {
         if(updateSongRequestDto.getCategoryId() != null) {
             copySong.setCategory(categoryRepository.getReferenceById(updateSongRequestDto.getCategoryId()));
         }
+        copySong.setUpdatedAt(LocalDateTime.now());
         copySongRepository.save(copySong);
 
         return CopySongDto
@@ -374,6 +379,7 @@ public class SongService {
                 .categoryId(copySong.getCategory().getCategoryId())
                 .title(copySong.getTitle())
                 .thumbnailUrl(copySong.getThumbnailUrl())
+                .updatedAt(copySong.getUpdatedAt())
                 .build();
     }
 }

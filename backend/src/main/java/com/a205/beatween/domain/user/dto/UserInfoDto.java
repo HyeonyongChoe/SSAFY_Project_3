@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -17,6 +18,7 @@ import java.util.List;
 public class UserInfoDto {
     private String name;
     private String profileImageUrl;
+    private LocalDateTime updatedAt;
     private List<SpacePreDto> spaces;
     private List<CategoryAndSongsDto> categoriesAndSongsOfMySpace;
 }

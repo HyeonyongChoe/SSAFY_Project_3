@@ -4,7 +4,6 @@ import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.common.util.S3Util;
 import com.a205.beatween.domain.drawing.entity.Drawing;
 import com.a205.beatween.domain.drawing.repository.DrawingRepository;
-import com.a205.beatween.domain.song.dto.CopySongListByCategoryDto;
 import com.a205.beatween.domain.song.entity.CopySheet;
 import com.a205.beatween.domain.song.entity.CopySong;
 import com.a205.beatween.domain.song.repository.CopySheetRepository;
@@ -12,8 +11,6 @@ import com.a205.beatween.domain.song.repository.CopySongRepository;
 import com.a205.beatween.domain.song.service.SongService;
 import com.a205.beatween.domain.space.dto.InvitationDto;
 import com.a205.beatween.domain.space.dto.CreateTeamDto;
-import com.a205.beatween.domain.space.dto.SpaceDetailDto;
-import com.a205.beatween.domain.space.dto.SpaceSummaryDto;
 import com.a205.beatween.domain.space.dto.MemberDto;
 import com.a205.beatween.domain.space.dto.SpaceDetailResponseDto;
 import com.a205.beatween.domain.space.entity.Category;
@@ -25,9 +22,14 @@ import com.a205.beatween.domain.space.dto.SpacePreDto;
 import com.a205.beatween.domain.space.repository.CategoryRepository;
 import com.a205.beatween.domain.space.repository.SpaceRepository;
 import com.a205.beatween.domain.space.repository.UserSpaceRepository;
+import com.a205.beatween.domain.user.entity.Notification;
 import com.a205.beatween.domain.user.entity.User;
+import com.a205.beatween.domain.user.entity.UserNotification;
+import com.a205.beatween.domain.user.repository.NotificationRepository;
+import com.a205.beatween.domain.user.repository.UserNotificationRepository;
 import com.a205.beatween.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,11 +51,13 @@ public class SpaceService {
     private final SpaceRepository spaceRepository;
     private final UserRepository userRepository;
     private final S3Util s3Util;
-    private final SongService songService;
     private final CategoryRepository categoryRepository;
     private final CopySongRepository copySongRepository;
     private final CopySheetRepository copySheetRepository;
     private final DrawingRepository drawingRepository;
+    private final NotificationRepository notificationRepository;
+    private final UserNotificationRepository userNotificationRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public boolean checkUserIsMemberOfSpace(Integer userId, Integer spaceId){
         return userSpaceRepository.existsByUser_UserIdAndSpace_SpaceId(userId, spaceId);
@@ -114,6 +118,7 @@ public class SpaceService {
     public Result<InvitationDto> resolveInvitationLink(Integer userId, String teamSlug, String shareKey) {
         // shareKey로 Space 조회. 만약 이 shareKey로 space를 찾을 수 없다면 잘못된 초대 링크임
         Space space = spaceRepository.findByShareKey(shareKey).orElse(null);
+        User user = userRepository.getReferenceById(userId);
         if(space == null) {
             return Result.error(HttpStatus.NOT_FOUND.value(), "잘못된 초대 링크입니다.");
         }
@@ -135,6 +140,25 @@ public class SpaceService {
 
         // 만약 유저가 팀에 속해있지 않다면, 해당 팀에 가입
         if(!isMember) {
+            Notification notification = Notification
+                    .builder()
+                    .type("join_team")
+                    .space(space)
+                    .content("["+user.getNickname()+"]님이 ["+space.getName()+"]에 참여하셨습니다.")
+                    .build();
+            notification = notificationRepository.save(notification);
+
+            List<UserSpace> userSpaceList = userSpaceRepository.findBySpace(space);
+
+            for(UserSpace userSpace : userSpaceList) {
+                UserNotification userNotification = UserNotification
+                        .builder()
+                        .user(userSpace.getUser())
+                        .notification(notification)
+                        .isRead(false)
+                        .build();
+                userNotificationRepository.save(userNotification);
+            }
             UserSpace newUserSpace = UserSpace.builder()
                     .user(userRepository.getById(userId))
                     .space(space)
@@ -208,10 +232,14 @@ public class SpaceService {
         List<MemberDto> members = new ArrayList<>();
         for (UserSpace member : userSpaceList) {
             User user = userRepository.getReferenceById(member.getUser().getUserId());
+            if(user.getDeletedAt() != null) {
+                continue;
+            }
             MemberDto memberDto = MemberDto
                     .builder()
                     .nickName(user.getNickname())
                     .profileImageUrl(user.getProfileImageUrl())
+                    .updateAt(user.getUpdatedAt())
                     .build();
             members.add(memberDto);
         }
@@ -249,6 +277,7 @@ public class SpaceService {
             String url = s3Util.upload(image.getBytes(),"image/png", key);
             space.setImageUrl(url);
         }
+        space.setUpdatedAt(LocalDateTime.now());
         space = spaceRepository.save(space);
 
         return getSpaceDetail(spaceId,userId);
@@ -288,4 +317,31 @@ public class SpaceService {
         userSpaceRepository.delete(userSpace);
         return 0; //"팀 스페이스 삭제 완료";
     }
+
+    public Result<Integer> getCurrentParticipantCount(Integer spaceId) {
+        String key = "ws:space:" + spaceId + ":sessionCount";
+        Object count = redisTemplate.opsForValue().get(key);
+
+        if (count instanceof Long) {
+            return Result.success(((Long) count).intValue());
+        } else if (count instanceof Integer) {
+            return Result.success((Integer) count);
+        } else if (count instanceof String) {
+            try {
+                return Result.success(Integer.parseInt((String) count));
+            } catch (NumberFormatException e) {
+                return Result.error(400, "Redis 값이 숫자가 아닙니다.");
+            }
+        } else {
+            return Result.error(404, "Redis에 세션 수 정보가 없습니다.");
+        }
+    }
+
+
+
+
+
+
+
+
 }

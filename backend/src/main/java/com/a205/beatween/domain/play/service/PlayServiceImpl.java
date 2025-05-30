@@ -3,16 +3,10 @@ package com.a205.beatween.domain.play.service;
 import com.a205.beatween.common.reponse.Result;
 import com.a205.beatween.domain.drawing.dto.DrawingPoint;
 import com.a205.beatween.domain.drawing.service.DrawingService;
-import com.a205.beatween.domain.play.dto.*;
-import com.a205.beatween.domain.play.dto.CategoryWithSongsResponse;
-import com.a205.beatween.domain.play.dto.ManagerChangedMessage;
-import com.a205.beatween.domain.play.dto.ManagerStatusMessage;
-import com.a205.beatween.domain.play.dto.PlayControlMessage;
-import com.a205.beatween.domain.play.dto.SelectedSongBroadcastMessage;
-import com.a205.beatween.domain.play.dto.SelectedSongResponse;
-import com.a205.beatween.domain.play.dto.SheetInfoResponse;
-import com.a205.beatween.domain.play.dto.SheetWithDrawingResponse;
-import com.a205.beatween.domain.play.dto.SongWithSheetsResponse;
+import com.a205.beatween.domain.play.dto.message.ManagerStatusMessage;
+import com.a205.beatween.domain.play.dto.message.PlayControlMessage;
+import com.a205.beatween.domain.play.dto.message.SelectedSongBroadcastMessage;
+import com.a205.beatween.domain.play.dto.response.*;
 import com.a205.beatween.domain.song.entity.CopySheet;
 import com.a205.beatween.domain.song.entity.CopySong;
 import com.a205.beatween.domain.song.repository.CopySheetRepository;
@@ -74,14 +68,26 @@ public class PlayServiceImpl implements PlayService {
 
     @Override
     public void broadcastManagerChange(String spaceId, String newManagerSessionId) {
-        String userToSessionKey = "ws:space:" + spaceId + ":session:" + newManagerSessionId;
-        String newManagerUserId = (String) redisTemplate.opsForValue().get(userToSessionKey);
+        Set<Object> allSessions = redisTemplate.opsForZSet().range("ws:space:" + spaceId + ":members", 0, -1);
 
-        messagingTemplate.convertAndSend(
-                "/topic/play/manager/" + spaceId,
-                new ManagerChangedMessage(newManagerSessionId, newManagerUserId)
-        );
+        if (allSessions != null) {
+            for (Object sessionObj : allSessions) {
+                String sessionId = sessionObj.toString();
+
+                String userId = (String) redisTemplate.opsForValue().get("ws:space:" + spaceId + ":session:" + sessionId);
+                if (userId == null) continue;
+
+                boolean isManager = sessionId.equals(newManagerSessionId);
+
+                messagingTemplate.convertAndSendToUser(
+                        userId,
+                        "/queue/play/manager/" + spaceId,
+                        new ManagerStatusMessage(isManager)
+                );
+            }
+        }
     }
+
 
 
     @Override
@@ -122,13 +128,20 @@ public class PlayServiceImpl implements PlayService {
             log.info("마지막 사용자 → 드로잉 저장 대상 copySheetIds: {}", copySheetIds);
 
             drawingService.saveAllDrawingsBySpaceId(spaceId);
+
             redisTemplate.delete(sessionCountKey);
             redisTemplate.delete(memberKey);
             redisTemplate.delete(managerKey);
+
             String selectedSongKey = "ws:space:" + spaceId + ":selectedSong";
+            String playSessionKey = "play:session:" + spaceId;
+
             redisTemplate.delete(selectedSongKey);
+            redisTemplate.delete(playSessionKey);
+
             log.info("마지막 사용자 → 캐시 정리 완료: {}", spaceId);
         }
+
     }
 
     @Override

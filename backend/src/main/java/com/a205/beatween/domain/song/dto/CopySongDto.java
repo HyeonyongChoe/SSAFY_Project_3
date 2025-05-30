@@ -3,6 +3,8 @@ package com.a205.beatween.domain.song.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -20,4 +22,7 @@ public class CopySongDto {
 
     @JsonProperty("thumbnail_url")
     private String thumbnailUrl;
+
+    @JsonProperty("updated_at")
+    private LocalDateTime updatedAt;
 }

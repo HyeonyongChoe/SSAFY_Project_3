@@ -5,6 +5,7 @@ import com.a205.beatween.domain.space.entity.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,9 @@ public class CopySong {
 
     @Column(name = "thumbnail_url", length = 255, nullable = false)
     private String thumbnailUrl;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @OneToMany(
             mappedBy = "copySong",

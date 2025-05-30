@@ -21,9 +21,15 @@ public class NotificationService {
         return notificationRepository.findByUserId(userId);
     }
 
-    public void updateUserNotification(Integer userNotificationId) {
+    public Integer updateUserNotification(Integer userNotificationId) {
         UserNotification userNotification = userNotificationRepository.getReferenceById(userNotificationId);
         userNotification.setIsRead(true);
         userNotificationRepository.save(userNotification);
+        return userNotification.getNotification().getSpace().getSpaceId();
+    }
+
+    public void deleteUserNotification(Integer userNotificationId) {
+        UserNotification userNotification = userNotificationRepository.getReferenceById(userNotificationId);
+        userNotificationRepository.delete(userNotification);
     }
 }

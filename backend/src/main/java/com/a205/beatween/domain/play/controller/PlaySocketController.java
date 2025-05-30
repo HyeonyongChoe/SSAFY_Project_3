@@ -2,12 +2,11 @@ package com.a205.beatween.domain.play.controller;
 
 import com.a205.beatween.common.reponse.ResponseDto;
 import com.a205.beatween.common.reponse.Result;
-import com.a205.beatween.domain.play.dto.PlayControlMessage;
 import com.a205.beatween.domain.play.service.PlayService;
 import com.a205.beatween.domain.space.service.SpaceService;
+import com.a205.beatween.domain.play.dto.message.PlayControlMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -76,13 +75,18 @@ public class PlaySocketController {
     @MessageMapping("/disconnect")
     public void manualDisconnect(StompHeaderAccessor accessor, Principal principal) {
         String sessionId = accessor.getSessionId();
-        String userId = principal.getName();
-        String spaceId = (String) accessor.getSessionAttributes().get("spaceId");
+        String userId = principal != null ? principal.getName() : "null";
+        String spaceId = accessor.getSessionAttributes() != null
+                ? (String) accessor.getSessionAttributes().get("spaceId")
+                : "null";
 
-        if (spaceId == null || userId == null || sessionId == null) {
-            log.warn("disconnect 정보 부족 - spaceId={}, userId={}, sessionId={}", spaceId, userId, sessionId);
+        log.warn("🟡 [disconnect 요청 수신] sessionId={}, userId={}, spaceId={}", sessionId, userId, spaceId);
+
+        if ("null".equals(spaceId) || "null".equals(userId) || sessionId == null) {
+            log.warn("🔴 disconnect 정보 부족 - spaceId={}, userId={}, sessionId={}", spaceId, userId, sessionId);
             return;
         }
+
         playService.handleManualDisconnect(spaceId, sessionId, userId);
     }
 

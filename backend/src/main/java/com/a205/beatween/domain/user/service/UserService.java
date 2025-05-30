@@ -52,7 +52,7 @@ public class UserService {
     private final RefreshTokenService refreshTokenService;
 
 
-    public Result<?> signup(SignupDto signupDto) {
+    public Result<String> signup(SignupDto signupDto) {
         // 회원가입 시 이메일 중복 체크
         if (userRepository.existsByEmail(signupDto.getEmail())) {
             return Result.error(HttpStatus.BAD_REQUEST.value(), "이미 가입된 이메일입니다.");
@@ -82,6 +82,14 @@ public class UserService {
                 .createdAt(LocalDateTime.now())
                 .build();
         spaceRepository.save(personalSpace);
+
+        Category category = Category
+                .builder()
+                .space(personalSpace)
+                .name("기본")
+                .build();
+
+        categoryRepository.save(category);
 
         // users_spaces 테이블에 저장
         UserSpace userSpace = UserSpace.builder()
@@ -195,6 +203,7 @@ public class UserService {
         userInfoDto = UserInfoDto.builder()
                 .name(name)
                 .profileImageUrl(profileImageUrl)
+                .updatedAt(user.getUpdatedAt())
                 .spaces(spaces)
                 .categoriesAndSongsOfMySpace(categoriesAndSongsOfMySpace)
                 .build();
@@ -216,6 +225,7 @@ public class UserService {
         if (nickName != null) {
             user.setNickname(nickName);
         }
+        user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
     }
