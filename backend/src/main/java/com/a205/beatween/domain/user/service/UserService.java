@@ -122,6 +122,22 @@ public class UserService {
         return Result.success("redis, 쿠키에서 리프레시 토큰 삭제");
     }
 
+    public Result<String> deleteUser(Integer userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if(user == null) {
+            return Result.error(HttpStatus.NOT_FOUND.value(), "유저Id에 해당하는 회원을 찾을 수 없습니다.");
+        }
+
+        // 리프레시 토큰 삭제
+        refreshTokenService.deleteRefreshToken(userId.toString());
+
+        user.setUserStatus(UserStatus.DELETED);
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        return Result.success("회원 탈퇴 성공");
+    }
+
     public Result<UserInfoDto> getUserInfo(Integer userId) {
         UserInfoDto userInfoDto = null;
 

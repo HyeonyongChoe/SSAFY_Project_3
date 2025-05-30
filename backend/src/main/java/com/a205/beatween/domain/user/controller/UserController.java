@@ -84,6 +84,24 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
 
+    @DeleteMapping
+    public ResponseEntity<Result<?>> deleteUser(
+            @AuthenticationPrincipal int userId,
+            HttpServletResponse response // 쿠키 설정을 위해 주입
+    ) {
+        Result<String> result = userService.deleteUser(userId);
+
+        // 기존 쿠키와 동일한 이름·경로로 만료된 쿠키를 응답에 담아 보냄
+        Cookie deleteCookie = new Cookie("refreshToken", null);
+        deleteCookie.setHttpOnly(true);
+        deleteCookie.setSecure(true);
+        deleteCookie.setPath("/");
+        deleteCookie.setMaxAge(0); // 즉시 만료
+        response.addCookie(deleteCookie);
+
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/info")
     public ResponseEntity<Result<?>> getUserInfo(
             @AuthenticationPrincipal int userId
