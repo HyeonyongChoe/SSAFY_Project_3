@@ -16,6 +16,7 @@ export default function EnsembleRoom() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { roomId } = useParams();
   const [selectedColor, setSelectedColor] = useState("#000000");
+  const isSocketConnected = useSocketStore((s) => s.isConnected);
 
   usePlaySync(roomId ?? "");
   useManagerCheck(roomId ?? "");
@@ -48,8 +49,9 @@ export default function EnsembleRoom() {
             selectedColor={selectedColor}
             onColorChange={setSelectedColor}
             stompClient={stompClient}
-            isDrawing={isDrawing}
             isPaletteVisible={isDrawing}
+            isSocketConnected={isSocketConnected} // ✅ 추가
+
           />
         )}
       </div>

@@ -37,10 +37,12 @@ export function useSongLoading() {
           // TODO: 곡 목록 상태 저장
           navigate(`/room/${spaceId}`);
         } else {
-          toast.info({
-            title: "대기 중",
-            message: "관리자가 곡을 선택할 때까지 기다려 주세요.",
-          });
+          if (!isManager) {
+            toast.info({
+              title: "대기 중",
+              message: "관리자가 곡을 선택할 때까지 기다려 주세요.",
+            });
+          }
           navigate(`/room/${spaceId}`);
         }
       }

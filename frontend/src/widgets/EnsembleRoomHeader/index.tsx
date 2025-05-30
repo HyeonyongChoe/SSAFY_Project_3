@@ -9,7 +9,6 @@ import { useScoreStore } from "@/features/score/model/useScoreStore";
 import { Icon } from "@/shared/ui/Icon";
 import { Button } from "@/shared/ui/Button";
 import { fetchSelectedSong } from "@/entities/song/api/songApi";
-import { toast } from "@/shared/lib/toast";
 
 export function EnsembleRoomHeader() {
   const { avatarUrl } = useUserStore();
@@ -44,10 +43,6 @@ export function EnsembleRoomHeader() {
         .then((selectedSong) => {
           if (!selectedSong || !selectedSong.copySongId) {
             if (isManager) return;
-            toast.info({
-              title: "대기 중",
-              message: "관리자가 곡을 선택할 때까지 기다려 주세요.",
-            });
             return;
           }
           const sheets = selectedSong.sheets ?? [];
