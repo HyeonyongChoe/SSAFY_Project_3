@@ -189,6 +189,7 @@ public class UserService {
         if (nickName != null) {
             user.setNickname(nickName);
         }
+        user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
     }
