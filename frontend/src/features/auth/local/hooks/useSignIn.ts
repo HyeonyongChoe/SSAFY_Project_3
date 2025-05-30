@@ -10,9 +10,9 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: (data: LoginDto) => loginService(data),
-    onSuccess: (data: Result<{ token: string }>) => {
+    onSuccess: (data: Result<{ accessToken: string }>) => {
       if (data.success) {
-        const token = data.data?.token;
+        const token = data.data?.accessToken;
         if (token) {
           login(token);
         }

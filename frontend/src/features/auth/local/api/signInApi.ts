@@ -4,8 +4,8 @@ import axiosInstance from "@/shared/api/axiosInstance";
 
 export const loginApi = async (
   data: LoginDto
-): Promise<Result<{ token: string }>> => {
-  const res = await axiosInstance.post<Result<{ token: string }>>(
+): Promise<Result<{ accessToken: string }>> => {
+  const res = await axiosInstance.post<Result<{ accessToken: string }>>(
     "/api/v1/users/login",
     data
   );

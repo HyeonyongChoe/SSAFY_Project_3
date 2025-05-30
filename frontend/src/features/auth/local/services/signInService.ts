@@ -4,7 +4,7 @@ import { LoginDto } from "../types/signIn.types";
 
 export const loginService = async (
   data: LoginDto
-): Promise<Result<{ token: string }>> => {
+): Promise<Result<{ accessToken: string }>> => {
   try {
     return await loginApi(data);
   } catch (err) {
