@@ -234,6 +234,9 @@ public class SpaceService {
         List<MemberDto> members = new ArrayList<>();
         for (UserSpace member : userSpaceList) {
             User user = userRepository.getReferenceById(member.getUser().getUserId());
+            if(user.getDeletedAt() != null) {
+                continue;
+            }
             MemberDto memberDto = MemberDto
                     .builder()
                     .nickName(user.getNickname())
