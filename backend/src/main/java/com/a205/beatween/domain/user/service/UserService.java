@@ -117,6 +117,11 @@ public class UserService {
         return Result.success(data);
     }
 
+    public Result<String> logout(Integer userId) {
+        refreshTokenService.deleteRefreshToken(userId.toString());
+        return Result.success("redis, 쿠키에서 리프레시 토큰 삭제");
+    }
+
     public Result<UserInfoDto> getUserInfo(Integer userId) {
         UserInfoDto userInfoDto = null;
 
