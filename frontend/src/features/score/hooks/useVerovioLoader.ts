@@ -20,14 +20,18 @@ export function useVerovioLoader(
   const setMeasureCount = useScoreStore((state) => state.setMeasureCount);
 
   // 1. 악기 선택 → 해당 시트 URL 세팅
-  useEffect(() => {
-    const match = sheets.find((s) => s.part === selectedPart);
-    if (match) {
-      setSelectedSheetUrl(match.sheetUrl);
-    } else {
-      setSelectedSheetUrl("");
-    }
-  }, [selectedPart, sheets, setSelectedSheetUrl]);
+useEffect(() => {
+ if (!selectedPart || sheets.length === 0) {
+    setSelectedSheetUrl(""); // ⚠️ 꼭 초기화
+    return;
+  }
+  const match = sheets.find((s) => s.part === selectedPart);
+  if (match) {
+    setSelectedSheetUrl(match.sheetUrl);
+  } else {
+    setSelectedSheetUrl("");
+  }
+}, [selectedPart, sheets, setSelectedSheetUrl]);
 
   // 2. URL이 바뀌면 Verovio 렌더링
   useEffect(() => {

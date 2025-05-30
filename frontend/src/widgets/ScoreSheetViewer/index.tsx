@@ -1,13 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { useScoreStore } from "@/features/score/model/useScoreStore";
 import { useMeasureHighlight } from "@/features/score/hooks/useMeasureHighlight";
 import { useVerovioLoader } from "@/features/score/hooks/useVerovioLoader";
 import { PlayControl } from "@/widgets/PlayControl";
-import { usePlaySync } from "@/shared/hooks/usePlaySync";
 import { useGlobalStore } from "@/app/store/globalStore";
 import { useHeaderFooterStore } from "@/app/store/headerFooterStore";
 import { useSocketStore } from "@/app/store/socketStore";
-import CanvasOverlay from "@/features/draw/ui/CanvasOverlay";
 import { useInstrumentStore } from "@/features/instrument/model/useInstrumentStore";
 import axiosInstance from "@/shared/api/axiosInstance";
 import { Sheet } from "@/entities/song/types/song.types";
@@ -32,20 +30,12 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
   } = useScoreStore();
 
   const { setShowHeaderFooter } = useHeaderFooterStore();
-  const clientId = useGlobalStore((s) => s.clientId);
-  const isDrawing = useGlobalStore((s) => s.isDrawing);
-  const isSocketConnected = useSocketStore((s) => s.isConnected);
-  const stompClient = useSocketStore((state) => state.stompClient);
   const spaceId = useSocketStore((state) => state.spaceId);
   const selectedPart = useInstrumentStore((s) => s.selected);
   const setInstrument = useInstrumentStore((s) => s.setInstrument);
   const hasSelectedSong = useGlobalStore((s) => s.hasSelectedSong);
   const setHasSelectedSong = useGlobalStore((s) => s.setHasSelectedSong);
-  const currentSheet = selectedSheets.find((s) => s.part === selectedPart);
 
-  const [selectedColor, setSelectedColor] = useState("#000000");
-
-  usePlaySync(spaceId ?? "");
   useVerovioLoader(containerRef);
   useMeasureHighlight(containerRef);
 
@@ -163,20 +153,6 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
         <div className="relative">
           <div className="h-[20px]" />
           <div id="verovio-container" />
-
-          {isDrawing && currentSheet && (
-            <CanvasOverlay
-              selectedColor={selectedColor}
-              isPaletteVisible={isDrawing}
-              onColorChange={setSelectedColor}
-              isDrawing={true}
-              sheetId={currentSheet.copySheetId}
-              spaceId={spaceId ?? ""}
-              userId={clientId.toString()}
-              stompClient={stompClient}
-              isSocketConnected={isSocketConnected}
-            />
-          )}
         </div>
       </div>
 

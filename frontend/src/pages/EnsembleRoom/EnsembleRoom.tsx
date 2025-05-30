@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { EnsembleRoomHeader } from "@/widgets/EnsembleRoomHeader";
 import ScoreSheetViewer from "@/widgets/ScoreSheetViewer";
@@ -15,6 +15,7 @@ import { useSocketStore } from "@/app/store/socketStore";
 export default function EnsembleRoom() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { roomId } = useParams();
+  const [selectedColor, setSelectedColor] = useState("#000000");
 
   usePlaySync(roomId ?? "");
   useManagerCheck(roomId ?? "");
@@ -22,7 +23,6 @@ export default function EnsembleRoom() {
   const isDrawing = useGlobalStore((state) => state.isDrawing);
   const clientId = useGlobalStore((state) => state.clientId);
   const stompClient = useSocketStore((state) => state.stompClient);
-  const isSocketConnected = useSocketStore((state) => state.isConnected);
 
   const selectedPart = useInstrumentStore((s) => s.selected);
   const selectedSheets = useScoreStore((s) => s.selectedSheets);
@@ -45,9 +45,8 @@ export default function EnsembleRoom() {
             sheetId={sheetId}
             spaceId={roomId ?? ""}
             userId={clientId.toString()}
-            selectedColor={"#000000"} // 상태 연동 가능
-            onColorChange={() => {}}
-            isSocketConnected={isSocketConnected}
+            selectedColor={selectedColor}
+            onColorChange={setSelectedColor}
             stompClient={stompClient}
             isDrawing={isDrawing}
             isPaletteVisible={isDrawing}

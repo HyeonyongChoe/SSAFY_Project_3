@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSocketStore } from "@/app/store/socketStore";
 import { useGlobalStore } from "@/app/store/globalStore";
 
@@ -9,44 +9,43 @@ export function useManagerCheck(spaceId: string) {
   const stompClient = useSocketStore((s) => s.stompClient);
   const setIsManager = useGlobalStore((s) => s.setIsManager);
 
-  const [pendingManager, setPendingManager] = useState<boolean | null>(null);
-  const subscribedRef = useRef(false);
+  const [pendingManager] = useState<boolean | null>(null);
+  console.log("📡 stompClient.connected:", stompClient?.connected);
 
   useEffect(() => {
-    if (!stompClient || !spaceId || subscribedRef.current) return;
+  if (!stompClient || !spaceId) return;
 
-    subscribedRef.current = true;
-    console.log("🛰️ 매니저 상태 구독 시작:", spaceId);
+  console.log("🛰️ 매니저 상태 구독 시작:", spaceId);
 
-    const managerSub = stompClient.subscribe(
-      `/user/queue/play/manager/${spaceId}`,
-      (msg) => {
-        try {
-          const data = JSON.parse(msg.body);
-          console.log("🧪 매니저 여부 메시지 수신:", data);
+  const managerSub = stompClient.subscribe(
+    `/user/queue/play/manager/${spaceId}`,
+    (msg) => {
+      try {
+        const data = JSON.parse(msg.body);
+        console.log("🧪 매니저 여부 메시지 수신:", data);
 
-          const managerStatus =
-            typeof data === "boolean"
-              ? data
-              : data?.manager ?? data?.isManager ?? null;
+        const managerStatus =
+          typeof data === "boolean"
+            ? data
+            : data?.manager ?? data?.isManager ?? null;
 
-          if (typeof managerStatus === "boolean") {
-            setPendingManager(managerStatus);
-          } else {
-            console.warn("⚠️ 알 수 없는 메시지 구조:", data);
-          }
-        } catch (e) {
-          console.error("❌ 메시지 파싱 실패:", msg.body, e);
+        if (typeof managerStatus === "boolean") {
+          setIsManager(managerStatus); // 바로 반영해도 괜찮습니다
+        } else {
+          console.warn("⚠️ 알 수 없는 메시지 구조:", data);
         }
+      } catch (e) {
+        console.error("❌ 메시지 파싱 실패:", msg.body, e);
       }
-    );
+    }
+  );
 
-    return () => {
-      managerSub.unsubscribe();
-      subscribedRef.current = false;
-      console.log("🧹 매니저 구독 해제:", spaceId);
-    };
-  }, [stompClient, spaceId]);
+  return () => {
+    managerSub.unsubscribe();
+    console.log("🧹 매니저 구독 해제:", spaceId);
+  };
+}, [stompClient, spaceId]);
+
 
   useEffect(() => {
     if (pendingManager !== null) {
