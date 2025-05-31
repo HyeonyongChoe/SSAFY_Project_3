@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { VerovioToolkit } from "verovio/esm";
 import createVerovioModule from "verovio/wasm";
 import { useInstrumentStore } from "@/features/instrument/model/useInstrumentStore";
@@ -7,8 +7,11 @@ import { useScoreStore } from "@/features/score/model/useScoreStore";
 const xmlCache: Record<string, string> = {};
 
 export function useVerovioLoader(
-  containerRef: React.RefObject<HTMLDivElement | null>
+  containerRef: React.RefObject<HTMLDivElement | null>,
+  onLoaded?: () => void
 ) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const playTimerRef = useRef<NodeJS.Timeout | null>(null);
   const sheetUrl = useInstrumentStore((state) => state.selectedSheetUrl);
   const sheets = useScoreStore((state) => state.selectedSheets);
@@ -54,6 +57,8 @@ useEffect(() => {
       verovioTarget.innerHTML = "";
 
       try {
+        setIsLoading(true);
+
         const VerovioModule = await createVerovioModule({
           locateFile: (path: string) =>
             path.endsWith(".wasm") ? "/verovio/verovio.wasm" : path,
@@ -127,4 +132,6 @@ useEffect(() => {
       if (playTimerRef.current) clearTimeout(playTimerRef.current);
     };
   }, [containerRef, sheetUrl, setSystems, setMeasureCount]);
+
+  return { isLoading };
 }

@@ -3,21 +3,21 @@ import { Popover } from "@/shared/ui/Popover";
 import { NotePopover } from "./NotePopover";
 import { CopySongDto } from "@/entities/song/types/CopySong.types";
 import { useState } from "react";
-import { useSongVersionStore } from "@/entities/song/store/songVersionStore";
 
 interface NoteItemProps {
   song?: CopySongDto;
   teamId: number;
+  onClick?: () => void;
 }
 
-export const NoteItem = ({ song, teamId }: NoteItemProps) => {
+export const NoteItem = ({ song, teamId, onClick }: NoteItemProps) => {
   const [imageError, setImageError] = useState(false);
-  const version = song?.song_id
-    ? useSongVersionStore((s) => s.versionMap[song.song_id] ?? 0)
-    : 0;
 
   return (
-    <div className="p-3 pb-2 hover:scale-[104%] transition-all duration-300 rounded-lg flex flex-col gap-2 cursor-pointer">
+    <div
+      onClick={onClick}
+      className="w-[13.5rem] p-3 pb-2 hover:scale-[104%] transition-all duration-300 rounded-lg flex flex-col gap-2 cursor-pointer"
+    >
       {/* image */}
       <div className="w-[12rem] h-[12rem] rounded-lg overflow-hidden">
         {!song?.thumbnail_url ? (
@@ -31,7 +31,9 @@ export const NoteItem = ({ song, teamId }: NoteItemProps) => {
           </div>
         ) : (
           <img
-            src={`${song.thumbnail_url}?t=${version}`}
+            src={`${song.thumbnail_url}${
+              song.updated_at ? `?v=${song.updated_at}` : ""
+            }`}
             alt={`${song.title} image`}
             onError={() => setImageError(true)}
             className="w-full h-full object-cover"
@@ -39,7 +41,9 @@ export const NoteItem = ({ song, teamId }: NoteItemProps) => {
         )}
       </div>
       <div className="w-full flex flex-wrap items-center justify-between px-1">
-        <div className="text-lg">{song?.title}</div>
+        <div className="line-clamp-2 text-lg text-left w-[calc(100%-40px)]">
+          {song?.title}
+        </div>
         <Popover trigger={<IconButton icon="more_horiz" />}>
           <NotePopover spaceId={teamId} song={song} />
         </Popover>

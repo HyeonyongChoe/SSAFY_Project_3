@@ -152,6 +152,23 @@ const ScoreSheetViewer: React.FC<ScoreSheetViewerProps> = ({
       >
         <div className="relative">
           <div className="h-[20px]" />
+          <AnimatePresence>
+            {isLoading && (
+              <motion.div
+                className="fixed inset-0 flex flex-col items-center justify-center bg-neutral1000/70 text-brandcolor200"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex animate-spin">
+                  <Icon icon="progress_activity" />
+                </div>
+                <div>악보 불러오는 중</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div id="verovio-container" />
         </div>
       </div>
