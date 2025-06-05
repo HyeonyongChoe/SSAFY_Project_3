@@ -14,7 +14,7 @@ import java.util.Date;
 public class JwtUtil {
 
 	@Value("${jwt.secret}")
-    private String key;
+	private String key;
 	private SecretKey secretKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
 
 	public String createToken(String userId) {
