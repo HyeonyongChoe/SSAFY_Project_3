@@ -138,32 +138,32 @@
 ### 4) DB 접속 정보 등 포함된 파일 목록
 
 ```jsx
-SPRING_APPLICATION_NAME=beatween
+spring.application.name=${SPRING_APPLICATION_NAME}
 
 # MariaDB
-SPRING_DATASOURCE_URL= {DB_url}
-serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
-SPRING_DATASOURCE_USERNAME=S12P31A205
-SPRING_DATASOURCE_PASSWORD= {DB_비밀번호}
-SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
+spring.datasource.url=${SPRING_DATASOURCE_URL}
+spring.datasource.username=${SPRING_DATASOURCE_USERNAME}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}
+spring.datasource.driver-class-name=${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
 
 # JPA
-SPRING_JPA_HIBERNATE_DDL_AUTO=update
-SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MariaDBDialect
-SPRING_JPA_HIBERNATE_JDBC_TIMEZONE=Asia/Seoul
-SPRING_JPA_SHOW_SQL=true
-SPRING_JPA_FORMAT_SQL=true
+spring.jpa.hibernate.ddl-auto=${SPRING_JPA_HIBERNATE_DDL_AUTO}
+spring.jpa.properties.hibernate.dialect=${SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT}
+spring.jpa.properties.hibernate.jdbc.time_zone=${SPRING_JPA_HIBERNATE_JDBC_TIMEZONE}
+spring.jpa.show-sql=${SPRING_JPA_SHOW_SQL}
+spring.jpa.properties.hibernate.format_sql=${SPRING_JPA_FORMAT_SQL}
 
 # AWS S3
-CLOUD_AWS_S3_BUCKET=a205-beatween-bucket
-CLOUD_AWS_CREDENTIALS_ACCESS_KEY={access_key}
-CLOUD_AWS_CREDENTIALS_SECRET_KEY={secret_key}
-CLOUD_AWS_REGION_STATIC=ap-northeast-2
+cloud.aws.s3.bucket=${CLOUD_AWS_S3_BUCKET}
+cloud.aws.credentials.access-key=${CLOUD_AWS_CREDENTIALS_ACCESS_KEY}
+cloud.aws.credentials.secret-key=${CLOUD_AWS_CREDENTIALS_SECRET_KEY}
+cloud.aws.region.static=${CLOUD_AWS_REGION_STATIC}
 
-# REDIS
-SPRING_DATA_REDIS_HOST=k12a205.p.ssafy.io
-SPRING_DATA_REDIS_PORT=6379
-SPRING_DATA_REDIS_PASSWORD={redis_passward}
+# Redis
+spring.data.redis.host=${SPRING_DATA_REDIS_HOST}
+spring.data.redis.port=${SPRING_DATA_REDIS_PORT}
+spring.data.redis.password=${SPRING_DATA_REDIS_PASSWORD}
+
 ```
 
 ---
