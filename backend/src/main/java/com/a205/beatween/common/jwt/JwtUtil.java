@@ -12,7 +12,8 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-	private String key = "BEATWEEN_A_AND_B_SecretKey_SecretKey_SecretKey";
+	@Value("${jwt.secret}")
+	private String key;
 	private SecretKey secretKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
 
 	public String createToken(String userId) {
